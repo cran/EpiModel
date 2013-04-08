@@ -1,0 +1,8 @@
+EpiModel 0.25
+------------
+  
+FEATURES
+
+* Compartmental deterministic models in epiDCM
+
+* Individual-based stochastic models in epiABM
