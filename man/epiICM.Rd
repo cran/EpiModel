@@ -1,13 +1,13 @@
-\name{epiDCM}
-\alias{epiDCM}
-\title{Deterministic Compartmental Epidemic Models}
+\name{epiICM}
+\alias{epiICM}
+\title{Individual Contact Epidemic Models}
 \usage{
-epiDCM(type, groups = 1, s.num, i.num, r.num = 0, trans.rate, act.rate,
+epiICM(type, groups = 1, s.num, i.num, r.num = 0, trans.rate, act.rate,
   rec.rate = 0, b.rate = 0, ds.rate = 0, di.rate = 0, dr.rate = 0,
   s.num.g2, i.num.g2, r.num.g2 = 0, trans.rate.g2, act.rate.g2,
   rec.rate.g2 = 0, b.rate.g2 = 0, ds.rate.g2 = 0, di.rate.g2 = 0,
-  dr.rate.g2 = 0, balance, nsteps, dt, odemethod, new.mod = NULL,
-  print.mod = FALSE, verbose = FALSE, ...)
+  dr.rate.g2 = 0, balance, nsteps, rec.rand = TRUE, b.rand = TRUE,
+  d.rand = TRUE, nsims = 1, verbose = TRUE)
 }
 \arguments{
   \item{type}{disease type to be modeled, with the choice
@@ -138,37 +138,32 @@ epiDCM(type, groups = 1, s.num, i.num, r.num = 0, trans.rate, act.rate,
   \item{nsteps}{number of time steps to solve the model
   over. This must be a positive integer.}
 
-  \item{dt}{fractional time unit for ODE solutions, with
-  the default of 1. Model solutions for fractional
-  timesteps may be obtained by setting this to a number
-  between 0 and 1.}
+  \item{rec.rand}{if \code{TRUE}, use a stochastic recovery
+  model, with the number of recovered a random draw from a
+  Poisson distribution for the product of the recovery rate
+  and the number infected. If \code{FALSE}, then a
+  deterministic rounded count of that product.}
 
-  \item{odemethod}{ODE integration method, with the default
-  for the Runge-Kutta 4 method (see \code{\link{ode}} for
-  other options)}
+  \item{b.rand}{if \code{TRUE}, use a stochastic birth
+  model, with the number of new births a random draw from a
+  Poisson distribution for the product of the birth rate
+  and population size. If \code{FALSE}, then a
+  deterministic rounded count of that product.}
 
-  \item{new.mod}{if not \code{NULL}, this parameter
-  requires an object containing a function specifying a new
-  mathematical model form to be solved over. This
-  functionality allows the user to specify a different
-  system of differential equations than those currently
-  embedded in \code{epiDCM}.}
+  \item{d.rand}{if \code{TRUE}, use a stochastic mortality
+  model, with the number of new deaths a random draw from a
+  Poisson distribution for the product of the
+  state-specific death rates and the state size. If
+  \code{FALSE}, then a deterministic rounded count of those
+  products.}
 
-  \item{print.mod}{if \code{TRUE}, running \code{epiDCM}
-  will print the model form given the specified \code{type}
-  and \code{groups}. This is used to see the mathematical
-  structure of the current model form, as well as obtain a
-  base functional form to modify and input using the
-  \code{new.mod} parameter.}
+  \item{nsims}{number of simulations to run.}
 
-  \item{verbose}{if \code{TRUE}, print modelling progress
-  to the console}
-
-  \item{...}{additional parameters to pass to model,
-  currently not used}
+  \item{verbose}{print model simulation progress to the
+  console.}
 }
 \value{
-This function returns a list object of class \code{epiDCM}
+This function returns a list object of class \code{epiICM}
 with the following elements: \itemize{ \item \strong{type:}
 disease type as specified in model parameter.  \item
 \strong{groups:} groups as specified in model parameter.
@@ -176,9 +171,9 @@ disease type as specified in model parameter.  \item
 specified in model parameter.  \item \strong{time:} a
 vector of time steps over which the model was solved.
 \item \strong{vital:} logical, whether vital dynamics were
-specified in the parameterization.  \item \strong{nruns:}
-number of independent model runs.  \item \strong{call:}
-exact model call.  \item \strong{*.num:} a vector (if
+specified in the parameterization.  \item \strong{nsims:}
+number of model simulations.  \item \strong{call:} exact
+model call.  \item \strong{*.num:} a vector (if
 \code{nruns=1}) or data frame (if \code{nruns>1}) of
 compartment or state sizes over time, for each model run,
 where * may equal \code{s}, \code{i}, or \code{r} for
@@ -196,30 +191,24 @@ recovered death out-flows.  Two group models have
 equivalent elements with a \code{.g2} suffix. }
 }
 \description{
-This function solves deterministic compartmental epidemic
+This function simulates individual contact transmission
 models for infectious disease.
 }
 \details{
 
 
-The \code{epiDCM} function is uses the ordinary
-differential equation solver in the \code{deSolve} package
-to model disease as a deterministic compartmental system.
-The current implementation of this function is limited to
-one- and two- group models with disease types for
-Susceptible-Infected (SI), Susceptible- Infected-Recovered
-(SIR), and Susceptible-Infected-Susceptible (SIS). The
-one-group model, specified with the parameter
-\code{groups=1}, assumes purely random mixing in the
-population. The two-group model, \code{groups=2}, models
-purely heterogenous mixing in the population, wherein group
-1 members may only have contact with group 2 members (e.g.,
-a heterosexual-only disease transmission). This will be
-further expanded in future releases of \code{EpiModel}.
+The \code{epiICM} function is a stochastic, discrete-time
+representation of the deterministic compartmental disease
+models that may be solved with \code{epiDCM}. Random
+variation is simulated in all transition processes:
+infection, recovery, and vital dynamics. The stochasticity
+in each transition except infection may be toggled on or
+off using the control parameters \code{rec.rand},
+\code{b.rand}, and \code{d.rand}.
 
 One important caveat is the current parameter structure of
 specifing initial state sizes and individual parameters as
-primary \code{epiDCM} parameters will be deprecated in the
+primary \code{epiICM} parameters will be deprecated in the
 \code{EpiModel} v1.0 release. More flexibile passing of
 model behavior and parameters will be implemented.
 }
@@ -251,56 +240,30 @@ model behavior and parameters will be implemented.
   \eqn{\alpha_i} the group-specific act rates at time
   \eqn{t}.
 }
-
-\section{Sensitivity Analyses}{
-  The \code{epiDCM} function has been designed to
-  facilitate DCM sensitivity analyses, wherein one may run
-  a series of models while varying one or more of the model
-  parameters. This is possible, as shown in the example
-  below, by specifying any parameter as a vector of length
-  greater than one. See the Section 2.3 of the
-  \href{../doc/Tutorial.pdf}{EpiModel Tutorial vignette.}
-  for further explanation and example.
-}
 \examples{
-## SI Model (One-Group)
-mod <- epiDCM(type="SI", s.num = 500, i.num = 1,
-              trans.rate = 0.2, act.rate = 0.25, nsteps = 500)
+\dontrun{
+# SI Model
+mod <- epiICM(type="SI", s.num=500, i.num=1,
+              trans.rate=0.2, act.rate=0.25, nsteps=500, nsims=10)
 plot(mod)
 
-## SIR Model with Vital Dynamics (One-Group)
-mod <- epiDCM(type = "SIR", s.num=1000, i.num = 1, r.num = 0,
-              trans.rate = 0.2, act.rate = 5, rec.rate = 1/3,
-              b.rate = 1/90, ds.rate = 1/100, di.rate = 1/35,
-              dr.rate = 1/100, nsteps = 500)
-plot(mod)
+# SIR Model
+mod <- epiICM(type="SIR", s.num=500, i.num=1,
+              trans.rate=0.2, act.rate=0.25, rec.rate=1/50,
+              nsteps=500, nsims=10)
+plot(mod, y="r.num", sim.lines=TRUE, sim.alpha=0.25)
 
-## SIS Model with act.rate Sensitivity Parameter
-mod <- epiDCM(type="SIS", s.num = 500, i.num = 1, r.num = 0,
-              trans.rate = 0.2, act.rate = seq(0.1, 0.5, 0.1),
-              rec.rate = 1/50, nsteps = 500, verbose = TRUE)
-plot(mod)
-
-## SI Model with Vital Dynamics (Two Groups)
-mod <- epiDCM(type = "SI", groups = 2,
-              s.num = 500, i.num = 1, s.num.g2 = 500, i.num.g2 = 0,
-              trans.rate = 0.4,  trans.rate.g2 = 0.1,
-              act.rate = 0.25, balance = "g1",
-              b.rate = 1/100, b.rate.g2 = NA,
-              ds.rate = 1/100, ds.rate.g2 = 1/100,
-              di.rate = 1/50, di.rate.g2 = 1/50,
-              nsteps = 500)
-plot(mod)
+# SIS Model
+mod <- epiICM(type="SIS", s.num=500, i.num=1,
+              trans.rate=0.2, act.rate=0.25, rec.rate=1/50,
+              nsteps=500, nsims=10)
+plot(mod, sim.lines=T, qnts=FALSE, sim.col=c("steelblue", "red"),
+     leg.cex=0.75, popfrac=FALSE)
+}
 }
 \seealso{
-Analysis, plotting, and extraction of model data are
-available through the \code{\link{summary.epiDCM}},
-\code{\link{plot.epiDCM}}, and
-\code{\link{as.data.frame.epiDCM}} functions, respectively.
-For further discussion of expanding DCMs past the current
-parameterizations, see the HTML vignette
-\href{../doc/ExtendepiDCM.html}{Extending DCMs Past
-EpiModel}.
+\code{\link{plot.epiICM}}, \code{\link{summary.epiICM}},
+\code{\link{as.data.frame.epiICM}}
 }
 \keyword{model}
 

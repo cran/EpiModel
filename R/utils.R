@@ -1,116 +1,203 @@
-#'
-#' @title Drop Variables from a Data Frame
-#'
-#' @description This function drops named variables from a data frame
-#'
-#' @param df data frame with multiple variables
-#' @param vars vector of variables in character format
 #' 
-#' @author Samuel M. Jenness <sjenness@@uw.edu>
+#' @title Obtain Transparent Colors
+#'
+#' @description This function returns an RGB transparent color from an 
+#'  input R color
+#'
+#' @param col vector of any of the three kinds of \code{R} color specifications
+#'   (named, hexadecimal, or positive integer; see \code{\link{col2rgb}})
+#' @param alpha transparency level, where 0 is transparent and 1 is opaque
+#' @param invisible supresses printing of the RGB color
+#' 
+#' @details
+#' The purpose of this function is to facilitate color transparency, which is
+#' used widely in \code{EpiModel} plots. This is an internal function that is
+#' not ordinarily called by the end-user.
+#' 
+#' @return
+#' A vector of length equal to the input \code{col} vector, containing the 
+#' transformed color values in hexidemical format.
+#' 
+#' @seealso \code{\link{rgb}}, \code{\link{col2rgb}}
+#' 
 #' @export
+#' @keywords colorUtils internal
 #' 
 #' @examples
-#' w <- x <- y <- z <- 1:10
-#' df <- data.frame(w,x,y,z)
-#' ( newdf <- dropdf(df, c('x', 'y')) )
+#' # Three-variable bubble plot to show transparency
+#' n <- 25
+#' x <- sort(sample(1:200, n))
+#' y <- 10 + 2*x + rnorm(n, 0, 10)
+#' z <- rpois(n, 10)
 #' 
-dropdf <- function(df, vars){
-  df2 <- df[,!(names(df) %in% vars)]
+#' # Input named R color and transparency level
+#' tcol <- transco("steelblue", 0.5)
+#' 
+#' plot(x,y, cex=z/4, pch=21, col="black", bg=tcol, lwd=1.2, axes=FALSE, 
+#'      ylim=c(0,500), xlim=c(0,250), yaxs="r", xaxs="r")
+#' axis(2, seq(0,500,100), col="white", las=2, cex.axis=0.9, mgp=c(2,0.5,0))
+#' axis(1, seq(0,250,50), cex.axis=0.9, mgp=c(2,0.5,0))
+#' abline(h=seq(100,500,100), col=transco("black", 0.35))
+#' 
+transco <- function(col, 
+                    alpha=1, 
+                    invisible=TRUE
+                    ) {
+  
+  if (alpha > 1 || alpha < 0)
+    stop("Specify alpha between 0 and 1")
+  
+  newa <- floor(alpha*255)
+  t1 <- col2rgb(col, alpha = FALSE)
+  t2 <- rep(NA, length(col))
+  
+  for (i in 1:length(col)) {
+    t2[i] <- rgb(t1[1,i], t1[2,i], t1[3,i], newa, maxColorValue=255)
+  }
+  
+  if (invisible == TRUE) {
+    invisible(t2)
+  } else {
+    return(t2)
+  }
 }
 
+
+#' @title RColorBrewer Color Ramp for EpiModel Plots
 #'
-#' @title Expand a Frequency-Weighted Data Frame
+#' @description This function returns vector of colors consistent with 
+#'   a high-brightness set of colors from an \code{RColorBrewer} palette.
 #'
-#' @description This function expands a frequency-weighted data frame by the specified weights.
-#'
-#' @param df data frame with one row per combination of variables
-#' @param count variable on the data frame with the count variable
+#' @param plt \code{RColorBrewer} palette from \code{\link{brewer.pal}}
+#' @param n number of colors to return
+#' @param delete.lights delete the lightest colors from the color palette,
+#'   helps with plotting in many high-contrast palettes
 #' 
-#' @author Samuel M. Jenness <sjenness@@uw.edu>
+#' @details 
+#' \code{RColorBrewer} provides easy access to helpful color palettes, but the 
+#' built-in palettes are limited to the set of colors in the existing palette. 
+#' This function expands the palette size to any number of colors by filling 
+#' in the gaps. Also, colors within the "div" and "seq" set of palettes whose 
+#' colors are very light (close to white) are deleted by default for better 
+#' visualization of plots.
+#' 
+#' @return
+#' A vector of length equal to \code{n} with a range of color values consistent
+#' with an RColorBrewer color palette.
+#' 
+#' @seealso \code{\link{RColorBrewer}}
+#' @keywords colorUtils internal
 #' @export
 #' 
 #' @examples
-#' df <- expand.grid(a=0:1, b=0:1, c=0:1)
-#' df$count <- rpois(nrow(df), 5)
-#' ( df2 <- expanddf(df, df$count) )
+#' # Shows a 100-color ramp for 4 RColorBrewer palettes
+#' par(mfrow=c(2,2), mar=c(1,1,2,1))
+#' pals <- c("Spectral", "Greys", "Blues", "Set1")
+#' for (i in 1:length(pals)) {
+#'  plot(1:100, 1:100, type="n", axes=FALSE, main=pals[i])
+#'  abline(v=1:100, lwd=6, col=brewer.ramp(100, pals[i]))
+#' }
 #' 
-expanddf <- function(df, count){
-  df2 <- as.data.frame(lapply(df, function(x) rep(x, count)))
+brewer.ramp <- function(n, plt, delete.lights=TRUE){
+    
+  pltmax <- brewer.pal.info[row.names(brewer.pal.info)==plt,]$maxcolors
+  pltcat <- brewer.pal.info[row.names(brewer.pal.info)==plt,]$category
+  
+  if (pltcat == "div") {
+    if (delete.lights == TRUE) {
+      colors <- brewer.pal(pltmax, plt)[-c(4:7)]
+    } else {
+      colors <- brewer.pal(pltmax, plt)
+    }
+  }
+  if (pltcat == "qual") {
+    colors <- brewer.pal(pltmax, plt)
+  }
+  if (pltcat == "seq") {
+    if (delete.lights == TRUE) {
+      colors <- rev(brewer.pal(pltmax, plt)[-c(1:3)])
+    } else {
+      colors <- rev(brewer.pal(pltmax, plt))
+    }
+  }
+  
+  pal <- colorRampPalette(colors)
+  
+  return(pal(n))
 }
 
-#' 
-#' @title Summarizing Regression Model Fits
-#'
-#' @description Provides summary statistics from a regression model fit, 
-#' including exponentiated coefficients, robust standard errors, and
-#' confidence intervals.
-#'
-#' @param fit fitted regression model
-#' @param exp exponentiate the summary coefficients
-#' @param robust robust standard errors
-#' @param digits digits to provide in output
-#' 
-#' @author Samuel M. Jenness <sjenness@@uw.edu>
-#' @export
-#' 
-#' @examples
-#' y <- rbinom(100, 1, 0.5)
-#' x <- ifelse(y == 1, rnorm(length(y[y==1]), 100, 20), 
-#'             rnorm(length(y[y==0]), 50, 20))
-#' mod <- glm(y ~ x, family=binomial)
-#' summary(mod)
-#' mysummary(mod, exp=TRUE, robust=TRUE)
-#' 
-mysummary <- function(fit, exp=FALSE, robust=FALSE, digits=3) {
-  require(sandwich)
-  c <- coef(fit)
-  if (robust == TRUE) {
-    s <- sqrt(diag(vcovHC(fit, 'HC1')))
-  }
-  if (robust == FALSE) {
-    s <- sqrt(diag(vcov(fit)))
-  }
-  w <- c/s
-  df <- length(fitted(fit))-length(c)
-  p <- pt(abs(w), df, lower.tail=FALSE)*2
-  i <- cbind(c,c) + t(qt(c(0.025, 0.975), df) %o% s)
-  if (exp==F) {
-    o <- cbind('Coef'=c, 'SE'=s, 't'=w, 'p'=p, 
-               '95% CI'=i[,1], ' '=i[,2])
-  }
-  if (exp==T) {
-    o <- cbind('Coef'=exp(c), 'SE'=s, 't'=w, 'p'=p, 
-               '95% CI'=exp(i[,1]), ' '=exp(i[,2]))
-  }
-  print(round(o, digits))
-  invisible(o)
-}
 
-#' 
-#' @title Sample Rows of a Data Frame
+#' @title Creates a TEA Variable for Infection Status for \code{ndtv} Animations
 #'
-#' @description This function samples rows from a data frame.
-#'
-#' @param df data frame to be sampled
-#' @param size number of rows to sample
-#' @param replace sample with replacement
-#' @param sortby sort the data frame by a variable in the data frame
+#' @description This function creates a new temporally-extended attribute (TEA) 
+#'   variable in a \code{networkDynamic} object with color name output from an 
+#'   existing status variable with numeric format.
 #' 
-#' @author Samuel M. Jenness <sjenness@@uw.edu>
+#' @param nw an object of class \code{networkDynamic}.
+#' @param old.var old TEA variable name.
+#' @param old.sus status value for susceptible in old TEA variable.
+#' @param old.inf status value for infected in old TEA variable.
+#' @param old.rec status value for recovered in old TEA variable.
+#' @param new.var new TEA variable name to be stored in nw object.
+#' @param new.sus status value for susceptible in new TEA variable.
+#' @param new.inf status value for infected in new TEA variable.
+#' @param new.rec status value for recovered in new TEA variable.
+#' @param verbose print progress for calculations.
+#' 
+#' @details
+#' The \code{ndtv} package allows for animated plots of dynamic network objects, 
+#' showing the evolving partnership structure. The \code{EpiModel} package uses 
+#' temporally-extended attributes (TEAs) to store longitudinal disease status for 
+#' every vertex in a dynamic network. To visualize disease status dynamically in 
+#' \code{ndtv}, it is currently necessary to create a TEA containing the colors 
+#' to be used in drawing the nodes. 
+#'  
+#' The convention in \code{\link{plot.epiNet.simTrans}} is to color the susceptible 
+#' nodes as blue, infected nodes as red,  and recovered nodes as green. This 
+#' function allows the user to take the existing status TEA on the 
+#' \code{networkDynamic} object and transform that numeric variable into any colors. 
+#' 
+#' @seealso \code{\link{epiNet.simTrans}} and the \code{ndtv} package documentation.
+#' @keywords colorUtils
 #' @export
-#' 
+#'
 #' @examples
-#' df <- expand.grid(a=0:1, b=0:1, c=0:1)
-#' df$count <- rpois(nrow(df), 5)
-#' df2 <- expanddf(df, df$count)
-#' ( df3 <- sampledf(df2, size=5, replace=FALSE, sortby='c') )
+#' ## See EpiModel Tutorial vignette ##
 #' 
-sampledf <- function(df, size, replace=FALSE, sortby=''){
-  require(reshape)
-  df2 <- df[sample(nrow(df), size=size, replace=replace),]
-  if (sortby!='') {
-    df2 <- sort_df(df2, sortby)
-    #df2 <- df2[do.call("order", df2[, sortby, drop = FALSE]), , drop = FALSE]
+colorTEA <- function(nw, 
+                     old.var = "status", 
+                     old.sus = 0, 
+                     old.inf = 1, 
+                     old.rec = 2,
+                     new.var = "ndtvcol", 
+                     new.sus, 
+                     new.inf, 
+                     new.rec,
+                     verbose = TRUE
+                     ) {
+  
+  if (missing(new.inf)) new.inf <- transco("firebrick", 0.75)
+  if (missing(new.sus)) new.sus <- transco("steelblue", 0.75)
+  if (missing(new.rec)) new.rec <- transco("seagreen", 0.75)
+  
+  times <- 1:max(get.change.times(nw))
+  
+  for (ts in times) {
+    
+    stat <- get.vertex.attribute.active(nw, old.var, at=ts)
+    infected <- which(stat == old.inf)
+    uninfected <- which(stat == old.sus)
+    recovered <- which(stat == old.rec)
+    
+    activate.vertex.attribute(nw, prefix=new.var, value=new.inf,
+                              onset=ts, terminus=Inf, v=infected)
+    activate.vertex.attribute(nw, prefix=new.var, value=new.sus, 
+                              onset=ts, terminus=Inf, v=uninfected)
+    activate.vertex.attribute(nw, prefix=new.var, value=new.rec,
+                              onset=ts, terminus=Inf, v=recovered)
+    
+    if (verbose == TRUE) cat(ts, "/", max(times), "\t", sep="")
   }
-  return(df2)
+  
+  return(nw)
 }

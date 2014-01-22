@@ -2,44 +2,48 @@
 \alias{brewer.ramp}
 \title{RColorBrewer Color Ramp for EpiModel Plots}
 \usage{
-  brewer.ramp(n, plt, del.lights = TRUE)
+brewer.ramp(n, plt, delete.lights = TRUE)
 }
 \arguments{
-  \item{plt}{RColorBrewer palette from
+  \item{plt}{\code{RColorBrewer} palette from
   \code{\link{brewer.pal}}}
 
   \item{n}{number of colors to return}
 
-  \item{del.lights}{delete the lightest colors from the
-  color palette}
+  \item{delete.lights}{delete the lightest colors from the
+  color palette, helps with plotting in many high-contrast
+  palettes}
+}
+\value{
+A vector of length equal to \code{n} with a range of color
+values consistent with an RColorBrewer color palette.
 }
 \description{
-  This function returns vector of colors consistent with a
-  high-brightness set of colors from an RColorBrewer
-  palette.
+This function returns vector of colors consistent with a
+high-brightness set of colors from an \code{RColorBrewer}
+palette.
 }
 \details{
-  RColorBrewer provides easy access to helpful color
-  palettes, but the built-in palettes are limited to the
-  set of colors in the existing palette. This function
-  expands the palette size to any number of colors by
-  filling in the gaps. Also, colors within the 'div' and
-  'seq' set of palettes whose colors are very light (close
-  to white) are deleted by default for better visualization
-  of plots.
+\code{RColorBrewer} provides easy access to helpful color
+palettes, but the built-in palettes are limited to the set
+of colors in the existing palette. This function expands
+the palette size to any number of colors by filling in the
+gaps. Also, colors within the "div" and "seq" set of
+palettes whose colors are very light (close to white) are
+deleted by default for better visualization of plots.
 }
 \examples{
-plot(1:100, 1:100, type='n')
-abline(v=1:100, lwd=6, col=brewer.ramp(100, 'Spectral'))
-abline(v=1:100, lwd=6, col=brewer.ramp(100, 'Greys'))
-abline(v=1:100, lwd=6, col=brewer.ramp(100, 'Blues'))
-abline(v=1:100, lwd=6, col=brewer.ramp(100, 'Set1'))
+# Shows a 100-color ramp for 4 RColorBrewer palettes
+par(mfrow=c(2,2), mar=c(1,1,2,1))
+pals <- c("Spectral", "Greys", "Blues", "Set1")
+for (i in 1:length(pals)) {
+ plot(1:100, 1:100, type="n", axes=FALSE, main=pals[i])
+ abline(v=1:100, lwd=6, col=brewer.ramp(100, pals[i]))
 }
-\author{
-  Samuel M. Jenness <sjenness@uw.edu>
 }
 \seealso{
-  \code{\link{RColorBrewer}}
+\code{\link{RColorBrewer}}
 }
-\keyword{color}
+\keyword{colorUtils}
+\keyword{internal}
 
