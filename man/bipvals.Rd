@@ -1,0 +1,26 @@
+\name{bipvals}
+\alias{bipvals}
+\title{Vertex Attributes for Bipartite Network}
+\usage{
+bipvals(nw, mode, val)
+}
+\arguments{
+  \item{nw}{an object of class \code{network} or
+  \code{networkDynamic}.}
+
+  \item{mode}{mode number to extract values for.}
+
+  \item{val}{static attribute values to return.}
+}
+\description{
+This function outputs static vertex attributes for a
+bipartite network for one specified mode.
+}
+\examples{
+nw <- network.initialize(10, bipartite=5)
+nw \%v\% "sex" <- rep(c("M", "F"), each=5)
+bipvals(nw, mode=1, "sex")
+}
+\keyword{epiNetUtils}
+\keyword{internal}
+
