@@ -1,71 +1,130 @@
 
-##' @S3method print epiNet.est
-print.epiNet.est <- function(x, digits=3, ...) {
+#' @export
+print.dcm <- function(x, ...) {
+    
+  # New model
+  new.mod <- ifelse(!is.null(x$control$new.mod), TRUE, FALSE)
   
   cat("EpiModel Object")
   cat("\n=======================")
   cat("\nModel class:", class(x))
-  estmeth <- ifelse(x$edapprox == TRUE, 'ERGM with Edges Approximation',
-                                        'Full STERGM Fit')
+  
+  cat("\n\nSimulation Summary")
+  cat("\n-----------------------")
+  if (new.mod == FALSE) {
+    cat("\nModel type:", x$control$type)
+  }
+  cat("\nNo. runs:", x$control$nruns)
+  cat("\nNo. time steps:", max(x$control$dt))
+  if (new.mod == FALSE) {
+    cat("\nNo. groups:", x$param$groups)
+  }
+  
+  cat("\n\nModel Parameters")
+  cat("\n-----------------------\n")
+  pToPrint <- which(!(names(x$param) %in% c("groups", "vital")))
+  for (i in pToPrint) {
+    cat(names(x$param)[i], "=", x$param[[i]], fill = 60)
+  }
+  
+  cat("\nModel Output")
+  cat("\n-----------------------")
+  if (new.mod == FALSE) {
+    cat("\nCompartments:", names(x$epi)[grep("num", names(x$epi))], fill = 60)
+    cat("Flows:", names(x$epi)[grep("flow", names(x$epi))], fill = 60)
+  } else {
+    cat("\nAll Output:", names(x$epi), fill = 60)
+  }
+  
+  invisible()
+}
+
+
+#' @export
+print.icm <- function(x, ...) {
+  
+  cat("EpiModel Object")
+  cat("\n=======================")
+  cat("\nModel class:", class(x))
+  
+  cat("\n\nSimulation Summary")
+  cat("\n-----------------------")
+  cat("\nModel type:", x$control$type)
+  cat("\nNo. simulations:", x$control$nsims)
+  cat("\nNo. time steps:", x$control$nsteps)
+  cat("\nNo. groups:", x$param$groups)
+  
+  
+  cat("\n\nModel Parameters")
+  cat("\n-----------------------\n")
+  pToPrint <- which(!(names(x$param) %in% c("groups", "vital")))
+  for (i in pToPrint) {
+    cat(names(x$param)[i], "=", x$param[[i]], fill = 60)
+  }
+  
+  cat("\nModel Output")
+  cat("\n-----------------------")
+  cat("\nCompartments:", names(x$epi)[grep("num", names(x$epi))], fill = 60)
+  cat("Flows:", names(x$epi)[grep("flow", names(x$epi))], fill = 60)
+  
+  invisible()
+}
+
+
+#' @export
+print.netest <- function(x, digits=3, ...) {
+  
+  cat("EpiModel Object")
+  cat("\n=======================")
+  cat("\nModel class:", class(x))
+  estmeth <- ifelse(x$edapprox == TRUE, "ERGM with Edges Approximation",
+                                        "Full STERGM Fit")
   cat(paste("\nEsimation Method:", estmeth))
   
   cat("\n\nERGM Model Form")
   cat("\n-----------------------")
   cat("\nFormation: "); print(x$formation)
   cat("Dissolution: "); print(x$dissolution)
-  cat("Constraints: "); cat(paste(as.character(x$constraints)[1], 
-                                  as.character(x$constraints)[2], sep=''))
-  
-  if (any(names(x) == 'sim.stats')) {
-    cat("\n\nFormation Diagnostics")
-    cat("\n----------------------- \n")
-    print(round(x$stats.formation, digits=digits))
-    
-    cat("\nDuration Diagnostics")
-    cat("\n----------------------- \n")
-    print(round(x$stats.duration, digits=digits))
-  }
-  cat("\n")
+  cat("Constraints: "); cat(paste0(as.character(x$constraints)[1], 
+                                   as.character(x$constraints)[2]))
   
   invisible()
 }
 
-##' @S3method print epiNet.simNet
-print.epiNet.simNet <- function(x, ...) {
+
+#' @export
+print.netdx <- function(x, digits = 3, ...) {
   
-  cat("EpiModel Object")
+  cat("EpiModel Network Diagnostics")
   cat("\n=======================")
-  cat("\nModel class:", class(x))
+  cat("\nNo. Simulations:", x$nsims)
+  cat("\nNo. Time Steps:", x$nsteps)
   
-  cat("\n\nNW Simulation Summary")
-  cat("\n-----------------------")
-  cat("\nNo. simulations:", x$nsims)
-  cat("\nNo. time steps:", x$nsteps)
-
-  cat("\n\nBase Network Object")
+  cat("\n\nFormation Diagnostics")
   cat("\n----------------------- \n")
-  print(x$base.nw)
-  cat("\n")
+  print(round(x$stats.table.formation, digits = digits))
+  
+  cat("\nDuration Diagnostics")
+  cat("\n----------------------- \n")
+  print(round(x$stats.table.duration, digits = digits))
   
   invisible()
 }
 
-##' @S3method print epiNet.simTrans
-print.epiNet.simTrans <- function(x, ...) {
+
+#' @export
+print.netsim <- function(x, ...) {
   
-  # model dimensions
-  nts <- max(x$time)
-  nsims <- x$nsims
-  
+  nsims <- x$control$nsims
   if (nsims == 1) {
-    simnames <- 'sim1'
+    simnames <- "sim1"
   }
   if (nsims == 2) {
-    simnames <- 'sim1 sim2'
+    simnames <- "sim1 sim2"
   }
   if (nsims > 2) {
-    simnames <- paste('sim1 ... sim', nsims, sep='')
-  } 
+    simnames <- paste0("sim1 ... sim", nsims)
+  }
   
   cat("EpiModel Object")
   cat("\n=======================")
@@ -73,95 +132,36 @@ print.epiNet.simTrans <- function(x, ...) {
   
   cat("\n\nSimulation Summary")
   cat("\n-----------------------")
-  cat("\nModel type:", x$type)
+  cat("\nModel type:", x$control$type)
   cat("\nNo. simulations:", nsims)
-  cat("\nNo. time steps:", nts)
-  cat("\nNo. NW modes:", x$modes)
+  cat("\nNo. time steps:", x$control$nsteps)
+  cat("\nNo. NW modes:", x$param$modes)
   
-  cat("\n\nModel Output")
+  cat("\n\nModel Parameters")
+  cat("\n-----------------------\n")
+  pToPrint <- which(!(names(x$param) %in% c("modes", "vital")))
+  for (i in pToPrint) {
+    cat(names(x$param)[i], "=", x$param[[i]], fill = 60)
+  }
+  
+  cat("\nModel Output")
   cat("\n-----------------------")
-  cat("\nCompartments:", names(x)[grep('num', names(x))], fill=60)
-  cat("Flows:", names(x)[grep('flow', names(x))], fill=60)
-  if (!(is.null(x$network))) cat("Networks:", simnames)
-  if (!(is.null(x$stats))) cat("\nStats:", simnames)
-  if (!(is.null(x$trans))) cat("\nTransmissions:", simnames)
+  cat("\nCompartments:", names(x$epi)[grep("num", names(x$epi))], fill = 60)
+  cat("Flows:", names(x$epi)[grep("flow", names(x$epi))], fill = 60)
+  if (!(is.null(x$network))) {
+    cat("Networks:", simnames)
+  }
+  if (!(is.null(x$stats$transmat))) {
+    cat("\nTransmissions:", simnames)
+  }
   cat("")
 
   invisible()
 }
 
 
-##' @S3method print epiICM
-print.epiICM <- function(x, ...) {
-  
-  # model dimensions
-  nts <- max(x$time)
-  nsims <- x$nsims
-  
-  cat("EpiModel Object")
-  cat("\n=======================")
-  cat("\nModel class:", class(x))
-  
-  cat("\n\nSimulation Summary")
-  cat("\n-----------------------")
-  cat("\nModel type:", x$type)
-  cat("\nNo. simulations:", nsims)
-  cat("\nNo. time steps:", nts)
-  cat("\nNo. groups:", x$groups)
-  
-  cat("\n\nModel Parameters")
-  cat("\n-----------------------\n")
-  for (i in 1:length(x$params)) {
-    cat(names(x$params)[i], "=", x$params[[i]], fill=60)
-  }
-  
-  cat("\nModel Output")
-  cat("\n-----------------------")
-  cat("\nCompartments:", names(x)[grep('num', names(x))], fill=60)
-  cat("Flows:", names(x)[grep('flow', names(x))], fill=60)
-  
-  invisible()
-}
-
-
-##' @S3method print epiDCM
-print.epiDCM <- function(x, ...) {
-  
-  # model dimensions
-  nts <- max(x$time)
-  nruns <- x$nruns
-  
-  if (x$type == 'SI') x$params$rec.rate <- NULL
-  if (x$type == 'SI' && x$groups == 2) x$params$rec.rate.g2 <- NULL
-  
-  cat("EpiModel Object")
-  cat("\n=======================")
-  cat("\nModel class:", class(x))
-  
-  cat("\n\nSimulation Summary")
-  cat("\n-----------------------")
-  cat("\nModel type:", x$type)
-  cat("\nNo. runs:", nruns)
-  cat("\nNo. time steps:", nts)
-  cat("\nNo. groups:", x$groups)
-  
-  cat("\n\nModel Parameters")
-  cat("\n-----------------------\n")
-  for (i in 1:length(x$params)) {
-    cat(names(x$params)[i], "=", x$params[[i]], fill=60)
-  }
-  
-  cat("\nModel Output")
-  cat("\n-----------------------")
-  cat("\nCompartments:", names(x)[grep('num', names(x))], fill=60)
-  cat("Flows:", names(x)[grep('flow', names(x))], fill=60)
-  
-  invisible()
-}
-
-
-##' @S3method print dissolution.coefs
-print.dissolution.coefs <- function(x, ...) {
+#' @export
+print.disscoef <- function(x, ...) {
   
   cat("Dissolution Coefficients")
   cat("\n=======================")
@@ -170,4 +170,126 @@ print.dissolution.coefs <- function(x, ...) {
   cat("\nAdjusted Coefficient:", x$coef.adj)
   cat("\nCrude Coefficient:", x$coef.crude)
   
+  invisible()
+}
+
+
+#' @export
+print.param.dcm <- function(x, ...) {
+  
+  cat("Model Parameters for dcm")
+  cat("\n===========================\n")
+  for (i in seq_along(x)) {
+    cat(names(x)[i], "=", x[[i]], fill = 80)
+  }
+  
+  invisible()
+}
+
+#' @export
+print.param.icm <- function(x, ...) {
+  
+  pToPrint <- which(!(names(x) %in% c("vital")))
+  
+  cat("Model Parameters for icm")
+  cat("\n===========================\n")
+  for (i in pToPrint) {
+    cat(names(x)[i], "=", x[[i]], fill = 80)
+  }
+  
+  invisible()
+}
+
+#' @export
+print.param.net <- function(x, ...) {
+  
+  pToPrint <- which(!(names(x) %in% c("vital")))
+  
+  cat("Model Parameters for net")
+  cat("\n===========================\n")
+  for (i in pToPrint) {
+    cat(names(x)[i], "=", x[[i]], fill = 80)
+  }
+  
+  invisible()
+}
+
+
+#' @export
+print.init.dcm <- function(x, ...) {
+  
+  cat("Initial Conditions for dcm")
+  cat("\n===========================\n")
+  for (i in seq_along(x)) {
+    cat(names(x)[i], "=", x[[i]], fill = 80)
+  }
+  
+  invisible()
+}
+
+#' @export
+print.init.icm <- function(x, ...) {
+  
+  cat("Initial Conditions for icm")
+  cat("\n===========================\n")
+  for (i in seq_along(x)) {
+    cat(names(x)[i], "=", x[[i]], fill = 80)
+  }
+  
+  invisible()
+}
+
+#' @export
+print.init.net <- function(x, ...) {
+  
+  cat("Initial Conditions for net")
+  cat("\n===========================\n")
+  for (i in seq_along(x)) {
+    cat(names(x)[i], "=", x[[i]], fill = 80)
+  }
+  
+  invisible()
+}
+
+#' @export
+print.control.dcm <- function(x, ...) {
+  
+  pToPrint <- which(!(names(x) %in% c("dt")))
+  
+  cat("Control Settings for dcm")
+  cat("\n===========================\n")
+  for (i in pToPrint) {
+    cat(names(x)[i], "=", x[[i]], fill = 80)
+  }
+  
+  invisible()
+}
+
+#' @export
+print.control.icm <- function(x, ...) {
+  
+  pToPrint <- which(!grepl(".FUN", names(x)))
+  
+  cat("Control Settings for dcm")
+  cat("\n===========================\n")
+  for (i in pToPrint) {
+    cat(names(x)[i], "=", x[[i]], fill = 80)
+  }
+  
+  invisible()
+}
+
+#' @export
+print.control.net <- function(x, ...) {
+  
+  pToPrint <- which(!grepl(".FUN", names(x)) &
+                    names(x) != "set.control.stergm")
+  
+  cat("Control Settings for net")
+  cat("\n===========================\n")
+  for (i in pToPrint) {
+    cat(names(x)[i], "=", x[[i]], fill = 80)
+  }
+  
+  invisible()
 }

@@ -1,21 +1,26 @@
-#' 
+
+# Exported Functions ------------------------------------------------------
+
 #' @title Obtain Transparent Colors
 #'
-#' @description This function returns an RGB transparent color from an 
-#'  input R color
+#' @description Returns an RGB transparent color from any standard R color.
 #'
-#' @param col vector of any of the three kinds of \code{R} color specifications
-#'   (named, hexadecimal, or positive integer; see \code{\link{col2rgb}})
-#' @param alpha transparency level, where 0 is transparent and 1 is opaque
-#' @param invisible supresses printing of the RGB color
+#' @param col a vector consisting of colors, of any of the three kinds of 
+#'        \code{R} color specifications (named, hexadecimal, or integer; see 
+#'        \code{\link{col2rgb}}).
+#' @param alpha a vector of transparency levels, where 0 is transparent and 1 
+#'        is opaque.
+#' @param invisible supresses printing of the RGB color.
 #' 
 #' @details
 #' The purpose of this function is to facilitate color transparency, which is
 #' used widely in \code{EpiModel} plots. This is an internal function that is
-#' not ordinarily called by the end-user.
+#' not ordinarily called by the end-user. This function allows that one of col
+#' or alpha may be of length greater than 1.
 #' 
 #' @return
-#' A vector of length equal to the input \code{col} vector, containing the 
+#' A vector of length equal to the input \code{col} vector or the \code{alpha},
+#' vector, if one or the other is of length greater than 1, containing the 
 #' transformed color values in hexidemical format.
 #' 
 #' @seealso \code{\link{rgb}}, \code{\link{col2rgb}}
@@ -24,35 +29,60 @@
 #' @keywords colorUtils internal
 #' 
 #' @examples
-#' # Three-variable bubble plot to show transparency
+#' ## Example 1: Bubble plot with multiple length color vector
 #' n <- 25
 #' x <- sort(sample(1:200, n))
 #' y <- 10 + 2*x + rnorm(n, 0, 10)
 #' z <- rpois(n, 10)
+#' cols <- transco(c("steelblue", "black"), 0.5)
+#' par(mar=c(2, 2, 1, 1))
+#' plot(x, y, cex = z/4, pch = 21, col = "black", 
+#'      bg = cols[1], lwd = 1.2, axes = FALSE, 
+#'      ylim = c(0, 500), xlim = c(0, 250), 
+#'      yaxs = "r", xaxs = "r")
+#' axis(2, seq(0, 500, 100), col = "white", las = 2, 
+#'     cex.axis = 0.9, mgp = c(2, 0.5, 0))
+#' axis(1, seq(0, 250, 50), cex.axis = 0.9, 
+#'      mgp = c(2, 0.5, 0))
+#' abline(h = seq(100, 500, 100), col = cols[2])
 #' 
-#' # Input named R color and transparency level
-#' tcol <- transco("steelblue", 0.5)
-#' 
-#' plot(x,y, cex=z/4, pch=21, col="black", bg=tcol, lwd=1.2, axes=FALSE, 
-#'      ylim=c(0,500), xlim=c(0,250), yaxs="r", xaxs="r")
-#' axis(2, seq(0,500,100), col="white", las=2, cex.axis=0.9, mgp=c(2,0.5,0))
-#' axis(1, seq(0,250,50), cex.axis=0.9, mgp=c(2,0.5,0))
-#' abline(h=seq(100,500,100), col=transco("black", 0.35))
+#' ## Example 2: Network plot with multiple length alpha vector
+#' net <- network.initialize(500, directed = FALSE)
+#' vcol <- transco("firebrick", 
+#'                 alpha = seq(0, 1, length = network.size(net)))
+#' par(mar = c(0, 0, 0, 0))
+#' plot(net, vertex.col = vcol, vertex.border = "grey70", 
+#'      vertex.cex = 1.5, edge.col = "grey50")
 #' 
 transco <- function(col, 
-                    alpha=1, 
-                    invisible=TRUE
+                    alpha = 1, 
+                    invisible = FALSE
                     ) {
   
-  if (alpha > 1 || alpha < 0)
-    stop("Specify alpha between 0 and 1")
+  if (length(alpha) > 1 && length(col) > 1) {
+    stop("Length of col or length of alpha must be 1")
+  }
   
-  newa <- floor(alpha*255)
+  if (alpha > 1 || alpha < 0) {
+    stop("Specify alpha between 0 and 1")
+  }
+  
+  newa <- floor(alpha * 255)
   t1 <- col2rgb(col, alpha = FALSE)
   t2 <- rep(NA, length(col))
   
-  for (i in 1:length(col)) {
-    t2[i] <- rgb(t1[1,i], t1[2,i], t1[3,i], newa, maxColorValue=255)
+  if (length(col) > 1) {
+    for (i in seq_along(col)) {
+      t2[i] <- rgb(t1[1,i], t1[2,i], t1[3,i], newa, maxColorValue = 255)
+    }
+  }
+  if (length(alpha) > 1) {
+    for (i in seq_along(alpha)) {
+      t2[i] <- rgb(t1[1,1], t1[2,1], t1[3,1], newa[i], maxColorValue = 255)
+    }
+  }
+  if (length(col) == 1 && length(alpha) == 1) {
+    t2 <- rgb(t1[1,1], t1[2,1], t1[3,1], newa, maxColorValue = 255)
   }
   
   if (invisible == TRUE) {
@@ -65,13 +95,13 @@ transco <- function(col,
 
 #' @title RColorBrewer Color Ramp for EpiModel Plots
 #'
-#' @description This function returns vector of colors consistent with 
-#'   a high-brightness set of colors from an \code{RColorBrewer} palette.
+#' @description Returns vector of colors consistent with a high-brightness set 
+#'              of colors from an \code{RColorBrewer} palette.
 #'
 #' @param plt \code{RColorBrewer} palette from \code{\link{brewer.pal}}
 #' @param n number of colors to return
 #' @param delete.lights delete the lightest colors from the color palette,
-#'   helps with plotting in many high-contrast palettes
+#'        helps with plotting in many high-contrast palettes
 #' 
 #' @details 
 #' \code{RColorBrewer} provides easy access to helpful color palettes, but the 
@@ -91,17 +121,17 @@ transco <- function(col,
 #' 
 #' @examples
 #' # Shows a 100-color ramp for 4 RColorBrewer palettes
-#' par(mfrow=c(2,2), mar=c(1,1,2,1))
+#' par(mfrow = c(2, 2), mar=c(1, 1, 2, 1))
 #' pals <- c("Spectral", "Greys", "Blues", "Set1")
-#' for (i in 1:length(pals)) {
-#'  plot(1:100, 1:100, type="n", axes=FALSE, main=pals[i])
-#'  abline(v=1:100, lwd=6, col=brewer.ramp(100, pals[i]))
+#' for (i in seq_along(pals)) {
+#'  plot(1:100, 1:100, type = "n", axes = FALSE, main = pals[i])
+#'  abline(v = 1:100, lwd = 6, col = brewer_ramp(100, pals[i]))
 #' }
 #' 
-brewer.ramp <- function(n, plt, delete.lights=TRUE){
+brewer_ramp <- function(n, plt, delete.lights = TRUE){
     
-  pltmax <- brewer.pal.info[row.names(brewer.pal.info)==plt,]$maxcolors
-  pltcat <- brewer.pal.info[row.names(brewer.pal.info)==plt,]$category
+  pltmax <- brewer.pal.info[row.names(brewer.pal.info)==plt, ]$maxcolors
+  pltcat <- brewer.pal.info[row.names(brewer.pal.info)==plt, ]$category
   
   if (pltcat == "div") {
     if (delete.lights == TRUE) {
@@ -127,77 +157,93 @@ brewer.ramp <- function(n, plt, delete.lights=TRUE){
 }
 
 
-#' @title Creates a TEA Variable for Infection Status for \code{ndtv} Animations
-#'
-#' @description This function creates a new temporally-extended attribute (TEA) 
-#'   variable in a \code{networkDynamic} object with color name output from an 
-#'   existing status variable with numeric format.
-#' 
-#' @param nw an object of class \code{networkDynamic}.
-#' @param old.var old TEA variable name.
-#' @param old.sus status value for susceptible in old TEA variable.
-#' @param old.inf status value for infected in old TEA variable.
-#' @param old.rec status value for recovered in old TEA variable.
-#' @param new.var new TEA variable name to be stored in nw object.
-#' @param new.sus status value for susceptible in new TEA variable.
-#' @param new.inf status value for infected in new TEA variable.
-#' @param new.rec status value for recovered in new TEA variable.
-#' @param verbose print progress for calculations.
-#' 
-#' @details
-#' The \code{ndtv} package allows for animated plots of dynamic network objects, 
-#' showing the evolving partnership structure. The \code{EpiModel} package uses 
-#' temporally-extended attributes (TEAs) to store longitudinal disease status for 
-#' every vertex in a dynamic network. To visualize disease status dynamically in 
-#' \code{ndtv}, it is currently necessary to create a TEA containing the colors 
-#' to be used in drawing the nodes. 
-#'  
-#' The convention in \code{\link{plot.epiNet.simTrans}} is to color the susceptible 
-#' nodes as blue, infected nodes as red,  and recovered nodes as green. This 
-#' function allows the user to take the existing status TEA on the 
-#' \code{networkDynamic} object and transform that numeric variable into any colors. 
-#' 
-#' @seealso \code{\link{epiNet.simTrans}} and the \code{ndtv} package documentation.
-#' @keywords colorUtils
-#' @export
-#'
-#' @examples
-#' ## See EpiModel Tutorial vignette ##
-#' 
-colorTEA <- function(nw, 
-                     old.var = "status", 
-                     old.sus = 0, 
-                     old.inf = 1, 
-                     old.rec = 2,
-                     new.var = "ndtvcol", 
-                     new.sus, 
-                     new.inf, 
-                     new.rec,
-                     verbose = TRUE
-                     ) {
+
+
+
+# Non-Exported Functions --------------------------------------------------
+
+deleteAttr <- function(attrList, ids) {
+  if (length(ids) > 0) {
+    attrList <- lapply(attrList, function(x) x[-ids])
+  }
+  return(attrList)
+}
+
+eval_list <- function(x) {
   
-  if (missing(new.inf)) new.inf <- transco("firebrick", 0.75)
-  if (missing(new.sus)) new.sus <- transco("steelblue", 0.75)
-  if (missing(new.rec)) new.rec <- transco("seagreen", 0.75)
-  
-  times <- 1:max(get.change.times(nw))
-  
-  for (ts in times) {
-    
-    stat <- get.vertex.attribute.active(nw, old.var, at=ts)
-    infected <- which(stat == old.inf)
-    uninfected <- which(stat == old.sus)
-    recovered <- which(stat == old.rec)
-    
-    activate.vertex.attribute(nw, prefix=new.var, value=new.inf,
-                              onset=ts, terminus=Inf, v=infected)
-    activate.vertex.attribute(nw, prefix=new.var, value=new.sus, 
-                              onset=ts, terminus=Inf, v=uninfected)
-    activate.vertex.attribute(nw, prefix=new.var, value=new.rec,
-                              onset=ts, terminus=Inf, v=recovered)
-    
-    if (verbose == TRUE) cat(ts, "/", max(times), "\t", sep="")
+  largs <- as.numeric(which(sapply(x, class) %in% c("call", "name")))
+  for (i in largs) {
+    x[[i]] <- eval(x[[i]])
   }
   
-  return(nw)
+  return(x)
+}
+
+
+sampledf <- function(df, size, replace=FALSE, prob=NULL, group, status){
+  
+  if (!missing(group) && !missing(status))
+    elig.ids <- df$ids[df$group %in% group & df$status %in% status]
+  
+  if (missing(group) && !missing(status))
+    elig.ids <- df$ids[df$status %in% status]
+  
+  if (!missing(group) && missing(status))
+    elig.ids <- df$ids[df$group %in% group]
+  
+  if (missing(group) && missing(status))
+    elig.ids <- df$ids
+  
+  if (length(elig.ids) > 1) {
+    ids <- sample(elig.ids, size, replace, prob)
+  } else {
+    if (size > 0) {
+      ids <- elig.ids
+    } else {
+      ids <- NULL
+    }
+  }
+  
+  return(ids)
+}
+
+
+split_list <- function(x, exclude) {
+  
+  largs <- which(sapply(x, function(v) class(eval(v))) == "list")
+  
+  if (!missing(exclude)) {
+    largs <- largs[-which(names(largs) %in% exclude)]
+  }
+  
+  largsn <- names(largs)
+  if (length(largsn) > 0) {
+    for (i in seq_along(largsn)) {
+      crlist <- eval(x[[largsn[i]]])
+      crlistn <- names(crlist)
+      for (j in seq_along(crlistn)) {
+        x[[crlistn[j]]] <- crlist[[j]]
+      }
+      x[[largsn[[i]]]] <- NULL
+    }
+  }
+  
+  return(x)
+}
+
+
+ssample <- function(x, size, replace = FALSE, prob = NULL) {
+  
+  if (length(x) > 1) {
+    return(sample(x, size, replace, prob))
+  }
+  
+  if (length(x) == 1 && size > 0) {
+    return(x)
+  }
+  
+  if (length(x) == 1 && size == 0) {
+    return(NULL)
+  }
+  
 }

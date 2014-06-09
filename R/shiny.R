@@ -1,29 +1,42 @@
 
-#' @title GUI for epiDCM Models
+#' @title EpiModel Web
 #'
-#' @description This function runs a web browser-based GUI of the epiDCM
-#'   application using the \code{shiny} package.
+#' @description Runs a web browser-based GUI of deterministic compartmental 
+#'              models and stochastic individual contact models.
+#'              
+#' @param class model class, with options of \code{"dcm"} and \code{"icm"}.
 #' 
 #' @details
-#' Using the \code{shiny} interface, this function runs a web-based GUI of
-#'   a one-group \code{epiDCM} model with user input on model type, state
-#'   sizes, and parameters. Model output may be plotted, summarized, and
-#'   saved as raw data using the core \code{EpiModel} functionality for 
-#'   \code{epiDCM} models. 
+#' \code{epiweb} runs a web-based GUI of a one-group \code{\link{dcm}} models 
+#' and \code{\link{icm}} models with user input on model type, state sizes, and 
+#' parameters. Model output may be plotted, summarized, and saved as raw data 
+#' using the core \code{EpiModel} functionality for these model classes. These 
+#' applications are built using the \code{shiny} package framework.
 #' 
-#' @seealso \code{\link{epiDCM}}, \code{\link{plot.epiDCM}}, 
-#'   \code{\link{summary.epiDCM}}, \code{\link{as.data.frame.epiDCM}}
+#' @references
+#' RStudio. shiny: Web Application Framework for R. R package version 0.9.1. 2014.
+#' \url{http://www.rstudio.com/shiny/}
+#' 
+#' @seealso \code{\link{dcm}}, \code{\link{icm}}
 #' 
 #' @keywords GUI
 #' @export
 #' 
 #' @examples
 #' \dontrun{
-#'  gui.epiDCM()
+#' ## Deterministic compartmental models
+#' epiweb(class = "dcm")
+#' 
+#' ## Stochastic individual contact models
+#' epiweb(class = "icm")
 #' }
 #' 
-gui.epiDCM <- function() {
-
-  shiny::runApp(system.file('shiny', 'epiDCM', package = 'EpiModel'))
-
+epiweb <- function(class) {  
+  if (class == "dcm") {
+    shiny::runApp(system.file("shiny", "dcm", package = "EpiModel"))
+  } else if (class == "icm") {
+    shiny::runApp(system.file("shiny", "icm", package = "EpiModel"))
+  } else {
+    stop("Specify class as either \"dcm\" or \"icm\" ")
+  }
 }
