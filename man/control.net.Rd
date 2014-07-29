@@ -5,9 +5,9 @@
 \usage{
 control.net(type, nsteps, nsims, depend, rec.rand, b.rand, d.rand, tea.status,
   attr.rules, epi.by, pid.prefix, initialize.FUN, infection.FUN, recovery.FUN,
-  deaths_sus.FUN, deaths_inf.FUN, deaths_rec.FUN, births.FUN, resim_nets.FUN,
-  get_prev.FUN, set.control.stergm, save.nwstats, nwstats.formula, delete.nodes,
-  save.transmat, save.network, verbose, verbose.int, ...)
+  deaths.FUN, births.FUN, resim_nets.FUN, get_prev.FUN, set.control.stergm,
+  save.nwstats, nwstats.formula, delete.nodes, save.transmat, save.network,
+  verbose, verbose.int, ...)
 }
 \arguments{
 \item{type}{disease type to be modeled, with the choice of \code{"SI"} for
@@ -71,14 +71,8 @@ function of \code{\link{infection.net}}.}
 \item{recovery.FUN}{module to simulate disease recovery, with the default
 function of \code{\link{recovery.net}}.}
 
-\item{deaths_sus.FUN}{module to simulate death or exit among the susceptibles,
-with the default function of \code{\link{deaths_sus.net}}.}
-
-\item{deaths_inf.FUN}{module to simulate death or exit among the infecteds,
-with the default function of \code{\link{deaths_inf.net}}.}
-
-\item{deaths_rec.FUN}{module to simulate death or exit among the recovered,
-with the default function of \code{\link{deaths_rec.net}}.}
+\item{deaths.FUN}{module to simulate death or exit, with the default function
+of \code{\link{deaths.net}}.}
 
 \item{births.FUN}{module to simulate births or entries, with the default
 function of \code{\link{births.net}}.}
@@ -102,7 +96,7 @@ statistics of interest, with the default to the formation formula terms.}
 
 \item{delete.nodes}{if \code{TRUE}, delete inactive nodes from the network
 after each time step, otherwise deactivate them but keep them in the
-network object. Deleting nodes increases computational efficency in
+network object. Deleting nodes increases computational efficiency in
 large network simulations.}
 
 \item{save.transmat}{if \code{TRUE}, save a transmission matrix for each

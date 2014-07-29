@@ -4,7 +4,8 @@
 \title{Dynamic Network Model Estimation}
 \usage{
 netest(nw, formation, dissolution, target.stats, coef.diss, constraints,
-  edapprox = TRUE, set.control.ergm, set.control.stergm, verbose = TRUE)
+  coef.form = NULL, edapprox = TRUE, set.control.ergm, set.control.stergm,
+  verbose = TRUE)
 }
 \arguments{
 \item{nw}{an object of class \code{\link{network}}.}
@@ -22,9 +23,12 @@ one number for each network statistic in the model (see \code{\link{stergm}}).}
 \item{coef.diss}{an object of class \code{disscoef} output from the
 \code{\link{dissolution_coefs}} function.}
 
-\item{constraints}{a right-hand sided formula specifying contraints for the
+\item{constraints}{a right-hand sided formula specifying constraints for the
 modeled network, in the form \code{~...}, where \code{...} are constraint
 terms described in \code{\link{stergm}}. By default, no constraints are set.}
+
+\item{coef.form}{A vector of coefficients for the offset terms in the formation
+formula.}
 
 \item{edapprox}{if \code{TRUE}, use the indirect edges dissolution approximation
 method for the dynamic model fit, otherwise use the more time-intensive
@@ -44,8 +48,6 @@ Estimates statistical network models using the exponential
              dynamic/temporal models (STERGM).
 }
 \details{
-
-
 \code{netest} is a wrapper function for the \code{ergm} and \code{stergm}
 functions that estimate static and dynamic network models, respectively.
 Network model estimation is the first step in simulating a stochastic network

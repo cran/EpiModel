@@ -3,84 +3,84 @@
 # Main Exported Methods ---------------------------------------------------
 
 #' @title Plot Data from a Deterministic Compartmental Epidemic Model
-#' 
-#' @description Plots epidemiological data from a deterministic compartment 
+#'
+#' @description Plots epidemiological data from a deterministic compartment
 #'              epidemic model solved with \code{dcm}.
 #'
 #' @param x an \code{EpiModel} object of class \code{dcm}.
 #' @param y output compartments or flows from \code{dcm} object to plot.
-#' @param popfrac if \code{TRUE}, plot prevalence of values rather than numbers 
+#' @param popfrac if \code{TRUE}, plot prevalence of values rather than numbers
 #'        (see details).
 #' @param run run number to plot, for models with multiple runs (default is run 1).
-#' @param col color for lines, either specified as a single color in a standard 
-#'        R color format, or alternatively as a color palette from 
+#' @param col color for lines, either specified as a single color in a standard
+#'        R color format, or alternatively as a color palette from
 #'        \code{\link{RColorBrewer}} (see details).
 #' @param lwd line width for output lines.
 #' @param lty line type for output lines.
-#' @param alpha transparency level for lines, where 0 = transparent and 1 = opaque 
+#' @param alpha transparency level for lines, where 0 = transparent and 1 = opaque
 #'        (see \code{\link{transco}}).
-#' @param leg type of legend to plot. Values are "n" for no legend, "full" for 
+#' @param leg type of legend to plot. Values are "n" for no legend, "full" for
 #'        full legend, and "lim" for limited legend (see details).
-#' @param leg.name character string to use for legend, with the default 
+#' @param leg.name character string to use for legend, with the default
 #'        determined automatically based on the \code{y} input.
 #' @param leg.cex legend scale size (default of 0.8).
-#' @param xlim x-axis scale limits for plot, with default based on model time 
+#' @param xlim x-axis scale limits for plot, with default based on model time
 #'        steps.
 #' @param ylim y-axis scale limits for plot, with default based on range of data.
 #' @param main character string for main plot title.
-#' @param axs plot axis type (see \code{\link{par}} for details), with default 
+#' @param axs plot axis type (see \code{\link{par}} for details), with default
 #'        of "r".
-#' @param add if \code{TRUE}, new plot window is not called and lines are added to 
+#' @param add if \code{TRUE}, new plot window is not called and lines are added to
 #'        existing plot window.
-#' @param ... additional arguments to pass to main plot window (see 
+#' @param ... additional arguments to pass to main plot window (see
 #'        \code{\link{plot.default}}).
-#' 
+#'
 #' @details
-#' This function plots epidemiological outcompes from a deterministic 
-#' compartmental model solved with \code{\link{dcm}}. Depending on the number of 
-#' model runs (sensitivity analyses) and number of groups, the default plot is 
-#' the fractional proportion of each compartment in the model over time. The 
-#' specific compartments or flows to plot may be set using the \code{y} parameter, 
-#' and in multiple run models the specific run may also be specified. 
-#' 
+#' This function plots epidemiological outcomes from a deterministic
+#' compartmental model solved with \code{\link{dcm}}. Depending on the number of
+#' model runs (sensitivity analyses) and number of groups, the default plot is
+#' the fractional proportion of each compartment in the model over time. The
+#' specific compartments or flows to plot may be set using the \code{y} parameter,
+#' and in multiple run models the specific run may also be specified.
+#'
 #' @section The popfrac Argument:
-#' Compartment prevalences are the size of a compartment over some denominator. 
-#' To plot the raw numbers from any compartment, use \code{popfrac=FALSE}; this 
-#' is the default for any plots of flows. The \code{popfrac} parameter calculates 
-#' and plots the denominators of all specified compartments using these rules: 1) 
-#' for one-group models, the prevalence of any compartment is the compartment size 
-#' divided by the total population size; 2) for two-group models, the prevalence 
-#' of any compartment is the compartment size divided by the group size. 
-#' 
+#' Compartment prevalences are the size of a compartment over some denominator.
+#' To plot the raw numbers from any compartment, use \code{popfrac=FALSE}; this
+#' is the default for any plots of flows. The \code{popfrac} parameter calculates
+#' and plots the denominators of all specified compartments using these rules: 1)
+#' for one-group models, the prevalence of any compartment is the compartment size
+#' divided by the total population size; 2) for two-group models, the prevalence
+#' of any compartment is the compartment size divided by the group size.
+#'
 #' @section Color Palettes:
-#' Since \code{\link{dcm}} supports multiple run sensitivity models, plotting 
+#' Since \code{\link{dcm}} supports multiple run sensitivity models, plotting
 #' the results of such models uses a complex color scheme for distinguishing runs.
-#' This is accomplished using the \code{\link{RColorBrewer}} color palettes, in 
-#' which includes a range of linked colors using named palettes. For 
-#' \code{plot.dcm}, one may either specify a brewer color palette listed in 
-#' \code{\link{brewer.pal.info}}, or alternatively a vector of standard R colors 
-#' (named, hexidecimal, or positive integers; see \code{\link{col2rgb}}). 
-#' 
+#' This is accomplished using the \code{\link{RColorBrewer}} color palettes, in
+#' which includes a range of linked colors using named palettes. For
+#' \code{plot.dcm}, one may either specify a brewer color palette listed in
+#' \code{\link{brewer.pal.info}}, or alternatively a vector of standard R colors
+#' (named, hexidecimal, or positive integers; see \code{\link{col2rgb}}).
+#'
 #' @section Plot Legends:
-#' There are three automatic legend types available, and the legend is 
-#' added by default for plots. To turn off the legend, use \code{leg="n"}. To 
-#' plot a legend with values for every line in a sensitivity analysis, use 
-#' \code{leg="full"}. With models with many runs, this may be visually 
-#' overwhelming. In those cases, use \code{leg="lim"} to plot a legend limited 
-#' to the highest and lowest of the varying parameter in the model. In cases 
-#' where the default legend names are not helpful, one may override those names 
+#' There are three automatic legend types available, and the legend is
+#' added by default for plots. To turn off the legend, use \code{leg="n"}. To
+#' plot a legend with values for every line in a sensitivity analysis, use
+#' \code{leg="full"}. With models with many runs, this may be visually
+#' overwhelming. In those cases, use \code{leg="lim"} to plot a legend limited
+#' to the highest and lowest of the varying parameter in the model. In cases
+#' where the default legend names are not helpful, one may override those names
 #' with the \code{leg.name} argument.
-#' 
+#'
 #' @method plot dcm
-#' @export 
-#' 
+#' @export
+#'
 #' @keywords plot
 #' @seealso \code{\link{dcm}}, \code{\link{brewer.pal.info}}
-#' 
+#'
 #' @examples
 #' # Deterministic SIR model with varying act rate
-#' param <- param.dcm(trans.rate = 0.2, act.rate = 1:10, 
-#'                    rec.rate = 1/3, b.rate = 0.011, ds.rate = 0.01, 
+#' param <- param.dcm(trans.rate = 0.2, act.rate = 1:10,
+#'                    rec.rate = 1/3, b.rate = 0.011, ds.rate = 0.01,
 #'                    di.rate = 0.03, dr.rate = 0.01)
 #' init <- init.dcm(s.num = 1000, i.num = 1, r.num = 0)
 #' control <- control.dcm(type = "SIR", nsteps = 100, dt = 0.25)
@@ -91,35 +91,35 @@
 #'
 #' # Plot prevalence of susceptibles
 #' plot(mod, y = "s.num", col = "Greys")
-#' 
+#'
 #' # Plot number of susceptibles
 #' plot(mod, y = "s.num", popfrac = FALSE, col = "Greys")
-#' 
+#'
 #' # Plot multiple runs of multiple compartments together
-#' plot(mod, y = c("s.num", "i.num"), 
+#' plot(mod, y = c("s.num", "i.num"),
 #'      run = 5, xlim = c(0, 50))
-#' plot(mod, y = c("s.num", "i.num"), 
+#' plot(mod, y = c("s.num", "i.num"),
 #'      run = 10, lty = 2, leg = "n", add = TRUE)
-#' 
-plot.dcm <- function(x, 
-                     y, 
+#'
+plot.dcm <- function(x,
+                     y,
                      popfrac,
-                     run, 
-                     col, 
-                     lwd, 
-                     lty, 
+                     run,
+                     col,
+                     lwd,
+                     lty,
                      alpha,
-                     leg, 
-                     leg.name, 
-                     leg.cex,  
-                     xlim, 
-                     ylim, 
+                     leg,
+                     leg.name,
+                     leg.cex,
+                     xlim,
+                     ylim,
                      main,
-                     axs, 
-                     add = FALSE, 
+                     axs,
+                     add = FALSE,
                      ...) {
-  
-  
+
+
   ## Set missing flags
   noy <- ifelse(missing(y), TRUE, FALSE)
   norun <- ifelse(missing(run), TRUE, FALSE)
@@ -128,7 +128,7 @@ plot.dcm <- function(x,
   nolty <- ifelse(missing(lty), TRUE, FALSE)
   noleg <- ifelse(missing(leg), TRUE, FALSE)
 
-  
+
   ## Model dimensions
   nsteps <- max(x$control$dt)
   nruns <- x$control$nruns
@@ -136,15 +136,15 @@ plot.dcm <- function(x,
     stop("Specify run between 1 and", nruns,
          call. = FALSE)
   }
-  
+
   if (!is.null(x$control$new.mod) && noy == TRUE) {
     stop("Specify y when simulating a new model type in dcm",
          call. = FALSE)
   }
-  
+
   groups <- x$param$groups
   type <- x$control$type
-  
+
   ## Universal defaults
   if (noleg == TRUE) {
     leg <- "n"
@@ -158,9 +158,9 @@ plot.dcm <- function(x,
   if (missing(main)) {
     main <- paste("DCM", x$control$type, "Model")
   }
-  
-  
-  ## Defaults for missing y 
+
+
+  ## Defaults for missing y
   if (noy == TRUE && nruns == 1) {
     y <- grep(".num", names(x$epi), value = TRUE)
   }
@@ -171,8 +171,8 @@ plot.dcm <- function(x,
     stop("Specified y is unavailable", call. = FALSE)
   }
   lcomp <- length(y)
-  
-  
+
+
   ## Prevalence calculations
   if (missing(popfrac)) {
     popfrac <- TRUE
@@ -181,8 +181,8 @@ plot.dcm <- function(x,
     popfrac <- FALSE
   }
   x <- denom(x, y, popfrac)
-  
-  
+
+
   ## Compartment ymax calculations
   if (popfrac == FALSE) {
     allmax <- sapply(1:lcomp, function(i) max(x$epi[[y[i]]]))
@@ -190,8 +190,8 @@ plot.dcm <- function(x,
   } else {
     ymax <- 1
   }
-  
-  
+
+
   ## Defaults for ylim, xlim, axs
   if (missing(ylim)) {
     ylim <- c(0, ymax)
@@ -202,8 +202,8 @@ plot.dcm <- function(x,
   if (missing(axs)) {
     axs <- "r"
   }
-  
-  
+
+
   ## Defaults for lwd
   if (nolwd == FALSE && lcomp > 1 && length(lwd) < lcomp) {
     lwd <- rep(lwd, lcomp)
@@ -214,8 +214,8 @@ plot.dcm <- function(x,
   if (nolwd == TRUE) {
     lwd <- rep(2.5, lcomp * nruns)
   }
-  
-  
+
+
   ## Defaults for lty
   if (nolty == FALSE && lcomp > 1 && length(lty) < lcomp) {
     lty <- rep(lty, lcomp)
@@ -229,24 +229,24 @@ plot.dcm <- function(x,
       lty <- rep(1:2, each = lcomp / 2)
     }
   }
-  
-  
+
+
   ## Main plot window
   if (add == FALSE) {
     if (popfrac == FALSE) {
       Time <- Number <- 1
-      plot(Time, Number, type = "n", bty = "n", 
-           xaxs = axs, yaxs = axs, xlim = xlim, ylim = ylim, 
+      plot(Time, Number, type = "n", bty = "n",
+           xaxs = axs, yaxs = axs, xlim = xlim, ylim = ylim,
            main = main, ...)
     } else {
       Time <- Prevalence <- 1
-      plot(Time, Prevalence, type = "n", bty = "n", 
-           xaxs = axs, yaxs = axs, xlim = xlim, ylim = ylim, 
+      plot(Time, Prevalence, type = "n", bty = "n",
+           xaxs = axs, yaxs = axs, xlim = xlim, ylim = ylim,
            main = main, ...)
-    }  
+    }
   }
-  
-  
+
+
   ## Default line colors
   pal <- NULL
   # Missing col
@@ -269,19 +269,15 @@ plot.dcm <- function(x,
       col <- "Set1"
     }
   }
-  
-  # Not missing col, poker chips palette for MM
-  if (nocol == FALSE && col[1] == "chips") {
-    col <- c("#377EB8", "#E41A1C", "darkgrey")
-  } 
-  
+
+
   # Test if using a RColorBrewer palette
   if (length(col) == 1 && col %in% row.names(brewer.pal.info)) {
     use.brewer <- TRUE
   } else {
-    use.brewer <- FALSE 
+    use.brewer <- FALSE
   }
-  
+
   # Set color palette
   if (is.null(pal)) {
     if (lcomp == 1) {
@@ -291,9 +287,9 @@ plot.dcm <- function(x,
         } else {
           pal <- transco(brewer_ramp(nruns, col), alpha)
         }
-      } 
+      }
       if (use.brewer == FALSE) {
-        pal <- transco(rep(col, nruns), alpha) 
+        pal <- transco(rep(col, nruns), alpha)
       }
     }
     if (lcomp > 1) {
@@ -316,7 +312,7 @@ plot.dcm <- function(x,
           }
           pal <- rep(pal, times = lcomp/2)
         }
-      } 
+      }
       if (use.brewer == FALSE) {
         pal <- transco(rep(col, lcomp), alpha)
         if (groups == 2 && noy == TRUE) {
@@ -325,28 +321,28 @@ plot.dcm <- function(x,
       }
     }
   }
-  
-  
+
+
   ## Plot lines
   if (lcomp == 1) {
     if (nruns == 1) {
-      lines(x$control$dt, x$epi[[y]][, 1], 
+      lines(x$control$dt, x$epi[[y]][, 1],
             lwd = lwd[1], lty = lty[1], col = pal[1])
-    } 
+    }
     if (nruns > 1) {
       if (norun == TRUE) {
-        for (i in 1:nruns) { 
-          lines(x$control$dt, x$epi[[y]][, i], 
+        for (i in 1:nruns) {
+          lines(x$control$dt, x$epi[[y]][, i],
                 lwd = lwd[i], lty = lty[i], col = pal[i])
         }
       } else {
         if (length(run) == 1) {
-          lines(x$control$dt, x$epi[[y]][, run], 
+          lines(x$control$dt, x$epi[[y]][, run],
                 lwd = lwd[1], lty = lty[1], col = pal[1])
         }
         if (length(run) > 1) {
           for (i in 1:length(run)) {
-            lines(x$control$dt, x$epi[[y]][, run[i]], 
+            lines(x$control$dt, x$epi[[y]][, run[i]],
                   lwd = lwd[i], lty = lty[i], col = pal[i])
           }
         }
@@ -356,34 +352,34 @@ plot.dcm <- function(x,
   if (lcomp > 1) {
     if (nruns == 1) {
       for (i in 1:lcomp) {
-        lines(x$control$dt, x$epi[[y[i]]][, 1], 
+        lines(x$control$dt, x$epi[[y[i]]][, 1],
               lwd = lwd, lty = lty[i], col = pal[i])
       }
-    } 
+    }
     if (nruns > 1) {
       if (norun == TRUE) {
         for (i in 1:lcomp) {
           run <- 1
-          lines(x$control$dt, x$epi[[y[i]]][, run], 
+          lines(x$control$dt, x$epi[[y[i]]][, run],
                 lwd = lwd[i], lty = lty[i], col = pal[i])
         }
-      } 
+      }
       if (norun == FALSE) {
         if (length(run) > 1) {
-          stop("Plotting multiple runs of multiple y is not supported", 
+          stop("Plotting multiple runs of multiple y is not supported",
                call. = FALSE)
         }
         for (i in 1:lcomp) {
-          lines(x$control$dt, x$epi[[y[i]]][, run], 
+          lines(x$control$dt, x$epi[[y[i]]][, run],
                 lwd = lwd[i], lty = lty[i], col = pal[i])
         }
       }
     }
   }
-  
-  
+
+
   ## Legend
-  
+
   # Default legend type
   if (noleg == TRUE) {
     leg <- "n"
@@ -396,6 +392,9 @@ plot.dcm <- function(x,
     if (lcomp > 1) {
       leg <- "full"
     }
+    if (noy == FALSE) {
+      leg <- "n"
+    }
   } else {
     if (leg == "lim" & nruns < 3) {
       leg <- "full"
@@ -404,7 +403,7 @@ plot.dcm <- function(x,
       leg <- "full"
     }
   }
-  
+
   # Default legend names
   if (missing(leg.name)) {
     if (nruns == 1) {
@@ -435,36 +434,36 @@ plot.dcm <- function(x,
       warning("Legend names ignored for multiple y plots of multiple run models")
     }
   }
-  
+
   # Legend
   if (norun == TRUE) {
     if (leg == "full") {
-      legend("topright", legend = leg.names, 
+      legend("topright", legend = leg.names,
              bg = "white", lty = lty, lwd = lwd,
              col = pal, cex = leg.cex)
-    } 
-    if (leg == "lim") {
-      legend("topright", 
-             legend = c(leg.names[1], "...", leg.names[nruns]), 
-             bg = "white", 
-             lty = c(lty[1], 1, lty[nruns]), lwd = lwd + 1,
-             col = c(pal[1], "white", pal[nruns]), cex = leg.cex) 
     }
-  } 
+    if (leg == "lim") {
+      legend("topright",
+             legend = c(leg.names[1], "...", leg.names[nruns]),
+             bg = "white",
+             lty = c(lty[1], 1, lty[nruns]), lwd = lwd + 1,
+             col = c(pal[1], "white", pal[nruns]), cex = leg.cex)
+    }
+  }
   if (norun == FALSE & leg != "n") {
     if (lcomp == 1) {
-      legend("topright", legend = leg.names, 
-             bg = "white", lty = lty[1:length(run)], 
+      legend("topright", legend = leg.names,
+             bg = "white", lty = lty[1:length(run)],
              lwd = lwd[1:length(run)],
              col = pal[1:length(run)], cex = leg.cex)
     }
     if (lcomp > 1) {
-      legend("topright", legend = leg.names, 
+      legend("topright", legend = leg.names,
              bg = "white", lty = lty, lwd = lwd,
              col = pal, cex = leg.cex)
     }
   }
-  
+
   ## Mtext
   if (add == FALSE) {
     if (nruns > 1 & lcomp > 1) {
@@ -472,7 +471,7 @@ plot.dcm <- function(x,
       mtext(mt, 3, line = 0, cex = 0.75)
     }
   }
-  
+
 }
 
 
@@ -483,117 +482,117 @@ plot.dcm <- function(x,
 #'
 #' @param x an \code{EpiModel} object of class \code{icm}.
 #' @param y output compartments or flows from \code{icm} object to plot.
-#' @param popfrac if \code{TRUE}, plot prevalence of values rather than numbers 
+#' @param popfrac if \code{TRUE}, plot prevalence of values rather than numbers
 #'        (see details).
 #' @param sim.lines if \code{TRUE}, plot individual simulation lines. Default is
 #'        to plot lines for one-group models but not for two-group models.
-#' @param sims a vector representing which individual simulation lines to plot, 
+#' @param sims a vector representing which individual simulation lines to plot,
 #'        with default to plot all simulations.
 #' @param sim.col a vector of any standard R color format for simulation lines.
 #' @param sim.lwd line width for simulation lines.
-#' @param sim.alpha transparency level for simulation lines, where 0 = transparent 
+#' @param sim.alpha transparency level for simulation lines, where 0 = transparent
 #'        and 1 = opaque (see \code{\link{transco}}).
 #' @param mean.line if \code{TRUE}, plot mean of simulations across time.
-#' @param mean.extinct if \code{TRUE}, include extinct simulations in mean 
+#' @param mean.extinct if \code{TRUE}, include extinct simulations in mean
 #'        calculation (see details).
 #' @param mean.col a vector of any standard R color format for mean lines.
 #' @param mean.lwd line width for mean lines.
 #' @param mean.lty line type for mean lines.
-#' @param qnts if numeric, plot polygon of simulation quantiles based on the 
-#'        range implied by the argument (see details). If \code{FALSE}, supress 
+#' @param qnts if numeric, plot polygon of simulation quantiles based on the
+#'        range implied by the argument (see details). If \code{FALSE}, suppress
 #'        polygon from plot.
 #' @param qnts.col a vector of any standard R color format for polygons.
-#' @param qnts.alpha transparency level for quantile polygons, where 0 = 
+#' @param qnts.alpha transparency level for quantile polygons, where 0 =
 #'        transparent and 1 = opaque (see \code{\link{transco}}).
 #' @param leg if \code{TRUE}, plot default legend.
 #' @param leg.cex legend scale size, with default of 0.8.
 #' @param xlim x-axis scale limits for plot, with default based on model time steps.
 #' @param ylim y-axis scale limits for plot, with default based on range of data.
 #' @param main character string for main plot title.
-#' @param axs plot axis type (see \code{\link{par}} for details), with default 
+#' @param axs plot axis type (see \code{\link{par}} for details), with default
 #'        to \code{"r"}.
-#' @param add if \code{TRUE}, new plot window is not called and lines are added to 
+#' @param add if \code{TRUE}, new plot window is not called and lines are added to
 #'        existing plot window.
-#' @param ... additional arguments to pass to main plot (see 
+#' @param ... additional arguments to pass to main plot (see
 #'        \code{\link{plot.default}}).
-#' 
+#'
 #' @details
 #' This plotting function will extract the epidemiological output from a model
-#' object of class \code{icm} and plot the time series data of disease prevalence 
-#' and other results. The summary statistics that the function calculates and 
-#' plots are individual simulation lines, means of the individual simulation 
-#' lines, and quantiles of those individual simulation lines. The mean line, 
-#' toggled on with \code{mean.line=TRUE} is calculated as the row mean 
+#' object of class \code{icm} and plot the time series data of disease prevalence
+#' and other results. The summary statistics that the function calculates and
+#' plots are individual simulation lines, means of the individual simulation
+#' lines, and quantiles of those individual simulation lines. The mean line,
+#' toggled on with \code{mean.line=TRUE} is calculated as the row mean
 #' across simulations at each time step. The \code{mean.extinct} will, if set to
 #' \code{FALSE}, exclude from this calculation any simulations with no incident
 #' cases of disease.
-#' 
-#' Compartment prevalences are the size of a compartment over some denominator. 
-#' To plot the raw numbers from any compartment, use \code{popfrac=FALSE}; this 
-#' is the default for any plots of flows. The \code{popfrac} parameter calculates 
-#' and plots the denominators of all specified compartments using these rules: 1) 
-#' for one-group models, the prevalence of any compartment is the compartment size 
-#' divided by the total population size; 2) for two-group models, the prevalence 
+#'
+#' Compartment prevalences are the size of a compartment over some denominator.
+#' To plot the raw numbers from any compartment, use \code{popfrac=FALSE}; this
+#' is the default for any plots of flows. The \code{popfrac} parameter calculates
+#' and plots the denominators of all specified compartments using these rules: 1)
+#' for one-group models, the prevalence of any compartment is the compartment size
+#' divided by the total population size; 2) for two-group models, the prevalence
 #' of any compartment is the compartment size divided by the group population size.
-#' 
-#' The quantiles show the range of outcome values within a certain specified 
-#' quantile range. By default, the interquartile range is shown: that is the 
-#' middle 50\% of the data. This is specified by \code{qnts=0.5}. To show the 
-#' middle 95\% of the data, specify \code{qnts=0.95}. To toggle off the polygons 
+#'
+#' The quantiles show the range of outcome values within a certain specified
+#' quantile range. By default, the interquartile range is shown: that is the
+#' middle 50\% of the data. This is specified by \code{qnts=0.5}. To show the
+#' middle 95\% of the data, specify \code{qnts=0.95}. To toggle off the polygons
 #' where they are plotted by default, specify \code{qnts=FALSE}.
-#' 
+#'
 #' @method plot icm
-#' @export 
-#' 
+#' @export
+#'
 #' @keywords plot
 #' @seealso \code{\link{icm}}
-#' 
+#'
 #' @examples
 #' \dontrun{
 #' ## Example 1: Plotting multiple compartment values from SIR model
 #' param <- param.icm(trans.rate = 0.5, act.rate = 0.5, rec.rate = 0.02)
 #' init <- init.icm(s.num = 500, i.num = 1, r.num = 0)
-#' control <- control.icm(type = "SIR", nsteps = 100, 
+#' control <- control.icm(type = "SIR", nsteps = 100,
 #'                        nsims = 3, verbose = FALSE)
 #' mod <- icm(param, init, control)
 #' plot(mod)
-#' 
-#' ## Example 2: Plot only infecteds with specific output from SI model
+#'
+#' ## Example 2: Plot only infected with specific output from SI model
 #' param <- param.icm(trans.rate = 0.25, act.rate = 0.25)
 #' init <- init.icm(s.num = 500, i.num = 10)
-#' control <- control.icm(type = "SI", nsteps = 100, 
+#' control <- control.icm(type = "SI", nsteps = 100,
 #'                        nsims = 3, verbose = FALSE)
 #' mod2 <- icm(param, init, control)
 #' plot(mod2, y = "i.num", mean.line = FALSE)
 #' plot(mod2, y = "si.flow", sim.lines = FALSE)
 #' }
-#' 
-plot.icm <- function(x, 
-                     y, 
+#'
+plot.icm <- function(x,
+                     y,
                      popfrac,
-                     sim.lines, 
+                     sim.lines,
                      sims,
-                     sim.col, 
+                     sim.col,
                      sim.lwd,
                      sim.alpha,
-                     mean.line = TRUE, 
-                     mean.extinct = TRUE, 
-                     mean.col, 
-                     mean.lwd, 
+                     mean.line = TRUE,
+                     mean.extinct = TRUE,
+                     mean.col,
+                     mean.lwd,
                      mean.lty,
-                     qnts, 
-                     qnts.col, 
+                     qnts,
+                     qnts.col,
                      qnts.alpha,
                      leg,
                      leg.cex,
-                     xlim, 
-                     ylim, 
+                     xlim,
+                     ylim,
                      main,
-                     axs, 
-                     add = FALSE, 
+                     axs,
+                     add = FALSE,
                      ...) {
-  
-  
+
+
   # Model dimensions and class ----------------------------------------------
   nsteps <- x$control$nsteps
   nsims <- x$control$nsims
@@ -611,8 +610,8 @@ plot.icm <- function(x,
   if (class(x) == "netsim") {
     modes <- x$param$modes
   }
-  
-  
+
+
   # Compartments ------------------------------------------------------------
   nocomp <- ifelse(missing(y), TRUE, FALSE)
   if (nocomp == TRUE) {
@@ -639,36 +638,20 @@ plot.icm <- function(x,
     }
   }
   lcomp <- length(y)
-  
+
 
   # Color palettes ----------------------------------------------------------
 
   # Main color palette
   bpal <- brewer.pal(3, "Set1")
   bpal <- c(bpal[2], bpal[1], bpal[3])
-  
+
   # Mean line
-  if (!(missing(mean.col)) && mean.col[1] == "chips") {
-    mean.col <- c(bpal[1], bpal[2], "darkgrey")
-    if (modes == 2 & nocomp == TRUE) {
-      mean.col <- rep(mean.col, times = 2)
-    }
-  }
   if (missing(mean.col)) {
     mean.col <- bpal
   }
   mean.pal <- transco(mean.col, 0.9)
-  if (!(missing(qnts.col)) && qnts.col == "chips") {
-    qnts.col <- c(bpal[1], bpal[2], "darkgrey")
-    if (modes == 2 & nocomp) {
-      if (type == "SIR") {
-        qnts.col <- rep(qnts.col, times = 2)
-      } else {
-        qnts.col <- rep(qnts.col[1:2], times = 2) 
-      }
-    }
-  }
-  
+
   # Quantile bands
   if (missing(qnts.col)) {
     qnts.col <- bpal
@@ -677,14 +660,24 @@ plot.icm <- function(x,
     qnts.alpha <- 0.4
   }
   qnts.pal <- transco(qnts.col, qnts.alpha)
-  
+
   # Sim lines
   if (missing(sim.lwd)) {
     sim.lwd <- rep(0.75, lcomp)
+  } else {
+    if (length(sim.lwd) < lcomp) {
+      sim.lwd <- rep(sim.lwd, lcomp)
+    }
   }
+
   if (missing(sim.col)) {
     sim.col <- bpal
+  } else {
+    if (length(sim.col) < lcomp) {
+      sim.col <- rep(sim.col, lcomp)
+    }
   }
+
   if (missing(sim.alpha) & nsims == 1) {
     sim.alpha <- 0.9
   }
@@ -692,25 +685,27 @@ plot.icm <- function(x,
     sim.alpha <- max(c(0.05, 1-log10(nsims)/3))
   }
   sim.pal <- transco(sim.col, sim.alpha)
-  
+
   # Special case for 2-mode/group models
   if (modes == 2 & nocomp == TRUE) {
     pal <- brewer.pal(3, "Set1")
     if (type == "SIR") {
       mean.pal <- rep(mean.pal, 2)
       qnts.pal <- rep(qnts.pal, 2)
+      sim.pal <- rep(sim.pal, 2)
     } else {
       mean.pal <- rep(mean.pal[1:2], 2)
       qnts.pal <- rep(qnts.pal[1:2], 2)
+      sim.pal <- rep(sim.pal[1:2], 2)
     }
   }
-  
+
 
   # Prevalence calculations -------------------------------------------------
   nopopfrac <- ifelse(missing(popfrac), TRUE, FALSE)
   if (nopopfrac == TRUE) {
     popfrac <- TRUE
-  } 
+  }
   if (nopopfrac == TRUE) {
     if (any(grepl(".flow", y)) |
         (modes == 1 & all(grepl(".num$", y)) == FALSE) |
@@ -720,7 +715,7 @@ plot.icm <- function(x,
         }
   }
   x <- denom(x, y, popfrac)
-  
+
   # Compartment max
   if (popfrac == FALSE) {
     if (lcomp == 1) {
@@ -731,7 +726,7 @@ plot.icm <- function(x,
   } else {
     max.prev <- 1
   }
-  
+
 
   # Missing args ------------------------------------------------------------
   if (missing(xlim)) {
@@ -752,27 +747,27 @@ plot.icm <- function(x,
   if (missing(axs)) {
     axs <- "r"
   }
-  
+
 
   # Main plot window --------------------------------------------------------
   if (add == FALSE) {
     if (popfrac == FALSE) {
       Time <- Number <- 1
-      plot(Time, Number, type = "n", bty = "n", 
-           xaxs = axs, yaxs = axs, xlim = xlim, ylim = ylim, 
+      plot(Time, Number, type = "n", bty = "n",
+           xaxs = axs, yaxs = axs, xlim = xlim, ylim = ylim,
            main = main, ...)
     } else {
       Time <- Prevalence <- 1
-      plot(Time, Prevalence, type = "n", bty = "n", 
-           xaxs = axs, yaxs = axs, xlim = xlim, ylim = ylim, 
+      plot(Time, Prevalence, type = "n", bty = "n",
+           xaxs = axs, yaxs = axs, xlim = xlim, ylim = ylim,
            main = main, ...)
     }
   }
-  
+
 
   # Quantiles ---------------------------------------------------------------
   if (missing(qnts)) {
-    disp.qnts <- FALSE 
+    disp.qnts <- FALSE
   } else {
     disp.qnts <- TRUE
   }
@@ -789,14 +784,14 @@ plot.icm <- function(x,
     }
     for (j in seq_len(lcomp)) {
       quants <- c((1-qnts)/2, 1-((1-qnts)/2))
-      qnt.prev <- apply(x$epi[[y[j]]], 1, 
+      qnt.prev <- apply(x$epi[[y[j]]], 1,
                         function(x) quantile(x, c(quants[1], quants[2])))
       xx <- c(1:nsteps, nsteps:1)
       yy <- c(qnt.prev[1,], rev(qnt.prev[2,]))
       polygon(xx, yy, col = qnts.pal[j], border = NA)
     }
   }
-  
+
 
   # Simulation lines --------------------------------------------------------
   if (missing(sim.lines)) {
@@ -809,18 +804,18 @@ plot.icm <- function(x,
   if (sim.lines == TRUE) {
     if (nsims == 1) {
       for (j in seq_len(lcomp)) {
-        lines(1:nsteps, x$epi[[y[j]]][, 1], lwd = sim.lwd, col = sim.pal[j])
+        lines(1:nsteps, x$epi[[y[j]]][, 1], lwd = sim.lwd[j], col = sim.pal[j])
       }
     }
     if (nsims > 1) {
       for (j in seq_len(lcomp)) {
         for (i in sims) {
-          lines(1:nsteps, x$epi[[y[j]]][, i], lwd = sim.lwd, col = sim.pal[j])
+          lines(1:nsteps, x$epi[[y[j]]][, i], lwd = sim.lwd[j], col = sim.pal[j])
         }
       }
-    } 
+    }
   }
-  
+
 
   # Mean lines --------------------------------------------------------------
   if (!missing(mean.lwd) && length(mean.lwd) < lcomp) {
@@ -836,7 +831,7 @@ plot.icm <- function(x,
       }
       if (modes == 2) {
         mean.lty <- rep(1:2, each = lcomp / 2)
-      } 
+      }
     }
     if (nocomp == FALSE) {
       mean.lty <- rep(1, lcomp)
@@ -844,17 +839,17 @@ plot.icm <- function(x,
   }
   if (nomeanlty == FALSE & length(mean.lty) < lcomp) {
     mean.lty <- rep(mean.lty, lcomp)
-  } 
+  }
   if (mean.line == TRUE) {
     if (nsims == 1) {
       for (j in seq_len(lcomp)) {
         mean.prev <- x$epi[[y[j]]][, 1]
-        lines(1:nsteps, 
-              mean.prev, 
-              lwd = mean.lwd[j], 
-              col = mean.pal[j], 
+        lines(1:nsteps,
+              mean.prev,
+              lwd = mean.lwd[j],
+              col = mean.pal[j],
               lty = mean.lty[j])
-        
+
       }
     }
     if (nsims > 1) {
@@ -865,15 +860,15 @@ plot.icm <- function(x,
           non.extinct <- as.vector(which(apply(x$epi$si.flow, 2, max) > 0))
           mean.prev <- apply(x$epi[[y[j]]][, non.extinct], 1, mean)
         }
-        lines(1:nsteps, 
-              mean.prev, 
-              lwd = mean.lwd[j], 
-              col = mean.pal[j], 
+        lines(1:nsteps,
+              mean.prev,
+              lwd = mean.lwd[j],
+              col = mean.pal[j],
               lty = mean.lty[j])
       }
-    } 
+    }
   }
-  
+
 
   # Legends -----------------------------------------------------------------
   if (missing(leg)) {
@@ -884,84 +879,80 @@ plot.icm <- function(x,
   }
   if (leg == TRUE) {
     if (modes == 2 & nocomp) {
-      legend("topright", legend = y, lty = mean.lty, lwd = 3, 
+      legend("topright", legend = y, lty = mean.lty, lwd = 3,
              col = mean.pal, cex = leg.cex, bg = "white")
     } else {
-      legend("topright", legend = y, lty = 1, lwd = 3, 
+      legend("topright", legend = y, lty = 1, lwd = 3,
              col = mean.pal, cex = leg.cex, bg = "white")
     }
   }
-  
+
 }
 
 
 #' @title Plot Dynamic Network Model Diagnostics
-#' 
-#' @description Plots dynamic network model diagnostics calculated in 
+#'
+#' @description Plots dynamic network model diagnostics calculated in
 #'              \code{netdx}.
 #'
 #' @param x an \code{EpiModel} object of class \code{netdx}.
-#' @param type plot type, with options of \code{"formation"} for network 
+#' @param type plot type, with options of \code{"formation"} for network
 #'        model formation statistics, or \code{"duration"} for dissolution model
 #'        statistics for average edge duration.
-#' @param sim vector of simulation numbers to plot, with the default to plot 
+#' @param sim vector of simulation numbers to plot, with the default to plot
 #'        all simulations.
 #' @param stats network statistics to plot, among those specified in the call
-#'        to \code{\link{netdx}}, with the default to plot all statistics 
+#'        to \code{\link{netdx}}, with the default to plot all statistics
 #'        contained in the object.
-#' @param sim.col vector of standard R colors for individual simulation lines, 
+#' @param sim.col vector of standard R colors for individual simulation lines,
 #'        with default colors based on \code{RColorBrewer} color palettes.
 #' @param sim.lwd line width for individual simulation lines, with defaults based
 #'        on number of simulations (more simulations results in thinner lines).
 #' @param sim.lty line type for the individual simulation lines.
-#' @param targ.col vector of standard R colors for target statistic lines, with 
+#' @param targ.col vector of standard R colors for target statistic lines, with
 #'        default colors based on \code{RColorBrewer} color palettes.
 #' @param targ.lwd line width for the line showing the target statistic values.
 #' @param targ.lty line type for the line showing the target statistic values.
-#' @param xlim x-axis scale limits for plot, with defaults based on model time 
-#'        steps.
-#' @param ylim y-axis scale limits for plot, with defaults based on the range of 
-#'        data. This is always set automatically when \code{plots.joined=TRUE}.
 #' @param plots.joined if \code{TRUE}, combine all target statistics in one plot,
 #'        otherwise use one plot window per target statistic.
 #' @param plot.leg if \code{TRUE}, show legend (only if \code{plots.joined=TRUE})
 #' @param ... additional arguments passed to main plot windows.
-#' 
+#'
 #' @details
-#' The plot function for \code{netdx} objects will generate plots of two types of 
-#' model diagnostic statistics that run as part of the diagnostic tools within 
-#' that function. The \code{formation} plot shows the summary statistics 
-#' requested in \code{nwstats.formula}, where the default includes those 
-#' statistics in the network model formation formula specified in the original 
-#' call to \code{\link{netest}}. 
-#' 
-#' The \code{duration} plot shows the average age of existing edges at each time 
-#' step, up until the maximum time step requested. This is calculated with the 
-#' \code{\link{edgelist_meanage}} function. The age is used as an estimator of 
-#' the average duration of edges in the equilibrium state. 
-#' 
-#' The \code{plots.joined} argument will control whether the target statistics 
-#' in the \code{formation} plot are joined in one plot or plotted separately. 
-#' The default is based on the number of network statistics requested. The 
-#' layout of the separate plots within the larger plot window is also based on 
+#' The plot function for \code{netdx} objects will generate plots of two types of
+#' model diagnostic statistics that run as part of the diagnostic tools within
+#' that function. The \code{formation} plot shows the summary statistics
+#' requested in \code{nwstats.formula}, where the default includes those
+#' statistics in the network model formation formula specified in the original
+#' call to \code{\link{netest}}.
+#'
+#' The \code{duration} plot shows the average age of existing edges at each time
+#' step, up until the maximum time step requested. This is calculated with the
+#' \code{\link{edgelist_meanage}} function. The age is used as an estimator of
+#' the average duration of edges in the equilibrium state.
+#'
+#' The \code{plots.joined} argument will control whether the statistics
+#' in the \code{formation} plot are joined in one plot or plotted separately.
+#' The default is based on the number of network statistics requested. The
+#' layout of the separate plots within the larger plot window is also based on
 #' the number of statistics.
-#' 
+#'
 #' @method plot netdx
 #' @export
-#' 
+#'
 #' @keywords plot
 #' @seealso \code{\link{netdx}}
-#' 
+#'
 #' @examples
 #' \dontrun{
 #' # Network initialization and model parameterization
 #' nw <- network.initialize(100, directed = FALSE)
 #' nw <- set.vertex.attribute(nw, "sex", rbinom(100, 1, 0.5))
 #' formation <- ~ edges + nodematch("sex")
-#' dissolution <- ~ offset(edges) 
+#' dissolution <- ~ offset(edges)
 #' target.stats <- c(50, 40)
 #' coef.diss <- dissolution_coefs(dissolution, duration = 10)
-#'  
+#'
 #' # Estimate the model
 #' est <- netest(nw,
 #'               formation,
@@ -969,33 +960,33 @@ plot.icm <- function(x,
 #'               target.stats,
 #'               coef.diss,
 #'               verbose = FALSE)
-#' 
+#'
 #' # Run diagnostics
-#' dx <- netdx(est, 
-#'             nsims = 10, 
+#' dx <- netdx(est,
+#'             nsims = 10,
 #'             nsteps = 100,
-#'             nwstats.formula = ~ edges + meandeg + concurrent + 
+#'             nwstats.formula = ~ edges + meandeg + concurrent +
 #'                                 nodefactor("sex", base = 0) +
 #'                                 nodematch("sex"),
 #'             verbose = FALSE)
-#' 
+#'
 #' # Formation statistics plots, joined and separate
 #' plot(dx, type = "formation")
 #' plot(dx, type = "formation", plots.joined = TRUE)
 #' plot(dx, type = "formation", sim = 2:5)
-#' plot(dx, type = "formation", plots.joined = FALSE, 
+#' plot(dx, type = "formation", plots.joined = FALSE,
 #'      stats = c("edges", "concurrent"))
-#' plot(dx, type = "formation", stats = "nodefactor.sex.0", 
+#' plot(dx, type = "formation", stats = "nodefactor.sex.0",
 #'      sim = 1, sim.lwd = 5, sim.col = "darkmagenta")
-#' 
+#'
 #' # Duration statistics plot
 #' plot(dx, type = "duration")
 #' plot(dx, type = "duration", sim = 1)
-#' plot(dx, type = "duration", sim = 10, 
-#'      sim.col = "steelblue", sim.lwd = 3, 
+#' plot(dx, type = "duration", sim = 10,
+#'      sim.col = "steelblue", sim.lwd = 3,
 #'      targ.lty = 1, targ.lwd = 0.5)
 #' }
-#' 
+#'
 plot.netdx <- function(x,
                        type = "formation",
                        sim,
@@ -1006,21 +997,19 @@ plot.netdx <- function(x,
                        targ.col,
                        targ.lwd = 2,
                        targ.lty = 2,
-                       xlim,
-                       ylim,
                        plots.joined,
                        plot.leg = TRUE,
                        ...
                        ) {
-  
-  
+
+
   # Checks and Variables ----------------------------------------------------
-  
+
   ## Check Object
   if (class(x) != "netdx") {
     stop("x must be an object of class netdx", call. = FALSE)
   }
-  
+
   ## Check sims
   nsims <- x$nsims
   if (missing(sim)) {
@@ -1030,12 +1019,14 @@ plot.netdx <- function(x,
     stop("Maximum sim number is", nsims, call. = FALSE)
   }
   nsteps <- x$nsteps
-  
-  
+
+  # Get dotargs
+  da <- list(...)
+
+
   # Formation Plot ----------------------------------------------------------
-  
   if (type == "formation") {
-    
+
     ## Stats
     nwstats <- x$stats
     nwstats.table <- x$stats.table.formation
@@ -1043,36 +1034,40 @@ plot.netdx <- function(x,
     ## Find available stats
     sts <- which(!is.na(nwstats.table$stats.means))
     nmstats <- rownames(nwstats.table)[sts]
-    
+
     ## Pull and check stat argument
     if (missing(stats)) {
       stats <- nmstats
     }
     if (any(stats %in% nmstats == FALSE)) {
-      stop("One or more requested stats not contained in netdx object", 
+      stop("One or more requested stats not contained in netdx object",
            call. = FALSE)
     }
     outsts <- which(nmstats %in% stats)
-    
+
     ## Subset data
     nstats <- length(outsts)
     data <- do.call("cbind", args = nwstats)
     data <- data[, colnames(data) %in% nmstats[outsts], drop = FALSE]
-    
+
     ## Pull target stats
     targs <- which(!is.na(nwstats.table$targets))
-    
+
 
     ## Plotting
     if (missing(plots.joined)) {
       plots.joined <- ifelse(nstats > 5, FALSE, TRUE)
     }
+
     if (nstats == 1) {
       plots.joined <- TRUE
     }
-    if (missing(xlim)) {
-      xlim <- c(1, nsteps)
+
+    xlim <- c(1, nsteps)
+    if (length(da) > 0 && !is.null(da$xlim)) {
+      xlim <- da$xlim
     }
+
     if (missing(sim.lwd)) {
       if (nsims == 1) {
         sim.lwd <- 1
@@ -1089,59 +1084,83 @@ plot.netdx <- function(x,
         sim.col <- brewer.pal(9, "Set1")[1:nstats]
       }
     }
-    
-    
+
+
     ## Joined Plots
     if (plots.joined == TRUE) {
-      
-      # Default legend/ylab/ylim
+
+      ## Default legend
       if (nstats == 1) {
-        plot.leg <- FALSE
-        ylab <- nmstats[outsts]
+        if (missing(plot.leg)) {
+          plot.leg <- FALSE
+        }
+      }
+
+      ## Default ylim
+      ylim <- c(min(data) * 0.8, max(data) * 1.2)
+      if (length(da) > 0 && !is.null(da$ylim)) {
+        ylim <- da$ylim
+      }
+
+      ## Default ylab
+      if (length(da) > 0 && !is.null(da$ylab)) {
+        ylab <- da$ylab
       } else {
-        ylab <- "Statistic"
+        if (nstats == 1) {
+          ylab <- nmstats[outsts]
+        } else {
+          ylab <- "Statistic"
+        }
       }
-      if (missing(ylim)) {
-        ylim <- c(min(data) * 0.8, max(data) * 1.2)
+
+      ## Default xlab
+      if (length(da) > 0 && !is.null(da$xlab)) {
+        xlab <- da$xlab
+      } else {
+        xlab <- "time"
       }
+
+      ## Default target line color
       if (missing(targ.col)) {
-        if (nstats > 9) {
+        if (nstats == 1) {
+          targ.col <- "black"
+        } else if (nstats > 9) {
           targ.col <- brewer_ramp(nstats, "Set1")
         } else {
           targ.col <- brewer.pal(9, "Set1")[1:nstats]
         }
       }
-      
-      
-      # Main plot window
-      plot(1, 1, xlim = xlim, ylim = ylim, 
-           type = "n", xlab = "time", ylab = ylab, ...)
+
+
+      ## Main plot window
+      plot(1, 1, xlim = xlim, ylim = ylim,
+           type = "n", xlab = xlab, ylab = ylab)
       for (j in outsts) {
         dataj <- data[, colnames(data) %in% nmstats[j], drop = FALSE]
         for (i in sim) {
           lines(x = 1:nsteps,
-                y = dataj[,i], 
-                lty = sim.lty, lwd = sim.lwd, 
+                y = dataj[,i],
+                lty = sim.lty, lwd = sim.lwd,
                 col = sim.col[which(j == outsts)])
         }
         if (j %in% targs) {
-          abline(h = nwstats.table$targets[j], 
-                 lty = targ.lty, lwd = targ.lwd, 
+          abline(h = nwstats.table$targets[j],
+                 lty = targ.lty, lwd = targ.lwd,
                  col = targ.col[which(j == outsts)])
         }
       }
       if (plot.leg == TRUE) {
-        legend("topleft", legend = nmstats[outsts], 
-               lwd = 3, lty = sim.lty, 
-               col = sim.col[1:nstats], cex = 0.75, 
+        legend("topleft", legend = nmstats[outsts],
+               lwd = 3, lty = sim.lty,
+               col = sim.col[1:nstats], cex = 0.75,
                bg = "white")
       }
-      
+
     }
-    
+
     ## Split plots
     if (plots.joined == FALSE) {
-      
+
       if (nstats == 1) dimens <- c(1, 1)
       if (nstats == 2) dimens <- c(1, 2)
       if (nstats == 3) dimens <- c(1, 3)
@@ -1152,77 +1171,93 @@ plot.netdx <- function(x,
       if (nstats %in% 10:12) dimens <- c(4, 3)
       if (nstats %in% 13:16) dimens <- c(4, 4)
       if (nstats > 16) dimens <- rep(ceiling(sqrt(nstats)), 2)
-      
+
       # Pull graphical parameters
       ops <- list(mar = par()$mar, mfrow = par()$mfrow, mgp = par()$mgp)
       par(mar = c(2.5, 2.5, 2, 1), mgp = c(2, 1, 0), mfrow = dimens)
-      
+
       if (missing(targ.col)) {
         targ.col <- rep("black", nstats)
       }
-      
+
       for (j in outsts) {
         dataj <- data[, colnames(data) %in% nmstats[j], drop = FALSE]
-        plot(x = 1, y = 1, 
-             xlim = xlim, 
+        plot(x = 1, y = 1,
+             xlim = xlim,
              ylim = c(min(dataj) * 0.8, max(dataj) * 1.2),
              type = "n", main = nmstats[j],
-             xlab = "", ylab = "", ...)
+             xlab = "", ylab = "")
         for (i in sim) {
           lines(x = 1:nsteps,
-                y = dataj[, i], 
+                y = dataj[, i],
                 lwd = sim.lwd, lty = sim.lty,
                 col = sim.col[which(j == outsts)])
         }
         if (j %in% targs) {
-          abline(h = nwstats.table$targets[j], 
+          abline(h = nwstats.table$targets[j],
                  lty = targ.lty, lwd = targ.lwd,
                  col = targ.col[which(j == outsts)])
         }
       }
-      
+
       # Reset graphical parameters
       on.exit(par(ops))
-    } 
+    }
   }
-  
+
   # Duration plot -----------------------------------------------------------
-  
   if (type == "duration") {
-    
+
     pages <- x$pages
-    
-    if (missing(xlim)) {
-      xlim <- c(1, nsteps)
+
+    xlim <- c(1, nsteps)
+    if (length(da) > 0 & !is.null(da$xlim)) {
+     xlim <- da$xlim
     }
-    if (missing(ylim)) {
-      ylim <- c(min(sapply(pages, min)) * 0.8, 
-                max(sapply(pages, max)) * 1.2)
+
+    ylim <- c(0, max(sapply(pages, max, na.rm = TRUE)) * 1.2)
+    if (length(da) > 0 & !is.null(da$ylim)) {
+      ylim <- da$ylim
     }
+
     if (missing(sim.lwd)) {
       sim.lwd <- max(c(1-(nsims*0.05), 0.5))
     }
-    
+
     if (missing(sim.col)) {
       sim.col <- rep("darkgrey", nsims)
     }
     if (missing(targ.col)) {
       targ.col <- "black"
     }
-    
+
+    # Default ylab
+    if (length(da) > 0 && !is.null(da$ylab)) {
+      ylab <- da$ylab
+    } else {
+      ylab <- "Edge Age"
+    }
+
+    # Default xlab
+    if (length(da) > 0 && !is.null(da$xlab)) {
+      xlab <- da$xlab
+    } else {
+      xlab <- "time"
+    }
+
     # Edges only dissolution model
     if (x$dissolution == ~offset(edges)) {
-      
+
       plot(x = 1, y = 1, type = "n",
            xlim = xlim, ylim = ylim,
-           xlab = "time", ylab = "Edge Age", ...)
+           xlab = xlab, ylab = ylab)
       for (i in sim) {
         lines(x = 1:nsteps,
               y = pages[[i]],
-              lwd = sim.lwd, lty = sim.lty, 
+              lwd = sim.lwd, lty = sim.lty,
               col = sim.col)
       }
-      abline(h = as.numeric(x$coef.diss[2]), 
+      abline(h = as.numeric(x$coef.diss[2]),
              lty = targ.lty, lwd = targ.lwd,
              col = targ.col)
     } else {
@@ -1230,7 +1265,7 @@ plot.netdx <- function(x,
            call. = FALSE)
     }
   }
-  
+
 }
 
 
@@ -1240,155 +1275,161 @@ plot.netdx <- function(x,
 #'              model simulated with \code{netsim}.
 #'
 #' @param x an \code{EpiModel} model object of class \code{netsim}.
-#' @param type type of plot: \code{"sim"} for epidemic model results, 
+#' @param type type of plot: \code{"sim"} for epidemic model results,
 #'        \code{"network"} for a static network plot (\code{plot.network}),
 #'        or \code{"formation"} for network formation statistics.
 #' @param sim if \code{type="network"}, simulation number for network graph.
 #' @param at if \code{type="network"}, time step for network graph.
-#' @param col.status if \code{TRUE} and \code{type="network"}, automatic disease 
+#' @param col.status if \code{TRUE} and \code{type="network"}, automatic disease
 #'        status colors (blue = susceptible, red = infected, , green = recovered).
-#' @param shp.bip if \code{type="network"} and a bipartite simulation, shapes 
-#'        for the mode 2 vertices, with acceptable inputs of "triangle" and 
+#' @param shp.bip if \code{type="network"} and a bipartite simulation, shapes
+#'        for the mode 2 vertices, with acceptable inputs of "triangle" and
 #'        "square". Mode 1 vertices will be circles.
-#' @param zeromarg if \code{TRUE} and \code{type="network"}, automatically 
+#' @param zeromarg if \code{TRUE} and \code{type="network"}, automatically
 #'        sets plot margins to 0 on all sides.
-#' @param stats if \code{type="formation"}, network statistics to plot, among 
-#'        those specified in \code{nwstats.formula} of \code{\link{control.net}}, 
+#' @param stats if \code{type="formation"}, network statistics to plot, among
+#'        those specified in \code{nwstats.formula} of \code{\link{control.net}},
 #'        with the default to plot all statistics.
-#' @param sim.col a vector of standard R colors to be used for individual 
-#'        simulation lines, with default colors based on \code{RColorBrewer} 
+#' @param sim.col a vector of standard R colors to be used for individual
+#'        simulation lines, with default colors based on \code{RColorBrewer}
 #'        color palettes.
 #' @param sim.lwd line width for individual simulation lines, with defaults based
 #'        on number of simulations (more simulations equals thinner lines).
 #' @param sim.lty line type for the individual simulation lines.
-#' @param plots.joined if \code{TRUE} and \code{type="formation"}, combine all 
-#'        target statistics in one plot, versus one plot per target statistic if 
+#' @param targ.col vector of standard R colors for target statistic lines, with
+#'        default colors based on \code{RColorBrewer} color palettes.
+#' @param targ.lwd line width for the line showing the target statistic values.
+#' @param targ.lty line type for the line showing the target statistic values.
+#' @param plots.joined if \code{TRUE} and \code{type="formation"}, combine all
+#'        target statistics in one plot, versus one plot per target statistic if
 #'        \code{FALSE}.
 #' @param plot.leg if \code{TRUE}, show legend (only if \code{plots.joined=TRUE}).
 #' @param ... additional arguments to pass.
-#' 
+#'
 #' @details
-#' This plot function can produce three types of plots with a stochastic network 
+#' This plot function can produce three types of plots with a stochastic network
 #' model simulated through \code{\link{netsim}}:
 #' \enumerate{
-#'  \item \strong{\code{type="sim"}}: epidemic model results (e.g., disease 
-#'        prevalence and incidence) may be plotted. In this case, this plotting 
-#'        function wraps the \code{\link{plot.icm}} function, as the stochastic 
-#'        epidemiological results are in the same data structure. Consult the 
+#'  \item \strong{\code{type="sim"}}: epidemic model results (e.g., disease
+#'        prevalence and incidence) may be plotted. In this case, this plotting
+#'        function wraps the \code{\link{plot.icm}} function, as the stochastic
+#'        epidemiological results are in the same data structure. Consult the
 #'        help page for \code{plot.icm} for all the plotting parameters.
-#'  \item \strong{\code{type="network"}}: a static network plot will be generated. 
-#'        A static network plot of a dynamic network is a cross-sectional 
-#'        extraction of that dynamic network at a specific time point. This 
-#'        plotting function wraps the \code{\link{plot.network}} function in the 
-#'        \code{network} package. Consult the help page for \code{plot.network} 
-#'        for all the plotting parameters. In addition, five plotting parameters 
-#'        specific to \code{netsim} plots are available: \code{sim}, \code{at}, 
+#'  \item \strong{\code{type="network"}}: a static network plot will be generated.
+#'        A static network plot of a dynamic network is a cross-sectional
+#'        extraction of that dynamic network at a specific time point. This
+#'        plotting function wraps the \code{\link{plot.network}} function in the
+#'        \code{network} package. Consult the help page for \code{plot.network}
+#'        for all the plotting parameters. In addition, five plotting parameters
+#'        specific to \code{netsim} plots are available: \code{sim}, \code{at},
 #'        \code{col.status}, \code{shp.bip}, and \code{zeromarg}.
-#'  \item \strong{\code{type="formation"}}: summary network statistics related to 
-#'        the network model formation are plotted. These plots are similar to the 
-#'        formation plots for \code{netdx} objects. When running a \code{netsim} 
-#'        simulation, one must specify there that \code{save.nwstats=TRUE}; the 
-#'        plot here will then show the network statistics requested explicitly in 
-#'        \code{nwstats.formula}, or will use the formation formula set in 
+#'  \item \strong{\code{type="formation"}}: summary network statistics related to
+#'        the network model formation are plotted. These plots are similar to the
+#'        formation plots for \code{netdx} objects. When running a \code{netsim}
+#'        simulation, one must specify there that \code{save.nwstats=TRUE}; the
+#'        plot here will then show the network statistics requested explicitly in
+#'        \code{nwstats.formula}, or will use the formation formula set in
 #'        \code{netest} otherwise.
 #' }
-#' 
+#'
 #' @method plot netsim
-#' @export 
-#' 
+#' @export
+#'
 #' @keywords plot
 #' @seealso \code{\link{plot.icm}}, \code{\link{plot.network}}
-#' 
+#'
 #' @examples
 #' \dontrun{
 #' ## Independent SI Model
 #' # Initialize network and set network model parameters
 #' nw <- network.initialize(n = 100, bipartite = 50, directed = FALSE)
-#' formation <- ~ edges 
+#' formation <- ~ edges
 #' target.stats <- 50
 #' dissolution <- ~ offset(edges)
 #' duration <- 20
 #' coef.diss <- dissolution_coefs(dissolution, duration)
-#' 
+#'
 #' # Estimate the network model
 #' est <- netest(nw,
 #'               formation,
 #'               dissolution,
 #'               target.stats,
-#'               coef.diss, 
+#'               coef.diss,
 #'               verbose = FALSE)
-#' 
+#'
 #' # Simulate the epidemic model
 #' param <- param.net(trans.rate = 0.3, trans.rate.m2 = 0.15)
 #' init <- init.net(i.num = 10, i.num.m2 = 10)
-#' control <- control.net(type = "SI", nsteps = 100, nsims = 5, 
+#' control <- control.net(type = "SI", nsteps = 100, nsims = 5,
 #'                        verbose = FALSE, save.nwstats = TRUE,
 #'                        nwstats.formula = ~ edges + meandeg + concurrent)
 #' mod <- netsim(est, param, init, control)
-#' 
+#'
 #' # Plot epidemic trajectory (default type)
 #' plot(mod, type = "sim")
 #' plot(mod, type = "sim", popfrac = FALSE)
 #' plot(mod, type = "sim", y = "si.flow")
-#' 
+#'
 #' # Plot static networks
 #' plot(mod, type = "network")
-#' 
+#'
 #' # Automatic coloring of infected nodes as red
-#' plot(mod, type = "network", 
+#' plot(mod, type = "network",
 #'      col.status = TRUE, at = 50)
-#' plot(mod, type = "network", 
+#' plot(mod, type = "network",
 #'      col.status = TRUE, at = 50, sim = 5)
-#' 
+#'
 #' # Automatic shape by mode number (circle = mode 1)
-#' plot(mod, type = "network", at = 50, 
+#' plot(mod, type = "network", at = 50,
 #'      col.status = TRUE, shp.bip = "square")
-#' plot(mod, type = "network", at = 50, 
+#' plot(mod, type = "network", at = 50,
 #'      col.status = TRUE, shp.bip = "triangle")
-#'  
+#'
 #' # Remove the automatic zero margin to include a title
-#' plot(mod, type = "network", zeromarg = FALSE, 
+#' plot(mod, type = "network", zeromarg = FALSE,
 #'      main = "My Network Plot")
-#' 
+#'
 #' # Plot formation statistics
 #' plot(mod, type = "formation")
 #' plot(mod, type = "formation", plots.joined = FALSE)
 #' plot(mod, type = "formation", sim = 2:4)
-#' plot(mod, type = "formation", plots.joined = FALSE, 
+#' plot(mod, type = "formation", plots.joined = FALSE,
 #'      stats = c("edges", "concurrent"))
-#' plot(mod, type = "formation", stats = "meandeg", 
+#' plot(mod, type = "formation", stats = "meandeg",
 #'      sim.lwd = 2, sim.col = "seagreen")
 #' }
-#' 
-plot.netsim <- function(x, 
-                        type = "sim", 
-                        sim, 
-                        at = 1, 
-                        col.status = FALSE, 
+#'
+plot.netsim <- function(x,
+                        type = "sim",
+                        sim,
+                        at = 1,
+                        col.status = FALSE,
                         shp.bip = NULL,
                         zeromarg = TRUE,
                         stats,
                         sim.lwd,
                         sim.col,
                         sim.lty = 1,
+                        targ.col,
+                        targ.lwd = 2,
+                        targ.lty = 2,
                         plots.joined,
                         plot.leg = TRUE,
                         ...) {
-  
+
   # Network plot ------------------------------------------------------------
-    
   if (type == "network") {
-    
+
     if (is.null(x$network)) {
       stop("networkDynamic object not saved in netsim simulation",
            call. = FALSE)
     }
-    
+
     nsteps <- x$control$nsteps
     if (at > x$control$nsteps) {
       stop("Specify a time step between 1 and", nsteps)
     }
-    
+
     nsims <- x$control$nsims
     if (missing(sim)) {
       sim <- 1
@@ -1398,18 +1439,18 @@ plot.netsim <- function(x,
     }
     obj <- network.extract(x$network[[sim]], at = at)
     tea.status <- x$control$tea.status
-    
+
     ops <- list(mar=par()$mar)
     if (zeromarg == TRUE) {
       par(mar=c(0, 0, 0, 0))
     }
-    
+
     if (!is.null(shp.bip)) {
       if (all(shp.bip != c("square", "triangle"))) {
         stop("shp.bip accepts inputs of either \"square\" or \"triangle\" ",
              call. = FALSE)
       }
-      
+
       if (is.numeric(obj$gal$bipartite)) {
         mids <- idmode(obj)
         if (shp.bip == "square") {
@@ -1422,7 +1463,7 @@ plot.netsim <- function(x,
           vertex.rot <- 90
           vertex.cex <- ifelse(mids == 1, 1, 1.4)
         }
-        
+
       } else {
         warning("shp.bip only applies to bipartite networks, so ignoring")
         vertex.sides <- 50
@@ -1446,37 +1487,45 @@ plot.netsim <- function(x,
         cols <- ifelse(get.vertex.attribute.active(obj, "testatus", at = at) == 2,
                        pal[3], cols)
       }
-      plot.network(obj, 
-                   vertex.col = cols, 
-                   vertex.border = "grey60", 
-                   edge.col = "grey40", 
+      plot.network(obj,
+                   vertex.col = cols,
+                   vertex.border = "grey60",
+                   edge.col = "grey40",
                    vertex.sides = vertex.sides,
                    vertex.rot = vertex.rot,
                    vertex.cex = vertex.cex,
                    displaylabels = FALSE,
                    ...)
     } else {
-      plot.network(obj, 
-                   vertex.sides = vertex.sides, 
+      plot.network(obj,
+                   vertex.sides = vertex.sides,
                    vertex.rot = vertex.rot,
                    vertex.cex = vertex.cex,
                    displaylabels = FALSE,
                    ...)
     }
-    
+
     on.exit(par(ops))
   }
-  
-  
+
+
   # Epidemic plot -----------------------------------------------------------
   if (type == "sim") {
-    plot.icm(x, ...)
+    if (missing(sim.col) & missing(sim.lwd)) {
+      plot.icm(x, ...)
+    } else if (missing(sim.col) & !missing(sim.lwd)) {
+      plot.icm(x, sim.lwd = sim.lwd, ...)
+    } else if (!missing(sim.col) & missing(sim.lwd)) {
+      plot.icm(x, sim.col = sim.col, ...)
+    } else {
+      plot.icm(x, sim.lwd = sim.lwd, sim.col = sim.col, ...)
+    }
   }
-  
-  
+
+
   # Formation plot ----------------------------------------------------------
   if (type == "formation") {
-    
+
     ## Stats
     nwstats <- x$stats$nwstats
     nsteps <- x$control$nsteps
@@ -1484,10 +1533,13 @@ plot.netsim <- function(x,
       sim <- 1:x$control$nsims
     }
     nsims <- x$control$nsims
-    
+    if (max(sim) > nsims) {
+      stop("Maximum sim for this object is ", nsims, call. = FALSE)
+    }
+
     ## Find available stats
     nmstats <- names(nwstats[[1]])
-    
+
     ## Pull and check stat argument
     if (missing(stats)) {
       stats <- nmstats
@@ -1498,12 +1550,21 @@ plot.netsim <- function(x,
     }
     outsts <- which(nmstats %in% stats)
     nstats <- length(outsts)
-  
-    
-    # Get dotargs
+
+    ## target stats
+    target.stats <- attributes(x$stats$nwstats)$target.stats
+    formation.terms <- attributes(x$stats$nwstats)$formation.terms
+
+    st <- data.frame(sorder = 1:length(nmstats), names = nmstats)
+    ts <- data.frame(names = formation.terms, targets = target.stats)
+
+    m <- merge(st, ts, all = TRUE)
+    m <- m[do.call("order", m[, "sorder", drop = FALSE]), , drop = FALSE]
+    targs <- which(!is.na(m$targets))
+
+    ## Get dotargs
     da <- list(...)
 
-    
     ## Plotting
     if (missing(plots.joined)) {
       plots.joined <- ifelse(nstats > 5, FALSE, TRUE)
@@ -1512,7 +1573,7 @@ plot.netsim <- function(x,
       plots.joined <- TRUE
     }
     xlim <- c(1, nsteps)
-    if (length(da) > 0 && names(da) %in% "xlim") {
+    if (!is.null(da$xlim)) {
       xlim <- da$xlim
     }
     if (missing(sim.lwd)) {
@@ -1522,7 +1583,7 @@ plot.netsim <- function(x,
         sim.lwd <- max(c(1-(nsims*0.05), 0.5))
       }
     }
-    
+
     # Default colors
     if (missing(sim.col)) {
       if (nstats > 9) {
@@ -1531,19 +1592,19 @@ plot.netsim <- function(x,
         sim.col <- brewer.pal(9, "Set1")[1:nstats]
       }
     }
-    
-  
+
+
     ## Joined Plots
     if (plots.joined == TRUE) {
-      
-      # Default legend/ylab/ylim
+
+      ## Default legend
       if (nstats == 1) {
-        plot.leg <- FALSE
-        ylab <- nmstats[outsts]
-      } else {
-        ylab <- "Statistic"
+        if (missing(plot.leg)) {
+          plot.leg <- FALSE
+        }
       }
-      
+
+      ## Default ylim
       if (ncol(nwstats[[1]]) == 1) {
         mins <- sapply(nwstats, function(x) apply(x, 2, min))
         maxs <- sapply(nwstats, function(x) apply(x, 2, max))
@@ -1553,34 +1614,69 @@ plot.netsim <- function(x,
       }
       ymin <- min(mins)
       ymax <- max(maxs)
-      
-      ylim <- c(ymin * 0.8, ymax * 1.2)
-      if (length(da) > 0 && names(da) %in% "ylim") {
+      if (!is.null(da$ylim)) {
         ylim <- da$ylim
+      } else {
+        ylim <- c(ymin * 0.8, ymax * 1.2)
       }
-      
-      # Main plot window
-      plot(1, 1, xlim = xlim, ylim = ylim, 
-           type = "n", xlab = "time", ylab = ylab, ...)
+
+      ## Default ylab
+      if (!is.null(da$ylab)) {
+        ylab <- da$ylab
+      } else {
+        if (nstats == 1) {
+          ylab <- nmstats[outsts]
+        } else {
+          ylab <- "Statistic"
+        }
+      }
+
+      ## Default xlab
+      if (!is.null(da$xlab)) {
+        xlab <- da$xlab
+      } else {
+        xlab <- "time"
+      }
+
+      ## Default target line color
+      if (missing(targ.col)) {
+        if (nstats == 1) {
+          targ.col <- "black"
+        } else if (nstats > 9) {
+          targ.col <- brewer_ramp(nstats, "Set1")
+        } else {
+          targ.col <- brewer.pal(9, "Set1")[1:nstats]
+        }
+      }
+
+
+      ## Main plot window
+      plot(1, 1, xlim = xlim, ylim = ylim,
+           type = "n", xlab = xlab, ylab = ylab)
       for (j in outsts) {
         for (i in sim) {
           lines(x = 1:nsteps,
-                y = nwstats[[i]][[nmstats[j]]], 
-                lty = sim.lty, lwd = sim.lwd, 
+                y = nwstats[[i]][[nmstats[j]]],
+                lty = sim.lty, lwd = sim.lwd,
                 col = sim.col[which(j == outsts)])
+        }
+        if (j %in% targs) {
+          abline(h = m$targets[j],
+                 lty = targ.lty, lwd = targ.lwd,
+                 col = targ.col[which(j == outsts)])
         }
       }
       if (plot.leg == TRUE) {
-        legend("topleft", legend = nmstats[outsts], 
-               lwd = 3, lty = sim.lty, 
-               col = sim.col[1:nstats], cex = 0.75, 
+        legend("topleft", legend = nmstats[outsts],
+               lwd = 3, lty = sim.lty,
+               col = sim.col[1:nstats], cex = 0.75,
                bg = "white")
       }
     }
-    
+
     ## Split plots
     if (plots.joined == FALSE) {
-      
+
       if (nstats == 1) dimens <- c(1, 1)
       if (nstats == 2) dimens <- c(1, 2)
       if (nstats == 3) dimens <- c(1, 3)
@@ -1591,93 +1687,102 @@ plot.netsim <- function(x,
       if (nstats %in% 10:12) dimens <- c(4, 3)
       if (nstats %in% 13:16) dimens <- c(4, 4)
       if (nstats > 16) dimens <- rep(ceiling(sqrt(nstats)), 2)
-      
+
       # Pull graphical parameters
       ops <- list(mar = par()$mar, mfrow = par()$mfrow, mgp = par()$mgp)
       par(mar = c(2.5, 2.5, 2, 1), mgp = c(2, 1, 0), mfrow = dimens)
 
       mins <- sapply(nwstats, function(x) apply(x, 2, min))
       maxs <- sapply(nwstats, function(x) apply(x, 2, max))
-      
+
+      if (missing(targ.col)) {
+        targ.col <- rep("black", nstats)
+      }
+
       for (j in outsts) {
         ymin <- min(mins[j,])
         ymax <- max(maxs[j,])
-        plot(x = 1, y = 1, 
-             xlim = xlim, 
+        plot(x = 1, y = 1,
+             xlim = xlim,
              ylim = c(ymin * 0.8, ymax * 1.2),
              type = "n", main = nmstats[j],
              xlab = "", ylab = "", ...)
         for (i in sim) {
           lines(x = 1:nsteps,
-                y = nwstats[[i]][[nmstats[j]]], 
+                y = nwstats[[i]][[nmstats[j]]],
                 lwd = sim.lwd, lty = sim.lty,
                 col = sim.col[which(j == outsts)])
         }
+        if (j %in% targs) {
+          abline(h = m$targets[j],
+                 lty = targ.lty, lwd = targ.lwd,
+                 col = targ.col[which(j == outsts)])
+        }
       }
-      
+
       # Reset graphical parameters
       on.exit(par(ops))
-    } 
+    }
   }
-  
-  
+
+
 }
 
 
 #' @title Plot Compartment Diagram for Epidemic Models
-#' 
+#'
 #' @description Plots a compartment flow diagram for deterministic compartmental
-#'              models, stochastic individual contact models, and stochastic 
+#'              models, stochastic individual contact models, and stochastic
 #'              network models.
-#' 
-#' @param x an \code{EpiModel} object of class \code{dcm}, \code{icm}, or 
+#'
+#' @param x an \code{EpiModel} object of class \code{dcm}, \code{icm}, or
 #'        \code{netsim}.
 #' @param at time step for model statistics.
-#' @param run model run number, for \code{dcm} class models with multiple runs 
+#' @param run model run number, for \code{dcm} class models with multiple runs
 #'        (sensitivity analyses).
 #' @param digits number of significant digits to print.
 #' @param ... additional arguments passed to plot (not used).
-#' 
+#'
 #' @details
-#' The \code{comp_plot} function provides a visual summary of an epidemic model 
-#' at a specific time step. The information contained in \code{comp_plot} is the 
-#' same as in the \code{summary} functions for a model, but presented graphically 
+#' The \code{comp_plot} function provides a visual summary of an epidemic model
+#' at a specific time step. The information contained in \code{comp_plot} is the
+#' same as in the \code{summary} functions for a model, but presented graphically
 #' as a compartment flow diagram.
-#' 
-#' For \code{dcm} class plots, specify the model run number if the model contains 
-#' multiple runs, as in a sensitivity analysis. For \code{icm} and \code{netsim} 
-#' class plots, the \code{run} argument is not used; the plots show the means and 
+#'
+#' For \code{dcm} class plots, specify the model run number if the model contains
+#' multiple runs, as in a sensitivity analysis. For \code{icm} and \code{netsim}
+#' class plots, the \code{run} argument is not used; the plots show the means and
 #' standard deviations across simulations at the specified time step.
-#'   
-#' These plots are currently limited to one-group and one-mode models for each of 
+#'
+#' These plots are currently limited to one-group and one-mode models for each of
 #' the three model classes. That functionality may be expanded in future software
 #' releases.
-#' 
+#'
 #' @export
 #' @keywords plot
-#' 
+#'
 #' @examples
 #' \dontrun{
 #' ## Example 1: DCM SIR model with varying act.rate
-#' param <- param.dcm(trans.rate = 0.2, act.rate = 5:7, 
-#'                    rec.rate = 1/3, b.rate = 1/90, ds.rate = 1/100, 
+#' param <- param.dcm(trans.rate = 0.2, act.rate = 5:7,
+#'                    rec.rate = 1/3, b.rate = 1/90, ds.rate = 1/100,
 #'                    di.rate = 1/35, dr.rate = 1/100)
 #' init <- init.dcm(s.num = 1000, i.num = 1, r.num = 0)
 #' control <- control.dcm(type="SIR", nsteps = 25, verbose = FALSE)
 #' mod1 <- dcm(param, init, control)
 #' comp_plot(mod1, at = 25, run = 3)
-#' 
+#'
 #' ## Example 2: ICM SIR model with 3 simulations
-#' param <- param.icm(trans.rate = 0.2, act.rate = 3, rec.rate = 1/50, 
-#'                    b.rate = 1/100, ds.rate = 1/100, 
+#' param <- param.icm(trans.rate = 0.2, act.rate = 3, rec.rate = 1/50,
+#'                    b.rate = 1/100, ds.rate = 1/100,
 #'                    di.rate = 1/90, dr.rate = 1/100)
 #' init <- init.icm(s.num = 500, i.num = 1, r.num = 0)
-#' control <- control.icm(type = "SIR", nsteps = 25, 
+#' control <- control.icm(type = "SIR", nsteps = 25,
 #'                        nsims = 3, verbose = FALSE)
 #' mod2 <- icm(param, init, control)
 #' comp_plot(mod2, at = 25, digits = 1)
 #' }
-#' 
+#'
 comp_plot <- function(x, at, run, digits, ...) {
   UseMethod("comp_plot")
 }
@@ -1686,20 +1791,20 @@ comp_plot <- function(x, at, run, digits, ...) {
 #' @method comp_plot dcm
 #' @rdname comp_plot
 #' @export
-comp_plot.dcm <- function(x, 
+comp_plot.dcm <- function(x,
                           at,
-                          run = 1, 
+                          run = 1,
                           digits = 3,
                           ...
                           ) {
-  
-  
+
+
   ## Variables
   nruns <- x$control$nruns
   type <- x$control$type
   groups <- x$param$groups
   vital <- x$param$vital
-  
+
   ## Errors
   if (groups != 1) {
     stop("Only 1-group dcm models currently supported",
@@ -1709,29 +1814,29 @@ comp_plot.dcm <- function(x,
     stop("Specify a run between 1 and ", nruns,
          call. = FALSE)
   }
-  
+
   ## Time
   if (missing(at) || (at > max(x$control$dt) | at < min(x$control$dt))) {
     stop("Specify a timestep between 1 and ", max(x$control$dt))
   }
   intime <- at
   at <- which(x$control$dt == intime)
-  
+
   ## Dataframe subsets
   df <- as.data.frame(x, run = run)
   df <- round(df[at, ], digits)
-  
+
   ## Change graphical parameters
   ops <- list(mar = par()$mar, mfrow = par()$mfrow, mgp = par()$mgp)
   par(mar = c(0, 0, 2, 0))
   options(scipen = 10)
-  
+
   ## Main Plot
   plot(0:100, 0:100, type = "n", axes = FALSE)
   title(main = paste(type, "Model Diagram"))
-  mtext(paste0("time=", intime, "  |  run=", run), 
+  mtext(paste0("time=", intime, "  |  run=", run),
         side = 3, cex = 0.8, line = -1)
-  
+
   ## 1. SI Model
   if (type == "SI") {
     mbox(22, 40, "Susceptible", df$s.num)
@@ -1743,13 +1848,13 @@ comp_plot.dcm <- function(x,
       varrow(22, 40, "b.flow", df$b.flow, dir = "in")
     }
   }
-  
+
   ## 2. SIR Model
   if (type == "SIR") {
     mbox(5, 40, "Susceptible", df$s.num)
     mbox(40, 40, "Infected", df$i.num)
     mbox(75, 40, "Recovered", df$r.num)
-    harrow(5, 40, "si.flow", df$si.flow, dir = "right")   
+    harrow(5, 40, "si.flow", df$si.flow, dir = "right")
     harrow(40, 40, "ir.flow", df$ir.flow, dir = "right")
     if (vital == TRUE) {
       varrow(5, 40, "ds.flow", df$ds.flow, dir = "out")
@@ -1757,13 +1862,13 @@ comp_plot.dcm <- function(x,
       varrow(75, 40, "dr.flow", df$dr.flow, dir = "out")
       varrow(5, 40, "b.flow", df$b.flow, dir = "in")
     }
-  } 
-  
+  }
+
   ## 3. SIS Model
   if (type == "SIS") {
     mbox(22, 40, "Susceptible", df$s.num)
-    mbox(57, 40, "Infected", df$i.num)    
-    harrow(22, 40, "si.flow", df$si.flow, dir = "right")    
+    mbox(57, 40, "Infected", df$i.num)
+    harrow(22, 40, "si.flow", df$si.flow, dir = "right")
     harrow(22, 40, "is.flow", df$is.flow, dir = "left")
     if (vital == TRUE) {
       varrow(22, 40, "ds.flow", df$ds.flow, dir = "out")
@@ -1771,7 +1876,7 @@ comp_plot.dcm <- function(x,
       varrow(22, 40, "b.flow", df$b.flow, dir = "in")
     }
   }
-  
+
   # Reset graphical parameters
   on.exit(par(ops))
 }
@@ -1780,19 +1885,19 @@ comp_plot.dcm <- function(x,
 #' @method comp_plot icm
 #' @rdname comp_plot
 #' @export
-comp_plot.icm <- function(x, 
+comp_plot.icm <- function(x,
                           at = 1,
                           run,
                           digits = 3,
                           ...
                           ) {
-  
+
   # Variables
   nruns <- x$control$nruns
   nsteps <- x$control$nsteps
   type <- x$control$type
   vital <- x$param$vital
-  
+
   # Standardize groups
   if (class(x) == "icm") {
     groups <- x$param$groups
@@ -1804,30 +1909,30 @@ comp_plot.icm <- function(x,
     stop("Only 1-group/mode models currently supported",
          call. = FALSE)
   }
-  
+
   # Time
   if (missing(at) || (at > nsteps | at < 1)) {
     stop("Specify a timestep between 1 and ", nsteps,
          call. = FALSE)
   }
-  
+
   ## Dataframe subsets for plots
   df.mn <- as.data.frame(x, out = "mean")
   df.mn <- round(df.mn[at == df.mn$time, ], digits)
   df.sd <- as.data.frame(x, out = "sd")
   df.sd <- round(df.sd[at == df.sd$time, ], digits)
-  
+
   ## Change graphical parameters
   ops <- list(mar = par()$mar, mfrow = par()$mfrow, mgp = par()$mgp)
   par(mar = c(0, 0, 2, 0))
   options(scipen = 10)
-  
+
   ## Main Plot
   plot(0:100, 0:100, type = "n", axes = FALSE)
   title(main = paste(type, "Model Diagram"))
-  mtext(paste0("Simulation means(sd) | time=", at), 
+  mtext(paste0("Simulation means(sd) | time=", at),
         side = 3, cex = 0.8, line = -1)
-  
+
   ## 1. SI Model
   if (type == "SI" && groups == 1) {
     mbox(22, 40, "Susceptible", paste0(df.mn$s.num, "(", df.sd$s.num, ")"))
@@ -1839,13 +1944,13 @@ comp_plot.icm <- function(x,
       varrow(22, 40, "b.flow", df.mn$b.flow, dir = "in")
     }
   }
-  
+
   ## 2. SIR Model
   if (type == "SIR" && groups == 1) {
     mbox(5, 40, "Susceptible", paste0(df.mn$s.num, "(", df.sd$s.num, ")"))
     mbox(40, 40, "Infected", paste0(df.mn$i.num, "(", df.sd$i.num, ")"))
     mbox(75, 40, "Recovered", paste0(df.mn$r.num, "(", df.sd$r.num, ")"))
-    harrow(5, 40, "si.flow", df.mn$si.flow, dir = "right")   
+    harrow(5, 40, "si.flow", df.mn$si.flow, dir = "right")
     harrow(40, 40, "ir.flow", df.mn$ir.flow, dir = "right")
     if (vital == TRUE) {
       varrow(5, 40, "ds.flow", df.mn$ds.flow, dir = "out")
@@ -1853,13 +1958,13 @@ comp_plot.icm <- function(x,
       varrow(75, 40, "dr.flow", df.mn$dr.flow, dir = "out")
       varrow(5, 40, "b.flow", df.mn$b.flow, dir = "in")
     }
-  } 
-  
+  }
+
   ## 3. SIS Model
   if (type == "SIS" && groups == 1) {
     mbox(22, 40, "Susceptible", paste0(df.mn$s.num, "(", df.sd$s.num, ")"))
-    mbox(57, 40, "Infected", paste0(df.mn$i.num, "(", df.sd$i.num, ")"))    
-    harrow(22, 40, "si.flow", df.mn$si.flow, dir = "right")    
+    mbox(57, 40, "Infected", paste0(df.mn$i.num, "(", df.sd$i.num, ")"))
+    harrow(22, 40, "si.flow", df.mn$si.flow, dir = "right")
     harrow(22, 40, "is.flow", df.mn$is.flow, dir = "left")
     if (vital == TRUE) {
       varrow(22, 40, "ds.flow", df.mn$ds.flow, dir = "out")
@@ -1867,28 +1972,28 @@ comp_plot.icm <- function(x,
       varrow(22, 40, "b.flow", df.mn$b.flow, dir = "in")
     }
   }
-  
+
   # Reset graphical parameters
   on.exit(par(ops))
-  
+
 }
 
 #' @method comp_plot netsim
 #' @rdname comp_plot
 #' @export
-comp_plot.netsim <- function(x, 
+comp_plot.netsim <- function(x,
                              at = 1,
                              run,
                              digits = 3,
                              ...
                              ) {
-  
+
   comp_plot.icm(x = x,
                 at = at,
                 run = run,
                 digits = digits,
                 ...)
-  
+
 }
 
 
@@ -1898,7 +2003,7 @@ comp_plot.netsim <- function(x,
 
 # Calculate denominators
 denom <- function(x, y, popfrac) {
-  
+
   if (class(x) == "dcm") {
     if (popfrac == TRUE) {
       den <- data.frame(den = rep(NA, length(x$control$dt)))
@@ -1920,7 +2025,7 @@ denom <- function(x, y, popfrac) {
         for (j in 1:length(y)) {
           x$epi[[y[j]]] <- x$epi[[y[j]]] / den[[y.group.num[j]]]
         }
-      }  
+      }
     }
     if (popfrac == FALSE && x$control$nruns == 1) {
       for (j in 1:length(y)) {
@@ -1928,7 +2033,7 @@ denom <- function(x, y, popfrac) {
       }
     }
   }
-  
+
   if (class(x) == "icm") {
     if (popfrac == TRUE) {
       den <- data.frame(den = rep(NA, x$control$nsteps))
@@ -1950,7 +2055,7 @@ denom <- function(x, y, popfrac) {
         for (j in 1:length(y)) {
           x$epi[[y[j]]] <- x$epi[[y[j]]] / den[[y.group.num[j]]]
         }
-      } 
+      }
     }
     if (popfrac == FALSE && x$control$nsims == 1) {
       for (j in 1:length(y)) {
@@ -1958,7 +2063,7 @@ denom <- function(x, y, popfrac) {
       }
     }
   }
-  
+
   if (class(x) == "netsim") {
     if (popfrac == TRUE) {
       den <- data.frame(den = rep(NA, x$control$nsteps))
@@ -1980,7 +2085,7 @@ denom <- function(x, y, popfrac) {
         for (j in 1:length(y)) {
           x$epi[[y[j]]] <- x$epi[[y[j]]] / den[[y.group.num[j]]]
         }
-      }  
+      }
     }
     if (popfrac == FALSE && x$control$nsims == 1) {
       for (j in 1:length(y)) {
@@ -1988,7 +2093,7 @@ denom <- function(x, y, popfrac) {
       }
     }
   }
-  
+
   return(x)
 }
 
@@ -2002,7 +2107,7 @@ mbox <- function(x, y, title, val) {
 harrow <- function(xbox, ybox, title, val, dir) {
   if (dir == "right") {
     arrows(xbox+20, ybox+12, xbox+35, lwd=2, length=0.15)
-    text(xbox+27.5, ybox+17, paste(title, val, sep="="), cex=0.8) 
+    text(xbox+27.5, ybox+17, paste(title, val, sep="="), cex=0.8)
   }
   if (dir == "left") {
     arrows(xbox+20+15, ybox+5, xbox+20, lwd=2, length=0.15)

@@ -2,9 +2,9 @@
 require(knitr)
 require(EpiModel)
 
-## ------------------------------------------------------------------------
-help(package = "EpiModel")
+## ----eval=FALSE----------------------------------------------------------
+#  help(package = "EpiModel")
 
-## ----results='hide'------------------------------------------------------
-news(Version == "1.0", package = "EpiModel")
+## ----eval=FALSE----------------------------------------------------------
+#  news(package = "EpiModel")
 
