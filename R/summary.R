@@ -24,7 +24,7 @@
 #'
 #' @examples
 #' ## Deterministic SIR model with varying act.rate
-#' param <- param.dcm(trans.rate = 0.2, act.rate = 2:4, rec.rate = 1/3,
+#' param <- param.dcm(inf.prob = 0.2, act.rate = 2:4, rec.rate = 1/3,
 #'                    b.rate = 0.011, ds.rate = 0.01,
 #'                    di.rate = 0.03, dr.rate = 0.01)
 #' init <- init.dcm(s.num = 1000, i.num = 1, r.num = 0)
@@ -232,7 +232,7 @@ summary.dcm <- function(object,
 #'
 #' @examples
 #' ## Stochastic ICM SI model with 3 simulations
-#' param <- param.icm(trans.rate = 0.2, act.rate = 1)
+#' param <- param.icm(inf.prob = 0.2, act.rate = 1)
 #' init <- init.icm(s.num = 500, i.num = 1)
 #' control <- control.icm(type = "SI", nsteps = 50,
 #'                        nsims = 5, verbose = FALSE)
@@ -416,9 +416,9 @@ summary.icm <- function(object,
     }
   } # end SIS summary
 
-  if (groups == 1) colnames(mat) <- c("mean","sd", "perc")
-  if (groups == 2) colnames(mat) <- c("mean:g1", "sd:g1", "perc:g1",
-                                      "mean:g2", "sd:g2", "perc:g2")
+  if (groups == 1) colnames(mat) <- c("mean","sd", "pct")
+  if (groups == 2) colnames(mat) <- c("mean:g1", "sd:g1", "pct:g1",
+                                      "mean:g2", "sd:g2", "pct:g2")
   mat <- round(mat, digits)
 
   ## Print it
@@ -490,8 +490,8 @@ summary.icm <- function(object,
 #'                verbose = FALSE)
 #'
 #' # Parameters, initial conditions, and controls for model
-#' param <- param.net(trans.rate = 0.3,
-#'                    trans.rate.m2 = 0.15)
+#' param <- param.net(inf.prob = 0.3,
+#'                    inf.prob.m2 = 0.15)
 #' init <- init.net(i.num = 10, i.num.m2 = 10)
 #' control <- control.net(type = "SI", nsteps = 100,
 #'                        nsims = 5, verbose.int = 0)
@@ -680,9 +680,13 @@ summary.netsim <- function(object,
     }
   }
 
-  if (modes == 1) colnames(mat) <- c("mean","sd", "perc")
-  if (modes == 2) colnames(mat) <- c("mean:m1", "sd:m1", "perc:m1",
-                                      "mean:m2", "sd:m2", "perc:m2")
+  if (modes == 1) {
+    colnames(mat) <- c("mean","sd", "pct")
+  }
+  if (modes == 2) {
+    colnames(mat) <- c("mean:m1", "sd:m1", "pct:m1",
+                       "mean:m2", "sd:m2", "pct:m2")
+  }
   mat <- round(mat, digits)
 
   ## Print it

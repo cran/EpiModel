@@ -1,6 +1,7 @@
 ## ----setup, include=FALSE------------------------------------------------
 require(knitr)
 require(EpiModel)
+vers <- packageVersion("EpiModel")
 
 ## ----eval=FALSE----------------------------------------------------------
 #  help(package = "EpiModel")

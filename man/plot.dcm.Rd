@@ -3,8 +3,8 @@
 \alias{plot.dcm}
 \title{Plot Data from a Deterministic Compartmental Epidemic Model}
 \usage{
-\method{plot}{dcm}(x, y, popfrac, run, col, lwd, lty, alpha, leg, leg.name,
-  leg.cex, xlim, ylim, main, axs, add = FALSE, ...)
+\method{plot}{dcm}(x, y, popfrac, run, col, lwd, lty, alpha = 0.9, leg,
+  leg.name, leg.cex = 0.8, axs = "r", add = FALSE, ...)
 }
 \arguments{
 \item{x}{an \code{EpiModel} object of class \code{dcm}.}
@@ -33,14 +33,7 @@ full legend, and "lim" for limited legend (see details).}
 \item{leg.name}{character string to use for legend, with the default
 determined automatically based on the \code{y} input.}
 
-\item{leg.cex}{legend scale size (default of 0.8).}
-
-\item{xlim}{x-axis scale limits for plot, with default based on model time
-steps.}
-
-\item{ylim}{y-axis scale limits for plot, with default based on range of data.}
-
-\item{main}{character string for main plot title.}
+\item{leg.cex}{legend scale size.}
 
 \item{axs}{plot axis type (see \code{\link{par}} for details), with default
 of "r".}
@@ -98,7 +91,7 @@ with the \code{leg.name} argument.
 }
 \examples{
 # Deterministic SIR model with varying act rate
-param <- param.dcm(trans.rate = 0.2, act.rate = 1:10,
+param <- param.dcm(inf.prob = 0.2, act.rate = 1:10,
                    rec.rate = 1/3, b.rate = 0.011, ds.rate = 0.01,
                    di.rate = 0.03, dr.rate = 0.01)
 init <- init.dcm(s.num = 1000, i.num = 1, r.num = 0)

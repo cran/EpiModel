@@ -4,6 +4,7 @@
 <<setup, include=FALSE>>=
 require(knitr)
 require(EpiModel)
+vers <- packageVersion("EpiModel")
 @
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -11,7 +12,7 @@ require(EpiModel)
 \documentclass{article}
 \usepackage{mathpazo}
 \usepackage{geometry}
-\geometry{left=1.45in, right=1.45in,
+\geometry{left=1.4in, right=1.4in,
           top=1.15in, bottom=1.15in}
 \usepackage{xcolor}
 \definecolor{myred}{RGB}{153, 0, 13}
@@ -39,7 +40,7 @@ require(EpiModel)
 
 \title{\textbf{EpiModel} \\
     \Large{Mathematical Modeling of Infectious Disease}  \vspace{3pt} \\
-    \large{Version 1.0.1}}
+    \large{Version \Sexpr{vers}}}
 \author{\textbf{Samuel M. Jenness} \vspace{-3pt} \\
           \normalsize{Department of Epidemiology} \vspace{-3pt}\\
           \normalsize{University of Washington}
@@ -53,7 +54,7 @@ require(EpiModel)
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 \begin{document}
-\begin{spacing}{1.25}
+\begin{spacing}{1.2}
 \maketitle
 \thispagestyle{empty}
 
@@ -66,7 +67,7 @@ require(EpiModel)
 \noindent This vignette is a placeholder for the \texttt{EpiModel} tutorials, all hosted online and external to the package to minimize overhead and provide flexibility in updates. Everything may be found at the \texttt{EpiModel} website:
 
 \begin{center}
-\url{http://statnet.org/trac/wiki/EpiModel}
+\url{http://statnet.github.io/EpiModel}
 \end{center}
 
 \vspace{3pt}
@@ -85,7 +86,7 @@ news(package = "EpiModel")
 \noindent If using the \texttt{EpiModel} package for research, we request that you acknowledge this by citing the software in any publications:
 
 \vspace{3pt}
-\noindent Jenness SM, Goodreau SM, Morris M (2014). \textit{EpiModel: Mathematical Modeling of Infectious Disease.} R package version 1.0.1. The Statnet Project, URL: \ \texttt{http://www.statnet.org/}.
+\noindent Jenness SM, Goodreau SM, Morris M (2014). \textit{EpiModel: Mathematical Modeling of Infectious Disease.} R Package Version \Sexpr{vers}. URL: \ \texttt{http://statnet.github.io/EpiModel/}.
 
 \end{spacing}
 \end{document}

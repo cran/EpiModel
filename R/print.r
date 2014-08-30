@@ -148,8 +148,8 @@ print.netsim <- function(x, ...) {
 
   cat("\nModel Output")
   cat("\n-----------------------")
-  cat("\nCompartments:", names(x$epi)[grep("num", names(x$epi))])
-  cat("\nFlows:", names(x$epi)[grep("flow", names(x$epi))])
+  cat("\nCompartments:", names(x$epi)[grep("num", names(x$epi))], fill = 60)
+  cat("Flows:", names(x$epi)[grep("flow", names(x$epi))])
   if (!(is.null(x$network))) {
     cat("\nNetworks:", simnames)
   }
@@ -171,7 +171,7 @@ print.disscoef <- function(x, ...) {
   cat("Edge Duration:", x$duration)
   cat("\nAdjusted Coefficient:", x$coef.adj)
   cat("\nCrude Coefficient:", x$coef.crude)
-
+  cat("\nDeath rate:", x$d.rate)
   invisible()
 }
 

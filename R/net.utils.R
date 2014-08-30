@@ -198,6 +198,43 @@ color_tea <- function(nd,
 
 
 
+#' @title Copies Vertex Attributes in Formation Formula to attr List
+#'
+#' @description Copies the vertex attributes stored on the network object to the
+#'              master attr list in the all data object.
+#'
+#' @param all master data object passed through \code{netsim} simulations.
+#' @param at current time step.
+#' @param t vector of attributes used in formation formula, usually as output of
+#'        \code{\link{get_formula_terms}}.
+#'
+#' @seealso \code{\link{get_formula_terms}}, \code{\link{get_attr_prop}},
+#'          \code{\link{update_nwattr}}.
+#' @keywords netUtils internal
+#' @export
+#'
+copy_toall_attr <- function(all, at, t) {
+
+  otha <- names(all$nw$val[[1]])
+  otha <- otha[which(otha %in% t)]
+
+  if (length(otha) > 0) {
+    for (i in seq_along(otha)) {
+      va <- get.vertex.attribute(all$nw, otha[i])
+      all$attr[[otha[i]]] <- va
+      if (at == 1) {
+        if (!is.null(all$control$epi.by) && all$control$epi.by == otha[i]) {
+          all$temp$epi.by.vals <- unique(va)
+        }
+      }
+    }
+  }
+
+  return(all)
+}
+
+
+
 #' @title Dissolution Coefficients for Stochastic Network Models
 #'
 #' @description Calculates dissolution coefficients, given a dissolution model
@@ -237,6 +274,7 @@ color_tea <- function(nd,
 #'        coefficient for use in STERGM simulations.
 #'  \item \strong{coef.adj:} the crude coefficient adjusted for the impact of
 #'        death on edge persistence, if the \code{d.rate} argument is supplied.
+#'  \item \strong{d.rate:} the death rate, supplied via the \code{d.rate} argument.
 #' }
 #'
 #' @seealso
@@ -295,6 +333,7 @@ dissolution_coefs <- function(dissolution,
   out$duration <- duration
   out$coef.adj <- coef.diss.adj
   out$coef.crude <- coef.diss
+  out$d.rate <- d.rate
 
   class(out) <- "disscoef"
   return(out)
@@ -500,6 +539,74 @@ edges_correct <- function(all, at) {
 
   }
   return(all)
+}
+
+
+#' @title Proportional Table of Vertex Attributes
+#'
+#' @description Calculates the proportional distribution of each vertex attribute
+#'              contained on the network, with a possible limitation to those
+#'              attributes contained in the formation formula only.
+#'
+#' @param nw the \code{networkDynamic} object contained in the \code{netsim}
+#'        simulation.
+#' @param t vector of attributes used in formation formula, usually as output of
+#'        \code{\link{get_formula_terms}}.
+#' @param only.formula limit the tables to those terms only in \code{t}, otherwise
+#'        output proportions for all attributes on the network object.
+#'
+#' @seealso \code{\link{get_formula_terms}}, \code{\link{copy_toall_attr}},
+#'          \code{\link{update_nwattr}}.
+#' @keywords netUtils internal
+#' @export
+#'
+get_attr_prop <- function(nw, t, only.formula = TRUE) {
+
+  if (is.null(t)) {
+    return(NULL)
+  }
+
+  nwVal <- names(nw$val[[1]])
+  if (only.formula == TRUE) {
+    nwVal <- nwVal[which(nwVal %in% t)]
+  }
+
+  out <- list()
+  for (i in 1:length(nwVal)) {
+    tab <- prop.table(table(nw %v% nwVal[i]))
+    out[[i]] <- tab
+  }
+  names(out) <- nwVal
+
+  return(out)
+}
+
+#' @title Outputs Formula Terms into a Character Vector
+#'
+#' @description Given a formation formula for a network model, outputs it into
+#'              a character vector of terms to be used in \code{netsim}
+#'              simulations.
+#'
+#' @param formula a right-hand sided formation formula.
+#'
+#' @seealso \code{\link{copy_toall_attr}}, \code{\link{get_attr_prop}},
+#'          \code{\link{update_nwattr}}.
+#' @keywords netUtils internal
+#' @export
+#'
+get_formula_terms <- function(formula) {
+
+  t <- attributes(terms.formula(formula))$term.labels
+  t <- strsplit(t, split = "[\"]")
+  tl <- sapply(t, length)
+  if (all(tl == 1)) {
+    t <- NULL
+  } else {
+    t <- t[tl > 1]
+    t <- unique(sapply(t, function(x) x[2]))
+  }
+
+  return(t)
 }
 
 
@@ -956,8 +1063,24 @@ node_active <- function(nw,
 }
 
 
-# Unexported Functions ----------------------------------------------------
-
+#' @title Update Attribute Values for a Bipartite Network
+#'
+#' @description Adds new values for attributes in a bipartite network in which
+#'              there may be births/entries in the first mode, which requires
+#'              splitting the attribute vector into two, adding the new values,
+#'              and re-concatenating the two updated vectors.
+#'
+#' @param all master data object passed through \code{netsim} simulations.
+#' @param var variable to update.
+#' @param val fixed value to set for all incoming nodes.
+#' @param nCurrM1 number currently in mode 1.
+#' @param nCurrM2 number currently in mode 2.
+#' @param nBirths number of births/entries in mode 1.
+#' @param nBirthsM2 number of births/entries in mode2.
+#'
+#' @export
+#' @keywords netUtils internal
+#'
 split_bip <- function(all, var, val, nCurrM1, nCurrM2, nBirths, nBirthsM2) {
 
   oldVarM1 <- all$attr[[var]][1:nCurrM1]
@@ -973,72 +1096,27 @@ split_bip <- function(all, var, val, nCurrM1, nCurrM2, nBirths, nBirthsM2) {
   return(all)
 }
 
-copy_toall_attr <- function(all, at) {
 
-  otha <- names(all$nw$val[[1]])[!(names(all$nw$val[[1]]) %in% c("na",
-                                                                 "vertex.names",
-                                                                 "active",
-                                                                 "testatus.active"))]
-  if (length(otha) > 0) {
-    for (i in seq_along(otha)) {
-      va <- get.vertex.attribute(all$nw, otha[i])
-      all$attr[[otha[i]]] <- va
-      if (at == 1) {
-        if (!is.null(all$control$epi.by) && all$control$epi.by == otha[i]) {
-          all$temp$epi.by.vals <- unique(va)
-        }
-      }
-    }
-  }
-
-  return(all)
-}
-
-
-
-get_formula_terms <- function(formula) {
-
-  t <- attributes(terms.formula(formula))$term.labels
-  t <- strsplit(t, split = "[\"]")
-  tl <- sapply(t, length)
-  if (all(tl == 1)) {
-    t <- NULL
-  } else {
-    t <- t[tl > 1]
-    t <- unique(sapply(t, function(x) x[2]))
-  }
-
-  return(t)
-}
-
-
-
-get_attr_prop <- function(nw, t, only.formula = FALSE) {
-
-  if (is.null(t)) {
-    return(NULL)
-  }
-
-  nwVal <- names(nw$val[[1]])[!(names(nw$val[[1]]) %in% c("na",
-                                                          "vertex.names",
-                                                          "active",
-                                                          "testatus.active"))]
-  if (only.formula == TRUE) {
-    nwVal <- nwVal[which(t %in% nwVal)]
-  }
-
-  out <- list()
-  for (i in 1:length(nwVal)) {
-    tab <- prop.table(table(nw %v% nwVal[i]))
-    out[[i]] <- tab
-  }
-  names(out) <- nwVal
-
-  return(out)
-}
-
-
-
+#' @title Updates Vertex Attributes for Incoming Vertices
+#'
+#' @description Updates the vertex attributes on a network for new nodes incoming
+#'              into that network, based on a set of rules for each attribute
+#'              that the user specifies in \code{control.net}.
+#'
+#' @param nw the \code{networkDynamic} object used in \code{netsim} simulations.
+#' @param newNodes vector of nodal IDs for incoming nodes at the current time
+#'        step.
+#' @param rules list of rules, one per attribute to be set, governing how to set
+#'        the values of each attribute.
+#' @param curr.tab current proportional distribution of all vertex attributes.
+#' @param t1.tab proportional distribution of all vertex attributes at the outset
+#'        of the simulation.
+#'
+#' @seealso \code{\link{copy_toall_attr}}, \code{\link{get_attr_prop}},
+#'          \code{\link{update_nwattr}}.
+#' @keywords netUtils internal
+#' @export
+#'
 update_nwattr <- function(nw, newNodes, rules, curr.tab, t1.tab) {
 
   for (i in 1:length(curr.tab)) {
@@ -1084,90 +1162,7 @@ update_nwattr <- function(nw, newNodes, rules, curr.tab, t1.tab) {
 }
 
 
-
-
-## Runs the console progress tracker for netsim when verbose = TRUE
-cons_prog <- function(all, s, at) {
-
-    if (all$control$verbose == TRUE) {
-
-      cat("\014")
-      cat("\nNetwork Disease Simulation")
-      cat("\n----------------------------")
-      cat("\nSimulation: ", s, "/", all$control$nsims, sep="")
-      cat("\nTimestep: ", at, "/", all$control$nsteps, sep="")
-      if (all$param$modes == 1) {
-        cat("\nIncidence:", all$out$si.flow[at])
-      }
-      if (all$param$modes == 2) {
-        cat("\nIncidence:", all$out$si.flow[at] + all$out$si.flow.m2[at])
-      }
-      if (all$control$type %in% c("SIR", "SIS")) {
-        if (all$param$modes == 1) {
-          cat("\nRecoveries:", all$out$recovs[at])
-        }
-        if (all$param$modes == 2) {
-          cat("\nRecoveries:", all$out$recovs[at] +
-                               all$out$recovs.m2[at])
-        }
-      }
-      if (all$param$modes == 1) {
-        cat("\nPrevalence:", all$out$i.num[at])
-      }
-      if (all$param$modes == 2) {
-        cat("\nPrevalence:", all$out$i.num[at] + all$out$i.num.m2[at])
-      }
-      if (all$control$type %in% c("SI", "SIS")) {
-        if (all$param$modes == 1) {
-          cat("\nPopulation:", all$out$s.num[at]+all$out$i.num[at])
-        }
-        if (all$param$modes == 2) {
-          cat("\nPopulation:", all$out$s.num[at] + all$out$s.num.m2[at]+
-                               all$out$i.num[at] + all$out$i.num.m2[at])
-        }
-      }
-      if (all$control$type == "SIR") {
-        if (all$param$modes == 1) {
-          cat("\nPopulation:", all$out$s.num[at] +
-                               all$out$i.num[at] +
-                               all$out$r.num[at])
-        }
-        if (all$param$modes == 2) {
-          cat("\nPopulation:", all$out$s.num[at] +
-                               all$out$i.num[at] +
-                               all$out$r.num[at] +
-                               all$out$s.num.m2[at] +
-                               all$out$i.num.m2[at] +
-                               all$out$r.num.m2[at])
-        }
-      }
-      if (all$param$vital == TRUE) {
-        if (all$param$modes == 1) {
-          cat("\nBirths:", all$out$b.flow[at])
-          cat("\nDeaths, susceptibles:", all$out$ds.flow[at])
-          cat("\nDeaths, infecteds:", all$out$di.flow[at])
-          if (all$control$type == "SIR") {
-            cat("\nDeaths, recovered:", all$out$dr.flow[at])
-          }
-        }
-        if (all$param$modes == 2) {
-          cat("\nBirths:", all$out$b.flow[at] + all$out$b.flow.m2[at])
-          cat("\nDeaths, susceptible:", all$out$ds.flow[at] +
-                                        all$out$ds.flow.m2[at])
-          cat("\nDeaths, infected:", all$out$di.flow[at] +
-                                     all$out$di.flow.m2[at])
-          if (all$control$type == "SIR") {
-            cat("\nDeaths, recovered:", all$out$dr.flow[at] +
-                                        all$out$dr.flow.m2[at])
-          }
-        }
-      }
-      cat("\n----------------------------")
-
-    }
-}
-
-
+# Unexported Functions ----------------------------------------------------
 
 # logit transformation of a probability
 logit <- function(x) {

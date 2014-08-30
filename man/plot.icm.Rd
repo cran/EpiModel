@@ -5,7 +5,7 @@
 \usage{
 \method{plot}{icm}(x, y, popfrac, sim.lines, sims, sim.col, sim.lwd, sim.alpha,
   mean.line = TRUE, mean.extinct = TRUE, mean.col, mean.lwd, mean.lty, qnts,
-  qnts.col, qnts.alpha, leg, leg.cex, xlim, ylim, main, axs, add = FALSE, ...)
+  qnts.col, qnts.alpha, leg, leg.cex = 0.8, axs = "r", add = FALSE, ...)
 }
 \arguments{
 \item{x}{an \code{EpiModel} object of class \code{icm}.}
@@ -50,13 +50,7 @@ transparent and 1 = opaque (see \code{\link{transco}}).}
 
 \item{leg}{if \code{TRUE}, plot default legend.}
 
-\item{leg.cex}{legend scale size, with default of 0.8.}
-
-\item{xlim}{x-axis scale limits for plot, with default based on model time steps.}
-
-\item{ylim}{y-axis scale limits for plot, with default based on range of data.}
-
-\item{main}{character string for main plot title.}
+\item{leg.cex}{legend scale size.}
 
 \item{axs}{plot axis type (see \code{\link{par}} for details), with default
 to \code{"r"}.}
@@ -99,7 +93,7 @@ where they are plotted by default, specify \code{qnts=FALSE}.
 \examples{
 \dontrun{
 ## Example 1: Plotting multiple compartment values from SIR model
-param <- param.icm(trans.rate = 0.5, act.rate = 0.5, rec.rate = 0.02)
+param <- param.icm(inf.prob = 0.5, act.rate = 0.5, rec.rate = 0.02)
 init <- init.icm(s.num = 500, i.num = 1, r.num = 0)
 control <- control.icm(type = "SIR", nsteps = 100,
                        nsims = 3, verbose = FALSE)
@@ -107,7 +101,7 @@ mod <- icm(param, init, control)
 plot(mod)
 
 ## Example 2: Plot only infected with specific output from SI model
-param <- param.icm(trans.rate = 0.25, act.rate = 0.25)
+param <- param.icm(inf.prob = 0.25, act.rate = 0.25)
 init <- init.icm(s.num = 500, i.num = 10)
 control <- control.icm(type = "SI", nsteps = 100,
                        nsims = 3, verbose = FALSE)

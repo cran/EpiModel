@@ -59,9 +59,9 @@ crosscheck.dcm <- function(param, init, control) {
     }
 
     ## Error checks
-    # Specify trans.rate
-    if (is.null(param$trans.rate)) {
-      stop("Specify trans.rate in param.dcm", call. = FALSE)
+    # Specify inf.prob
+    if (is.null(param$inf.prob)) {
+      stop("Specify inf.prob in param.dcm", call. = FALSE)
     }
 
     # Check that rec.rate is supplied for SIR models
@@ -100,6 +100,16 @@ crosscheck.dcm <- function(param, init, control) {
     # Over-specified initial conditions
     if (control$type != "SIR" & any(c("r.num", "r.num.m2") %in% names(init))) {
       stop("Specified initial number recovered for non-SIR model",
+           call. = FALSE)
+    }
+
+    # Deprecated parameters
+    if (!is.null(param$trans.rate)) {
+      stop("The trans.rate parameter is deprecated. Use the inf.prob parameter instead.",
+           call. = FALSE)
+    }
+    if (!is.null(param$trans.rate.g2)) {
+      stop("The trans.rate.g2 parameter is deprecated. Use the inf.prob.g2 parameter instead.",
            call. = FALSE)
     }
   }
@@ -172,6 +182,21 @@ crosscheck.icm <- function(param, init, control) {
     stop("Group 2 initial stats specified in init.dcm, but missing group 2 parameters in param.icm",
          call. = FALSE)
   }
+
+  ## Deprecated parameters
+  bim <- grep(".FUN", names(formals(control.icm)), value = TRUE)
+  um <- which(grepl(".FUN", names(control)) & !(names(control) %in% bim))
+  if (length(um) == 0 && !is.null(control$type)) {
+    if (!is.null(param$trans.rate)) {
+      stop("The trans.rate parameter is deprecated. Use the inf.prob parameter instead.",
+           call. = FALSE)
+    }
+    if (!is.null(param$trans.rate.g2)) {
+      stop("The trans.rate.g2 parameter is deprecated. Use the inf.prob.g2 parameter instead.",
+           call. = FALSE)
+    }
+  }
+
 
   ## In-place assignment to update param and control
   on.exit(assign("param", param, pos = parent.frame()))
@@ -251,9 +276,18 @@ crosscheck.net <- function(x, param, init, control) {
     if ("i.num" %in% names(init) && nw1 != init1) {
       warning("Overriding init infected settings with network status attribute",
               call. = FALSE, immediate. = TRUE)
-      if (interactive()) Sys.sleep(3)
+      if (interactive()) Sys.sleep(4)
     }
   }
+
+  # If status not in formation formula but set on original network, state that it
+  #   will be ignored
+  if (statOnNw == FALSE & "status" %in% names(x$fit$network$val[[1]])) {
+    warning("Overriding status vertex attribute on network with init.net conditions",
+            call. = FALSE, immediate. = TRUE)
+    if (interactive()) Sys.sleep(4)
+  }
+
 
   # Check consistency of status vector to network structure
   if (!is.null(init$status.vector)) {
@@ -288,10 +322,10 @@ crosscheck.net <- function(x, param, init, control) {
     }
   }
   if (control$type == "SIR") {
-    if (is.null(init$r.num) & is.null(init$status.vector)) {
+    if (is.null(init$r.num) & is.null(init$status.vector) & statOnNw == FALSE) {
       stop("Specify r.num in init.net", call. = FALSE)
     }
-    if (bip == TRUE & is.null(init$r.num.m2) & is.null(init$status.vector)) {
+    if (bip == TRUE & is.null(init$r.num.m2) & is.null(init$status.vector) & statOnNw == FALSE) {
       stop("Specify r.num.m2 in init.net", call. = FALSE)
     }
   }
@@ -311,6 +345,21 @@ crosscheck.net <- function(x, param, init, control) {
       if (is.null(param$dr.rate.m2)) {
         stop("Specify dr.rate.m2 in param.net", call. = FALSE)
       }
+    }
+  }
+
+
+  ## Deprecated parameters
+  bim <- grep(".FUN", names(formals(control.net)), value = TRUE)
+  um <- which(grepl(".FUN", names(control)) & !(names(control) %in% bim))
+  if (length(um) == 0 && !is.null(control$type)) {
+    if (!is.null(param$trans.rate)) {
+      stop("The trans.rate parameter is deprecated. Use the inf.prob parameter instead.",
+           call. = FALSE)
+    }
+    if (!is.null(param$trans.rate.m2)) {
+      stop("The trans.rate.m2 parameter is deprecated. Use the inf.prob.m2 parameter instead.",
+           call. = FALSE)
     }
   }
 

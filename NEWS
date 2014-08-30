@@ -1,3 +1,41 @@
+Version 1.0.2
+------------------------------------------------------------------------------
+
+INTERFACE CHANGES
+* The trans.rate and trans.rate.g2/m2 parameters have been renamed to inf.prob
+  and inf.prob.g2/m2 to better characterize that they are probabilities, rather
+  than rates, and towards infection of persons in that group/mode.
+* Added new documentation for newly exported utility functions for network models,
+  mostly used in the birth/entry modules. Now users may directly edit these
+  modules and use the utility functions without explicitly adding them to the
+  global environment.
+* Added warning message for network models in which there is a vertex attribute
+  for status added to the network but not referenced in the formation formula,
+  in which case the initial conditions for status will still be derived from the
+  input for init.net. This does not apply to "serosorting models", which reference
+  status in the formation formula, and which require setting status as a vertex
+  attribute on the network before calling netest.
+
+BUG FIXES
+* Network models with passed network attributes in the formation formula in open
+  populations now do not generate an error for persistent ID numbers in the latest
+  versions of the tergm and networkDynamic package.
+* Fix bug in printing simulation progress in network and ICM class models when
+  verbose is not specified in the control settings.
+* Running netdx diagnostics with offset terms in the formation no longer generates
+  an error.
+* Simulating an SIR serosorting network epidemic model (status in the formation
+  formula) no longer stops due to missing r.num in init.net.
+* Fix bug when calling netdx for one simulation only with a network model fit with
+  the full STERGM method (i.e., using the edapprox = FALSE in netest).
+
+OTHER
+* The dissolution_coefs function now stores and prints the death/exit rate.
+* Removed explicit parameters for xlim, ylim, and main from plot.dcm and plot.icm
+  functions, although they still may be passed through the ... argument.
+* Introduction vignette has been updated to list new EpiModel website.
+
+
 Version 1.0.1
 ------------------------------------------------------------------------------
 
