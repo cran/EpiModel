@@ -141,65 +141,79 @@ netsim <- function(x,
                    ) {
 
   crosscheck.net(x, param, init, control)
-  verbose.net(control, type = "startup")
+  if (!is.null(control[["verbose.FUN"]])) {
+    do.call(control[["verbose.FUN"]], list(control, type = "startup"))
+  }
 
 
   ### SIMULATION LOOP
   for (s in 1:control$nsims) {
 
     ## Initialization Module
-    all <- do.call(control[["initialize.FUN"]], list(x, param, init, control))
+    if (!is.null(control[["initialize.FUN"]])) {
+      dat <- do.call(control[["initialize.FUN"]], list(x, param, init, control, s))
+    }
 
 
     ### TIME LOOP
-    for (at in 2:control$nsteps) {
+    for (at in max(2, control$start):control$nsteps) {
 
       ## User Modules
-      bim <- grep(".FUN", names(formals(control.net)), value = TRUE)
-      um <- which(grepl(".FUN", names(control)) & !(names(control) %in% bim))
+      um <- control$user.mods
       if (length(um) > 0) {
         for (i in seq_along(um)) {
-          umn <- names(control)[um[i]]
-          all <- do.call(control[[umn]], list(all, at))
+          dat <- do.call(control[[um[i]]], list(dat, at))
         }
+      }
+
+      ## Demographics Modules
+      if (!is.null(control[["deaths.FUN"]])) {
+        dat <- do.call(control[["deaths.FUN"]], list(dat, at))
+      }
+      if (!is.null(control[["births.FUN"]])) {
+        dat <- do.call(control[["births.FUN"]], list(dat, at))
+      }
+
+
+      ## Recovery Module
+      if (!is.null(control[["recovery.FUN"]])) {
+        dat <- do.call(control[["recovery.FUN"]], list(dat, at))
+      }
+
+
+      ## Resimulate network
+      if (!is.null(control[["edges_correct.FUN"]])) {
+        dat <- do.call(control[["edges_correct.FUN"]], list(dat, at))
+      }
+      if (!is.null(control[["resim_nets.FUN"]])) {
+        dat <- do.call(control[["resim_nets.FUN"]], list(dat, at))
       }
 
 
       ## Infection Module
-      all <- do.call(control[["infection.FUN"]], list(all, at))
+      if (!is.null(control[["infection.FUN"]])) {
+        dat <- do.call(control[["infection.FUN"]], list(dat, at))
+      }
 
 
-      ## Recovery Module
-      all <- do.call(control[["recovery.FUN"]], list(all, at))
-
-
-      ## Demographics Modules
-      all <- do.call(control[["deaths.FUN"]], list(all, at))
-      all <- do.call(control[["births.FUN"]], list(all, at))
-
-
-      ## Resimulate network
-      all <-  do.call(control[["resim_nets.FUN"]], list(all, at))
-
-
-      ## Save Prevalence Vectors
-      all <-  do.call(control[["get_prev.FUN"]], list(all, at))
-
-
-      ## Popsize Edges Correction
-      all <- edges_correct(all, at)
+      ## Save Prevalence
+      if (!is.null(control[["get_prev.FUN"]])) {
+        dat <- do.call(control[["get_prev.FUN"]], list(dat, at))
+      }
 
 
       ## Progress Console
-      verbose.net(all, type = "progress", s, at)
+      if (!is.null(control[["verbose.FUN"]])) {
+        do.call(control[["verbose.FUN"]], list(dat, type = "progress", s, at))
+      }
 
     }
 
     # Set output
     if (s == 1) {
-      out <- saveout.net(all, s)
+      out <- saveout.net(dat, s)
     } else {
-      out <- saveout.net(all, s, out)
+      out <- saveout.net(dat, s, out)
     }
 
   } # end sim loop
@@ -210,3 +224,120 @@ netsim <- function(x,
 
 }
 
+
+#' @title Stochastic Network Models in Parallel
+#'
+#' @description Simulates stochastic network epidemic models for infectious
+#'              disease in parallel.
+#'
+#' @inheritParams netsim
+#' @param merge if \code{TRUE}, merge parallel simulations into one \code{netsim}
+#'        object after simulation.
+#'
+#' @details
+#' This is an experimental implementation of the \code{\link{netsim}} function
+#' that runs model simulations in parallel, using the \code{doParallel} and
+#' \code{doMPI} libraries.
+#'
+#' To run models in parallel on a single node, add an argument to the control
+#' settings called \code{ncores} that is equal to the number of parallel cores
+#' the simulations should be initiated on. Use \code{\link{detectCores}} to find
+#' the maximum on a node. Also available is an MPI option, called by adding a
+#' control argument \code{par.type} set to \code{"mpi"}. This requires a local
+#' MPI installation on the computing cluster, and the run of a bash script with
+#' an mpirun call containing the R script with the \code{netsim_parallel} call.
+#'
+#' This has been tested on Linux, Mac, and Windows but no guarantees are made
+#' that it will work on every platform. It is best-suited to be run in batch
+#' mode.
+#'
+#' Note that this function may be folded into \code{\link{netsim}} and deprecated
+#' in the future.
+#'
+#' @keywords model
+#' @export
+#'
+#' @examples
+#' \dontrun{
+#' nw <- network.initialize(n = 1000, directed = FALSE)
+#' formation <- ~ edges
+#' target.stats <- 500
+#' dissolution <- ~ offset(edges)
+#' duration <- 50
+#' coef.diss <- dissolution_coefs(dissolution, duration)
+#'
+#' est <- netest(nw,
+#'               formation,
+#'               dissolution,
+#'               target.stats,
+#'               coef.diss,
+#'               verbose = FALSE)
+#'
+#' param <- param.net(inf.prob = 0.25)
+#' init <- init.net(i.num = 50)
+#'
+#' # Runs multicore-type parallelization on single node
+#' control <- control.net(type = "SI", nsteps = 100, verbose = FALSE,
+#'                        par.type = "single", nsims = 4, ncores = 4)
+#'
+#' # Note: one should do this function call in batch mode
+#' sims <- netsim_parallel(est, param, init, control)
+#'
+#' # Runs parallelization across nodes using MPI
+#' control <- control.net(type = "SI", nsteps = 100, verbose = FALSE,
+#'                        par.type = "mpi", nsims = 4, ncores = 4)
+#'
+#' # This would be included in the script file called by mpirun
+#' sims <- netsim_parallel(est, param, init, control)
+#'
+#' }
+#'
+netsim_parallel <- function(x,
+                            param,
+                            init,
+                            control,
+                            merge = TRUE
+                            ) {
+
+  nsims <- control$nsims
+  ncores <- control$ncores
+  par.type <- control$par.type
+  if (is.null(par.type)) {
+    par.type <- "single"
+  }
+
+  if (nsims == 1 | ncores == 1) {
+    sim <- netsim(x, param, init, control)
+  } else {
+    cluster.size <- min(nsims, ncores)
+    if (par.type == "single") {
+      doParallel::registerDoParallel(cluster.size)
+    }
+    if (par.type == "mpi") {
+      cl <- doMPI::startMPIcluster(cluster.size)
+      doMPI::registerDoMPI(cl)
+    }
+
+    out <- foreach(i = 1:nsims) %dopar% {
+      require(EpiModel)
+      control$nsims = 1
+      control$currsim = i
+      netsim(x, param, init, control)
+    }
+
+    if (par.type == "mpi") {
+      doMPI::closeCluster(cl)
+    }
+
+    if (merge == TRUE) {
+      all <- out[[1]]
+      for (i in 2:length(out)) {
+        all <- merge(all, out[[i]])
+      }
+    } else {
+      all <- out
+    }
+  }
+
+  return(all)
+}

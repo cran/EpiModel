@@ -153,9 +153,9 @@ check_bip_degdist <- function(num.m1,
 #'
 color_tea <- function(nd,
                       old.var = "testatus",
-                      old.sus = 0,
-                      old.inf = 1,
-                      old.rec = 2,
+                      old.sus = "s",
+                      old.inf = "i",
+                      old.rec = "r",
                       new.var = "ndtvcol",
                       new.sus,
                       new.inf,
@@ -181,11 +181,11 @@ color_tea <- function(nd,
     uninfected <- which(stat == old.sus)
     recovered <- which(stat == old.rec)
 
-    activate.vertex.attribute(nd, prefix = new.var, value = new.inf,
+    nd <- activate.vertex.attribute(nd, prefix = new.var, value = new.inf,
                               onset = at, terminus = Inf, v = infected)
-    activate.vertex.attribute(nd, prefix = new.var, value = new.sus,
+    nd <- activate.vertex.attribute(nd, prefix = new.var, value = new.sus,
                               onset = at, terminus = Inf, v = uninfected)
-    activate.vertex.attribute(nd, prefix = new.var, value = new.rec,
+    nd <- activate.vertex.attribute(nd, prefix = new.var, value = new.rec,
                               onset = at, terminus = Inf, v = recovered)
 
     if (verbose == TRUE) {
@@ -201,36 +201,36 @@ color_tea <- function(nd,
 #' @title Copies Vertex Attributes in Formation Formula to attr List
 #'
 #' @description Copies the vertex attributes stored on the network object to the
-#'              master attr list in the all data object.
+#'              master attr list in the dat data object.
 #'
-#' @param all master data object passed through \code{netsim} simulations.
+#' @param dat master data object passed through \code{netsim} simulations.
 #' @param at current time step.
-#' @param t vector of attributes used in formation formula, usually as output of
-#'        \code{\link{get_formula_terms}}.
+#' @param fterms vector of attributes used in formation formula, usually as
+#'        output of \code{\link{get_formula_terms}}.
 #'
 #' @seealso \code{\link{get_formula_terms}}, \code{\link{get_attr_prop}},
 #'          \code{\link{update_nwattr}}.
 #' @keywords netUtils internal
 #' @export
 #'
-copy_toall_attr <- function(all, at, t) {
+copy_toall_attr <- function(dat, at, fterms) {
 
-  otha <- names(all$nw$val[[1]])
-  otha <- otha[which(otha %in% t)]
+  otha <- names(dat$nw$val[[1]])
+  otha <- otha[which(otha %in% fterms)]
 
   if (length(otha) > 0) {
     for (i in seq_along(otha)) {
-      va <- get.vertex.attribute(all$nw, otha[i])
-      all$attr[[otha[i]]] <- va
+      va <- get.vertex.attribute(dat$nw, otha[i])
+      dat$attr[[otha[i]]] <- va
       if (at == 1) {
-        if (!is.null(all$control$epi.by) && all$control$epi.by == otha[i]) {
-          all$temp$epi.by.vals <- unique(va)
+        if (!is.null(dat$control$epi.by) && dat$control$epi.by == otha[i]) {
+          dat$temp$epi.by.vals <- unique(va)
         }
       }
     }
   }
 
-  return(all)
+  return(dat)
 }
 
 
@@ -498,47 +498,36 @@ edgelist_meanage <- function(x, el) {
 #'              simulated in \code{\link{netsim}} to preserve the mean
 #'              degree of nodes in the network.
 #'
-#' @param all master object in \code{netsim} simulations.
+#' @param dat master object in \code{netsim} simulations.
 #' @param at current time step.
 #'
 #' @keywords internal
 #' @export
 #'
-edges_correct <- function(all, at) {
+edges_correct <- function(dat, at) {
 
-  if (all$param$vital == TRUE) {
-
-    if (all$param$modes == 1) {
-      if (all$control$type %in% c("SI", "SIS")) {
-        old.num <- all$out$s.num[at-1] + all$out$i.num[at-1]
-        new.num <- all$out$s.num[at] + all$out$i.num[at]
-      }
-      if (all$control$type == "SIR") {
-        old.num <- all$out$s.num[at-1] + all$out$i.num[at-1] + all$out$r.num[at-1]
-        new.num <- all$out$s.num[at] + all$out$i.num[at] + all$out$r.num[at]
-      }
-      all$nwparam$coef.form[1] <- all$nwparam$coef.form[1] + log(old.num) - log(new.num)
+  if (dat$param$vital == TRUE) {
+    if (dat$param$modes == 1) {
+      old.num <- dat$epi$num[at-1]
+      new.num <- sum(dat$attr$active == 1)
+      dat$nwparam[[1]]$coef.form[1] <- dat$nwparam[[1]]$coef.form[1] +
+                                       log(old.num) -
+                                       log(new.num)
     }
-    if (all$param$modes == 2) {
-      if (all$control$type %in% c("SI", "SIS")) {
-        old.num.m1 <- all$out$s.num[at-1] + all$out$i.num[at-1]
-        old.num.m2 <- all$out$s.num.m2[at-1] + all$out$i.num.m2[at-1]
-        new.num.m1 <- all$out$s.num[at] + all$out$i.num[at]
-        new.num.m2 <- all$out$s.num.m2[at] + all$out$i.num.m2[at]
-      }
-      if (all$control$type == "SIR") {
-        old.num.m1 <- all$out$s.num[at-1] + all$out$i.num[at-1] + all$out$r.num[at-1]
-        old.num.m2 <- all$out$s.num.m2[at-1] + all$out$i.num.m2[at-1] + all$out$r.num.m2[at-1]
-        new.num.m1 <- all$out$s.num[at] + all$out$i.num[at] + all$out$r.num[at]
-        new.num.m2 <- all$out$s.num.m2[at] + all$out$i.num.m2[at] + all$out$r.num.m2[at]
-      }
-      all$nwparam$coef.form[1] <- all$nwparam$coef.form[1] +
-        log(2*old.num.m1*old.num.m2/(old.num.m1+old.num.m2)) -
-        log(2*new.num.m1*new.num.m2/(new.num.m1+new.num.m2))
+    if (dat$param$modes == 2) {
+      mode <- idmode(dat$nw)
+      old.num.m1 <- dat$epi$num[at-1]
+      old.num.m2 <- dat$epi$num.m2[at-1]
+      new.num.m1 <- sum(dat$attr$active == 1 & mode == 1)
+      new.num.m2 <- sum(dat$attr$active == 1 & mode == 2)
+      dat$nwparam[[1]]$coef.form[1] <- dat$nwparam[[1]]$coef.form[1] +
+                                       log(2*old.num.m1*old.num.m2/
+                                           (old.num.m1+old.num.m2)) -
+                                       log(2*new.num.m1*new.num.m2/
+                                           (new.num.m1+new.num.m2))
     }
-
   }
-  return(all)
+  return(dat)
 }
 
 
@@ -550,25 +539,25 @@ edges_correct <- function(all, at) {
 #'
 #' @param nw the \code{networkDynamic} object contained in the \code{netsim}
 #'        simulation.
-#' @param t vector of attributes used in formation formula, usually as output of
-#'        \code{\link{get_formula_terms}}.
-#' @param only.formula limit the tables to those terms only in \code{t}, otherwise
-#'        output proportions for all attributes on the network object.
+#' @param fterms vector of attributes used in formation formula, usually as
+#'        output of \code{\link{get_formula_terms}}.
+#' @param only.formula limit the tables to those terms only in \code{fterms},
+#'        otherwise output proportions for all attributes on the network object.
 #'
 #' @seealso \code{\link{get_formula_terms}}, \code{\link{copy_toall_attr}},
 #'          \code{\link{update_nwattr}}.
 #' @keywords netUtils internal
 #' @export
 #'
-get_attr_prop <- function(nw, t, only.formula = TRUE) {
+get_attr_prop <- function(nw, fterms, only.formula = TRUE) {
 
-  if (is.null(t)) {
+  if (is.null(fterms)) {
     return(NULL)
   }
 
   nwVal <- names(nw$val[[1]])
   if (only.formula == TRUE) {
-    nwVal <- nwVal[which(nwVal %in% t)]
+    nwVal <- nwVal[which(nwVal %in% fterms)]
   }
 
   out <- list()
@@ -580,6 +569,7 @@ get_attr_prop <- function(nw, t, only.formula = TRUE) {
 
   return(out)
 }
+
 
 #' @title Outputs Formula Terms into a Character Vector
 #'
@@ -596,17 +586,17 @@ get_attr_prop <- function(nw, t, only.formula = TRUE) {
 #'
 get_formula_terms <- function(formula) {
 
-  t <- attributes(terms.formula(formula))$term.labels
-  t <- strsplit(t, split = "[\"]")
-  tl <- sapply(t, length)
+  fterms <- attributes(terms.formula(formula))$term.labels
+  fterms <- strsplit(fterms, split = "[\"]")
+  tl <- sapply(fterms, length)
   if (all(tl == 1)) {
-    t <- NULL
+    fterms <- NULL
   } else {
-    t <- t[tl > 1]
-    t <- unique(sapply(t, function(x) x[2]))
+    fterms <- fterms[tl > 1]
+    fterms <- unique(sapply(fterms, function(x) x[2]))
   }
 
-  return(t)
+  return(fterms)
 }
 
 
@@ -616,7 +606,7 @@ get_formula_terms <- function(formula) {
 #' @description Provides all active model state sizes from the network at the
 #'              specified time step, output to a list of vectors.
 #'
-#' @param all a list object containing a \code{networkDynamic} object and other
+#' @param dat a list object containing a \code{networkDynamic} object and other
 #'        initialization information passed from \code{\link{netsim}}.
 #' @param at current time step.
 #'
@@ -629,27 +619,27 @@ get_formula_terms <- function(formula) {
 #' @export
 #' @keywords netUtils internal
 #'
-get_prev.net <- function(all, at) {
+get_prev.net <- function(dat, at) {
 
-  active <- all$attr$active
-  modes <- all$param$modes
+  active <- dat$attr$active
+  modes <- dat$param$modes
 
   # Subset attr to active == 1
-  l <- lapply(1:length(all$attr), function(x) all$attr[[x]][active == 1])
-  names(l) <- names(all$attr)
+  l <- lapply(1:length(dat$attr), function(x) dat$attr[[x]][active == 1])
+  names(l) <- names(dat$attr)
   l$active <- l$infTime <- NULL
 
   status <- l$status
 
   if (modes == 2) {
-    mode <- idmode(all$nw)[active == 1]
+    mode <- idmode(dat$nw)[active == 1]
   }
 
   ## Subsetting for epi.by control
-  eb <- !is.null(all$control$epi.by)
+  eb <- !is.null(dat$control$epi.by)
   if (eb == TRUE) {
-    ebn <- all$control$epi.by
-    ebv <- all$temp$epi.by.vals
+    ebn <- dat$control$epi.by
+    ebv <- dat$temp$epi.by.vals
     ebun <- paste0(".", ebn, ebv)
     assign(ebn, l[[ebn]])
   }
@@ -657,65 +647,65 @@ get_prev.net <- function(all, at) {
   ## One mode networks
   if (modes == 1) {
     if (at == 1) {
-      all$out <- list()
-      all$out$s.num <- sum(status == 0)
+      dat$epi <- list()
+      dat$epi$s.num <- sum(status == "s")
       if (eb == TRUE) {
         for (i in 1:length(ebun)) {
-          all$out[[paste0("s.num", ebun[i])]] <- sum(status == 0 &
+          dat$epi[[paste0("s.num", ebun[i])]] <- sum(status == "s" &
                                                      get(ebn) == ebv[i])
         }
       }
-      all$out$i.num <- sum(status == 1)
+      dat$epi$i.num <- sum(status == "i")
       if (eb == TRUE) {
         for (i in 1:length(ebun)) {
-          all$out[[paste0("i.num", ebun[i])]] <- sum(status == 1 &
+          dat$epi[[paste0("i.num", ebun[i])]] <- sum(status == "i" &
                                                      get(ebn) == ebv[i])
         }
       }
-      if (all$control$type == "SIR") {
-        all$out$r.num <- sum(status == 2)
+      if (dat$control$type == "SIR") {
+        dat$epi$r.num <- sum(status == "r")
         if (eb == TRUE) {
           for (i in 1:length(ebun)) {
-            all$out[[paste0("r.num", ebun[i])]] <- sum(status == 2 &
+            dat$epi[[paste0("r.num", ebun[i])]] <- sum(status == "r" &
                                                        get(ebn) == ebv[i])
           }
         }
       }
-      all$out$num <- length(status)
+      dat$epi$num <- length(status)
       if (eb == TRUE) {
         for (i in 1:length(ebun)) {
-          all$out[[paste0("num", ebun[i])]] <- sum(get(ebn) == ebv[i])
+          dat$epi[[paste0("num", ebun[i])]] <- sum(get(ebn) == ebv[i])
         }
       }
     } else {
       # at > 1
-      all$out$s.num[at] <- sum(status == 0)
+      dat$epi$s.num[at] <- sum(status == "s")
       if (eb == TRUE) {
         for (i in 1:length(ebun)) {
-          all$out[[paste0("s.num", ebun[i])]][at] <- sum(status == 0 &
+          dat$epi[[paste0("s.num", ebun[i])]][at] <- sum(status == "s" &
                                                          get(ebn) == ebv[i])
         }
       }
-      all$out$i.num[at] <- sum(status == 1)
+      dat$epi$i.num[at] <- sum(status == "i")
       if (eb == TRUE) {
         for (i in 1:length(ebun)) {
-          all$out[[paste0("i.num", ebun[i])]][at] <- sum(status == 1 &
+          dat$epi[[paste0("i.num", ebun[i])]][at] <- sum(status == "i" &
                                                          get(ebn) == ebv[i])
         }
       }
-      if (all$control$type == "SIR") {
-        all$out$r.num[at] <- sum(status == 2)
+      if (dat$control$type == "SIR") {
+        dat$epi$r.num[at] <- sum(status == "r")
         if (eb == TRUE) {
           for (i in 1:length(ebun)) {
-            all$out[[paste0("r.num", ebun[i])]][at] <- sum(status == 2 &
+            dat$epi[[paste0("r.num", ebun[i])]][at] <- sum(status == "r" &
                                                            get(ebn) == ebv[i])
           }
         }
       }
-      all$out$num[at] <- length(status)
+      dat$epi$num[at] <- length(status)
       if (eb == TRUE) {
         for (i in 1:length(ebun)) {
-          all$out[[paste0("num", ebun[i])]][at] <- sum(get(ebn) == ebv[i])
+          dat$epi[[paste0("num", ebun[i])]][at] <- sum(get(ebn) == ebv[i])
         }
       }
     }
@@ -723,145 +713,145 @@ get_prev.net <- function(all, at) {
   } else {
     # Bipartite networks
     if (at == 1) {
-      all$out <- list()
-      all$out$s.num <- sum(status == 0 & mode == 1)
+      dat$epi <- list()
+      dat$epi$s.num <- sum(status == "s" & mode == 1)
       if (eb == TRUE) {
         for (i in 1:length(ebun)) {
-          all$out[[paste0("s.num", ebun[i])]] <- sum(status == 0 &
+          dat$epi[[paste0("s.num", ebun[i])]] <- sum(status == "s" &
                                                      mode == 1 &
                                                      get(ebn) == ebv[i])
         }
       }
-      all$out$i.num <- sum(status == 1 & mode == 1)
+      dat$epi$i.num <- sum(status == "i" & mode == 1)
       if (eb == TRUE) {
         for (i in 1:length(ebun)) {
-          all$out[[paste0("i.num", ebun[i])]] <- sum(status == 1 &
+          dat$epi[[paste0("i.num", ebun[i])]] <- sum(status == "i" &
                                                      mode == 1 &
                                                      get(ebn) == ebv[i])
         }
       }
-      if (all$control$type == "SIR") {
-        all$out$r.num <- sum(status == 2 & mode == 1)
+      if (dat$control$type == "SIR") {
+        dat$epi$r.num <- sum(status == "r" & mode == 1)
         if (eb == TRUE) {
           for (i in 1:length(ebun)) {
-            all$out[[paste0("s.num", ebun[i])]] <- sum(status == 2 &
+            dat$epi[[paste0("s.num", ebun[i])]] <- sum(status == "r" &
                                                        mode == 1 &
                                                        get(ebn) == ebv[i])
           }
         }
       }
-      all$out$num <- sum(mode == 1)
+      dat$epi$num <- sum(mode == 1)
       if (eb == TRUE) {
         for (i in 1:length(ebun)) {
-          all$out[[paste0("num", ebun[i])]] <- sum(mode == 1 &
+          dat$epi[[paste0("num", ebun[i])]] <- sum(mode == 1 &
                                                    get(ebn) == ebv[i])
         }
       }
-      all$out$s.num.m2 <- sum(status == 0 & mode == 2)
+      dat$epi$s.num.m2 <- sum(status == "s" & mode == 2)
       if (eb == TRUE) {
         for (i in 1:length(ebun)) {
-          all$out[[paste0("s.num.m2", ebun[i])]] <- sum(status == 0 &
+          dat$epi[[paste0("s.num.m2", ebun[i])]] <- sum(status == "s" &
                                                         mode == 2 &
                                                         get(ebn) == ebv[i])
         }
       }
-      all$out$i.num.m2 <- sum(status == 1 & mode == 2)
+      dat$epi$i.num.m2 <- sum(status == "i" & mode == 2)
       if (eb == TRUE) {
         for (i in 1:length(ebun)) {
-          all$out[[paste0("i.num.m2", ebun[i])]] <- sum(status == 1 &
+          dat$epi[[paste0("i.num.m2", ebun[i])]] <- sum(status == "i" &
                                                         mode == 2 &
                                                         get(ebn) == ebv[i])
         }
       }
-      if (all$control$type == "SIR") {
-        all$out$r.num.m2 <- sum(status == 2 & mode == 2)
+      if (dat$control$type == "SIR") {
+        dat$epi$r.num.m2 <- sum(status == "r" & mode == 2)
         if (eb == TRUE) {
           for (i in 1:length(ebun)) {
-            all$out[[paste0("r.num.m2", ebun[i])]] <- sum(status == 2 &
+            dat$epi[[paste0("r.num.m2", ebun[i])]] <- sum(status == "r" &
                                                           mode == 2 &
                                                           get(ebn) == ebv[i])
           }
         }
       }
-      all$out$num.m2 <- sum(mode == 2)
+      dat$epi$num.m2 <- sum(mode == 2)
       if (eb == TRUE) {
         for (i in 1:length(ebun)) {
-          all$out[[paste0("num.m2", ebun[i])]] <- sum(mode == 2 &
+          dat$epi[[paste0("num.m2", ebun[i])]] <- sum(mode == 2 &
                                                       get(ebn) == ebv[i])
         }
       }
     } else {
       # at > 1
-      all$out$s.num[at] <- sum(status == 0 & mode == 1)
+      dat$epi$s.num[at] <- sum(status == "s" & mode == 1)
       if (eb == TRUE) {
         for (i in 1:length(ebun)) {
-          all$out[[paste0("s.num", ebun[i])]][at] <- sum(status == 0 &
+          dat$epi[[paste0("s.num", ebun[i])]][at] <- sum(status == "s" &
                                                          mode == 1 &
                                                          get(ebn) == ebv[i])
         }
       }
-      all$out$i.num[at] <- sum(status == 1 & mode == 1)
+      dat$epi$i.num[at] <- sum(status == "i" & mode == 1)
       if (eb == TRUE) {
         for (i in 1:length(ebun)) {
-          all$out[[paste0("i.num", ebun[i])]][at] <- sum(status == 1 &
+          dat$epi[[paste0("i.num", ebun[i])]][at] <- sum(status == "i" &
                                                          mode == 1 &
                                                          get(ebn) == ebv[i])
         }
       }
-      if (all$control$type == "SIR") {
-        all$out$r.num[at] <- sum(status == 2 & mode == 1)
+      if (dat$control$type == "SIR") {
+        dat$epi$r.num[at] <- sum(status == "r" & mode == 1)
         if (eb == TRUE) {
           for (i in 1:length(ebun)) {
-            all$out[[paste0("s.num", ebun[i])]][at] <- sum(status == 2 &
+            dat$epi[[paste0("s.num", ebun[i])]][at] <- sum(status == "r" &
                                                            mode == 1 &
                                                            get(ebn) == ebv[i])
           }
         }
       }
-      all$out$num[at] <- sum(mode == 1)
+      dat$epi$num[at] <- sum(mode == 1)
       if (eb == TRUE) {
         for (i in 1:length(ebun)) {
-          all$out[[paste0("num", ebun[i])]][at] <- sum(mode == 1 &
+          dat$epi[[paste0("num", ebun[i])]][at] <- sum(mode == 1 &
                                                        get(ebn) == ebv[i])
         }
       }
-      all$out$s.num.m2[at] <- sum(status == 0 & mode == 2)
+      dat$epi$s.num.m2[at] <- sum(status == "s" & mode == 2)
       if (eb == TRUE) {
         for (i in 1:length(ebun)) {
-          all$out[[paste0("s.num.m2", ebun[i])]][at] <- sum(status == 0 &
+          dat$epi[[paste0("s.num.m2", ebun[i])]][at] <- sum(status == "s" &
                                                             mode == 2 &
                                                             get(ebn) == ebv[i])
         }
       }
-      all$out$i.num.m2[at] <- sum(status == 1 & mode == 2)
+      dat$epi$i.num.m2[at] <- sum(status == "i" & mode == 2)
       if (eb == TRUE) {
         for (i in 1:length(ebun)) {
-          all$out[[paste0("i.num.m2", ebun[i])]][at] <- sum(status == 1 &
+          dat$epi[[paste0("i.num.m2", ebun[i])]][at] <- sum(status == "i" &
                                                             mode == 2 &
                                                             get(ebn) == ebv[i])
         }
       }
-      if (all$control$type == "SIR") {
-        all$out$r.num.m2[at] <- sum(status == 2 & mode == 2)
+      if (dat$control$type == "SIR") {
+        dat$epi$r.num.m2[at] <- sum(status == "r" & mode == 2)
         if (eb == TRUE) {
           for (i in 1:length(ebun)) {
-            all$out[[paste0("r.num.m2", ebun[i])]][at] <- sum(status == 2 &
+            dat$epi[[paste0("r.num.m2", ebun[i])]][at] <- sum(status == "r" &
                                                               mode == 2 &
                                                               get(ebn) == ebv[i])
           }
         }
       }
-      all$out$num.m2[at] <- sum(mode == 2)
+      dat$epi$num.m2[at] <- sum(mode == 2)
       if (eb == TRUE) {
         for (i in 1:length(ebun)) {
-          all$out[[paste0("num.m2", ebun[i])]][at] <- sum(mode == 2 &
+          dat$epi[[paste0("num.m2", ebun[i])]][at] <- sum(mode == 2 &
                                                           get(ebn) == ebv[i])
         }
       }
     }
   }
 
-  return(all)
+  return(dat)
 }
 
 
@@ -1070,7 +1060,7 @@ node_active <- function(nw,
 #'              splitting the attribute vector into two, adding the new values,
 #'              and re-concatenating the two updated vectors.
 #'
-#' @param all master data object passed through \code{netsim} simulations.
+#' @param dat master data object passed through \code{netsim} simulations.
 #' @param var variable to update.
 #' @param val fixed value to set for all incoming nodes.
 #' @param nCurrM1 number currently in mode 1.
@@ -1081,19 +1071,19 @@ node_active <- function(nw,
 #' @export
 #' @keywords netUtils internal
 #'
-split_bip <- function(all, var, val, nCurrM1, nCurrM2, nBirths, nBirthsM2) {
+split_bip <- function(dat, var, val, nCurrM1, nCurrM2, nBirths, nBirthsM2) {
 
-  oldVarM1 <- all$attr[[var]][1:nCurrM1]
-  oldVarM2 <- all$attr[[var]][(nCurrM1 + 1):(nCurrM1 + nCurrM2)]
+  oldVarM1 <- dat$attr[[var]][1:nCurrM1]
+  oldVarM2 <- dat$attr[[var]][(nCurrM1 + 1):(nCurrM1 + nCurrM2)]
 
   newVarM1 <- c(oldVarM1, rep(val, nBirths))
   newVarM2 <- c(oldVarM2, rep(val, nBirthsM2))
 
   newVar <- c(newVarM1, newVarM2)
 
-  all$attr[[var]] <- newVar
+  dat$attr[[var]] <- newVar
 
-  return(all)
+  return(dat)
 }
 
 

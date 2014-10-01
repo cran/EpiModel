@@ -101,51 +101,49 @@ icm <- function(param, init, control) {
   for (s in 1:control$nsims) {
 
     ## Initialization module
-    all <- do.call(control[["initialize.FUN"]], list(param, init, control))
+    dat <- do.call(control[["initialize.FUN"]], list(param, init, control))
 
 
     # Timestep loop
     for (at in 2:control$nsteps) {
 
       ## User Modules
-      bim <- grep(".FUN", names(formals(control.icm)), value = TRUE)
-      um <- which(grepl(".FUN", names(control)) & !(names(control) %in% bim))
+      um <- control$user.mods
       if (length(um) > 0) {
         for (i in 1:length(um)) {
-          umn <- names(control)[um[i]]
-          all <- do.call(control[[umn]], list(all, at))
+          dat <- do.call(control[[um[i]]], list(dat, at))
         }
       }
 
       ## Infection
-      all <- do.call(control[["infection.FUN"]], list(all, at))
+      dat <- do.call(control[["infection.FUN"]], list(dat, at))
 
 
       ## Recovery
-      all <- do.call(control[["recovery.FUN"]], list(all, at))
+      dat <- do.call(control[["recovery.FUN"]], list(dat, at))
 
 
       ## Mortality
-      all <-  do.call(control[["deaths.FUN"]], list(all, at))
+      dat <-  do.call(control[["deaths.FUN"]], list(dat, at))
 
 
       ## Birth Module
-      all <-  do.call(control[["births.FUN"]], list(all, at))
+      dat <-  do.call(control[["births.FUN"]], list(dat, at))
 
 
       ## Outputs
-      all <-  do.call(control[["get_prev.FUN"]], list(all, at))
+      dat <-  do.call(control[["get_prev.FUN"]], list(dat, at))
 
 
       ## Track progress
-      verbose.icm(all, type = "progress", s, at)
+      verbose.icm(dat, type = "progress", s, at)
     }
 
     # Set output
     if (s == 1) {
-      out <- saveout.icm(all, s)
+      out <- saveout.icm(dat, s)
     } else {
-      out <- saveout.icm(all, s, out)
+      out <- saveout.icm(dat, s, out)
     }
 
 
