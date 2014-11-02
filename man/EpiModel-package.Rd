@@ -8,8 +8,8 @@
 \tabular{ll}{
    Package: \tab EpiModel\cr
    Type: \tab Package\cr
-   Version: \tab 1.1\cr
-   Date: \tab 2014-09-25\cr
+   Version: \tab 1.1.1\cr
+   Date: \tab 2014-11-02\cr
    License: \tab GPL (>= 2)\cr
    LazyLoad: \tab yes\cr
 }
@@ -112,7 +112,9 @@ model are:
 }
 }
 \references{
-\url{http://statnet.github.io/EpiModel}
+The main website is at \url{http://epimodel.org/},
+            and the source code is at \url{http://github.com/statnet/EpiModel}.
+            Bug reports and feature requests may be filed there.
 }
 \keyword{package}
 

@@ -1,5 +1,117 @@
 
-# Exported Functions ------------------------------------------------------
+#' @title RColorBrewer Color Ramp for EpiModel Plots
+#'
+#' @description Returns vector of colors consistent with a high-brightness set
+#'              of colors from an \code{RColorBrewer} palette.
+#'
+#' @param plt \code{RColorBrewer} palette from \code{\link{brewer.pal}}
+#' @param n number of colors to return
+#' @param delete.lights delete the lightest colors from the color palette,
+#'        helps with plotting in many high-contrast palettes
+#'
+#' @details
+#' \code{RColorBrewer} provides easy access to helpful color palettes, but the
+#' built-in palettes are limited to the set of colors in the existing palette.
+#' This function expands the palette size to any number of colors by filling
+#' in the gaps. Also, colors within the "div" and "seq" set of palettes whose
+#' colors are very light (close to white) are deleted by default for better
+#' visualization of plots.
+#'
+#' @return
+#' A vector of length equal to \code{n} with a range of color values consistent
+#' with an RColorBrewer color palette.
+#'
+#' @seealso \code{\link{RColorBrewer}}
+#' @keywords colorUtils internal
+#' @export
+#'
+#' @examples
+#' # Shows a 100-color ramp for 4 RColorBrewer palettes
+#' par(mfrow = c(2, 2), mar=c(1, 1, 2, 1))
+#' pals <- c("Spectral", "Greys", "Blues", "Set1")
+#' for (i in seq_along(pals)) {
+#'  plot(1:100, 1:100, type = "n", axes = FALSE, main = pals[i])
+#'  abline(v = 1:100, lwd = 6, col = brewer_ramp(100, pals[i]))
+#' }
+#'
+brewer_ramp <- function(n, plt, delete.lights = TRUE){
+
+  pltmax <- brewer.pal.info[row.names(brewer.pal.info)==plt, ]$maxcolors
+  pltcat <- brewer.pal.info[row.names(brewer.pal.info)==plt, ]$category
+
+  if (pltcat == "div") {
+    if (delete.lights == TRUE) {
+      colors <- brewer.pal(pltmax, plt)[-c(4:7)]
+    } else {
+      colors <- brewer.pal(pltmax, plt)
+    }
+  }
+  if (pltcat == "qual") {
+    colors <- brewer.pal(pltmax, plt)
+  }
+  if (pltcat == "seq") {
+    if (delete.lights == TRUE) {
+      colors <- rev(brewer.pal(pltmax, plt)[-c(1:3)])
+    } else {
+      colors <- rev(brewer.pal(pltmax, plt))
+    }
+  }
+  if (plt == "Set1") {
+    colors <- brewer.pal(9, "Set1")[-6]
+  }
+
+  pal <- colorRampPalette(colors)
+
+  return(pal(n))
+}
+
+
+#' @title Delete Elements from Attribute List
+#'
+#' @description Deletes elements from the master attribute list.
+#'
+#' @param attrList Attribute list.
+#' @param ids ID numbers to delete from the list.
+#'
+#' @export
+#' @keywords internal
+deleteAttr <- function(attrList, ids) {
+  if (length(ids) > 0) {
+    attrList <- lapply(attrList, function(x) x[-ids])
+  }
+  return(attrList)
+}
+
+#' @title Get Arguments from Parent Function
+#'
+#' @description Gets the arguments and values from the parent function environment
+#'              and returns them in a list.
+#'
+#' @param ... dot arguments in function.
+#'
+#' @export
+#' @keywords internal
+get_args <- function(...) {
+
+  p <- list()
+  formal.args <- formals(sys.function(1))
+  formal.args[["..."]] <- NULL
+  for (arg in names(formal.args)) {
+    if (as.logical(mget(arg, envir = parent.frame()) != "")) {
+      p[arg] <- list(get(arg, envir = parent.frame()))
+    }
+  }
+  dot.args <- list(...)
+  names.dot.args <- names(dot.args)
+  if (length(dot.args) > 0) {
+    for (i in 1:length(dot.args)) {
+      p[[names.dot.args[i]]] <- dot.args[[i]]
+    }
+  }
+
+  return(p)
+}
+
 
 #' @title Obtain Transparent Colors
 #'
@@ -93,147 +205,21 @@ transco <- function(col,
 }
 
 
-#' @title RColorBrewer Color Ramp for EpiModel Plots
+#' @title Stable Sampling Function
 #'
-#' @description Returns vector of colors consistent with a high-brightness set
-#'              of colors from an \code{RColorBrewer} palette.
+#' @description Provides a sampling function useful for dynamic simulations, in
+#'              which the length of the input vector may be multiple lengths and
+#'              the size of the sample may be 0.
 #'
-#' @param plt \code{RColorBrewer} palette from \code{\link{brewer.pal}}
-#' @param n number of colors to return
-#' @param delete.lights delete the lightest colors from the color palette,
-#'        helps with plotting in many high-contrast palettes
+#' @param x Either a vector of one or more elements from which to choose, or a
+#'        positive integer.
+#' @param size a non-negative integer giving the number of items to choose.
+#' @param replace Should sampling be with replacement?
+#' @param prob A vector of probability weights for obtaining the elements of the
+#'        vector being sampled.
 #'
-#' @details
-#' \code{RColorBrewer} provides easy access to helpful color palettes, but the
-#' built-in palettes are limited to the set of colors in the existing palette.
-#' This function expands the palette size to any number of colors by filling
-#' in the gaps. Also, colors within the "div" and "seq" set of palettes whose
-#' colors are very light (close to white) are deleted by default for better
-#' visualization of plots.
-#'
-#' @return
-#' A vector of length equal to \code{n} with a range of color values consistent
-#' with an RColorBrewer color palette.
-#'
-#' @seealso \code{\link{RColorBrewer}}
-#' @keywords colorUtils internal
 #' @export
-#'
-#' @examples
-#' # Shows a 100-color ramp for 4 RColorBrewer palettes
-#' par(mfrow = c(2, 2), mar=c(1, 1, 2, 1))
-#' pals <- c("Spectral", "Greys", "Blues", "Set1")
-#' for (i in seq_along(pals)) {
-#'  plot(1:100, 1:100, type = "n", axes = FALSE, main = pals[i])
-#'  abline(v = 1:100, lwd = 6, col = brewer_ramp(100, pals[i]))
-#' }
-#'
-brewer_ramp <- function(n, plt, delete.lights = TRUE){
-
-  pltmax <- brewer.pal.info[row.names(brewer.pal.info)==plt, ]$maxcolors
-  pltcat <- brewer.pal.info[row.names(brewer.pal.info)==plt, ]$category
-
-  if (pltcat == "div") {
-    if (delete.lights == TRUE) {
-      colors <- brewer.pal(pltmax, plt)[-c(4:7)]
-    } else {
-      colors <- brewer.pal(pltmax, plt)
-    }
-  }
-  if (pltcat == "qual") {
-    colors <- brewer.pal(pltmax, plt)
-  }
-  if (pltcat == "seq") {
-    if (delete.lights == TRUE) {
-      colors <- rev(brewer.pal(pltmax, plt)[-c(1:3)])
-    } else {
-      colors <- rev(brewer.pal(pltmax, plt))
-    }
-  }
-
-  pal <- colorRampPalette(colors)
-
-  return(pal(n))
-}
-
-
-
-# Non-Exported Functions --------------------------------------------------
-
-deleteAttr <- function(attrList, ids) {
-  if (length(ids) > 0) {
-    attrList <- lapply(attrList, function(x) x[-ids])
-  }
-  return(attrList)
-}
-
-eval_list <- function(x) {
-
-  largs <- as.numeric(which(sapply(x, class) %in% c("call", "name")))
-  for (i in largs) {
-    x[[i]] <- eval.parent(x[[i]], n = 2)
-  }
-
-  return(x)
-}
-
-
-sampledf <- function(df, size, replace=FALSE, prob=NULL, group, status){
-
-  if (!missing(group) && !missing(status))
-    elig.ids <- df$ids[df$group %in% group & df$status %in% status]
-
-  if (missing(group) && !missing(status))
-    elig.ids <- df$ids[df$status %in% status]
-
-  if (!missing(group) && missing(status))
-    elig.ids <- df$ids[df$group %in% group]
-
-  if (missing(group) && missing(status))
-    elig.ids <- df$ids
-
-  if (length(elig.ids) > 1) {
-    ids <- sample(elig.ids, size, replace, prob)
-  } else {
-    if (size > 0) {
-      ids <- elig.ids
-    } else {
-      ids <- NULL
-    }
-  }
-
-  return(ids)
-}
-
-
-split_list <- function(x, exclude) {
-
-  largs <- rep(FALSE, length(x))
-  for (i in seq_along(x)) {
-    largs[i] <- class(eval.parent(x[[i]], n = 2)) == "list"
-  }
-  largs <- which(largs)
-
-  if (!missing(exclude)) {
-    largs <- largs[-which(names(largs) %in% exclude)]
-  }
-
-  largsn <- names(largs)
-  if (length(largsn) > 0) {
-    for (i in seq_along(largsn)) {
-      crlist <- eval.parent(x[[largsn[i]]], n = 2)
-      crlistn <- names(crlist)
-      for (j in seq_along(crlistn)) {
-        x[[crlistn[j]]] <- crlist[[j]]
-      }
-      x[[largsn[[i]]]] <- NULL
-    }
-  }
-
-  return(x)
-}
-
-
+#' @keywords internal
 ssample <- function(x, size, replace = FALSE, prob = NULL) {
 
   if (length(x) > 1) {
@@ -249,3 +235,4 @@ ssample <- function(x, size, replace = FALSE, prob = NULL) {
   }
 
 }
+

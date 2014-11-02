@@ -892,8 +892,10 @@ plot.icm <- function(x,
 #'
 #' @param x an \code{EpiModel} object of class \code{netdx}.
 #' @param type plot type, with options of \code{"formation"} for network
-#'        model formation statistics, or \code{"duration"} for dissolution model
-#'        statistics for average edge duration.
+#'        model formation statistics, \code{"duration"} for dissolution model
+#'        statistics for average edge duration, or \code{"dissolution"} for
+#'        dissolution model statistics for proportion of ties dissolved per time
+#'        step.
 #' @param sim vector of simulation numbers to plot, with the default to plot
 #'        all simulations.
 #' @param stats network statistics to plot, among those specified in the call
@@ -925,6 +927,13 @@ plot.icm <- function(x,
 #' step, up until the maximum time step requested. This is calculated with the
 #' \code{\link{edgelist_meanage}} function. The age is used as an estimator of
 #' the average duration of edges in the equilibrium state.
+#'
+#' The \code{dissolution} plot shows the proportion of the extant ties that are
+#' dissolved at each time step, up until the maximum time step requested.
+#' Typically the proportion of ties that are dissolved is the reciprocal of the
+#' mean relational duration. This plot thus contains similar information to that
+#' in the duration plot, but should reach its expected value more quickly, since
+#' it is not subject to censoring.
 #'
 #' The \code{plots.joined} argument will control whether the statistics
 #' in the \code{formation} plot are joined in one plot or plotted separately.
@@ -1073,10 +1082,13 @@ plot.netdx <- function(x,
 
     # Default colors
     if (missing(sim.col)) {
-      if (nstats > 9) {
+      if (nstats > 8) {
         sim.col <- brewer_ramp(nstats, "Set1")
       } else {
-        sim.col <- brewer.pal(9, "Set1")[1:nstats]
+        sim.col <- brewer.pal(9, "Set1")[1:(nstats+1)]
+        if (nstats >= 6) {
+          sim.col <- sim.col[-which(sim.col == "#FFFF33")]
+        }
       }
     }
 
@@ -1261,6 +1273,67 @@ plot.netdx <- function(x,
     }
   }
 
+  # Dissolution plot -----------------------------------------------------------
+  if (type == "dissolution") {
+
+    prop.diss <- x$prop.diss
+
+    xlim <- c(1, nsteps)
+    if (length(da) > 0 & !is.null(da$xlim)) {
+      xlim <- da$xlim
+    }
+
+    ylim <- c(0, max(sapply(prop.diss, max, na.rm = TRUE)) * 1.2)
+    if (length(da) > 0 & !is.null(da$ylim)) {
+      ylim <- da$ylim
+    }
+
+    if (missing(sim.lwd)) {
+      sim.lwd <- max(c(1-(nsims*0.05), 0.5))
+    }
+
+    if (missing(sim.col)) {
+      sim.col <- rep("darkgrey", nsims)
+    }
+    if (missing(targ.col)) {
+      targ.col <- "black"
+    }
+
+    # Default ylab
+    if (length(da) > 0 && !is.null(da$ylab)) {
+      ylab <- da$ylab
+    } else {
+      ylab <- "Prop. Edges Dissolving"
+    }
+
+    # Default xlab
+    if (length(da) > 0 && !is.null(da$xlab)) {
+      xlab <- da$xlab
+    } else {
+      xlab <- "time"
+    }
+
+    # Edges only dissolution model
+    if (x$dissolution == ~offset(edges)) {
+
+      plot(x = 1, y = 1, type = "n",
+           xlim = xlim, ylim = ylim,
+           xlab = xlab, ylab = ylab)
+      for (i in sim) {
+        lines(x = 1:nsteps,
+              y = prop.diss[[i]],
+              lwd = sim.lwd, lty = sim.lty,
+              col = sim.col)
+      }
+      abline(h = as.numeric(1/(x$coef.diss[2]$duration)),
+             lty = targ.lty, lwd = targ.lwd,
+             col = targ.col)
+    } else {
+      stop("Only ~offset(edges) dissolution models currently supported",
+           call. = FALSE)
+    }
+  }
+
 }
 
 
@@ -1269,37 +1342,42 @@ plot.netdx <- function(x,
 #' @description Plots epidemiological and network data from a stochastic network
 #'              model simulated with \code{netsim}.
 #'
-#' @param x an \code{EpiModel} model object of class \code{netsim}.
-#' @param type type of plot: \code{"sim"} for epidemic model results,
+#' @param x An \code{EpiModel} model object of class \code{netsim}.
+#' @param type Type of plot: \code{"sim"} for epidemic model results,
 #'        \code{"network"} for a static network plot (\code{plot.network}),
 #'        or \code{"formation"} for network formation statistics.
-#' @param sim if \code{type="network"}, a single simulation number for network
-#'        plot; if \code{type="formation"}, a vector of simulation numbers to plot.
-#' @param network network number, for simulations with multiple networks
+#' @param sim If \code{type="network"}, a single simulation number for network
+#'        plot, or else \code{"min"} to plot the simulation number with the
+#'        lowest disease prevalence, \code{"max"} for the simulation with the
+#'        highest disease prevalence, or \code{"mean"} for the simulation with
+#'        the prevalance closest to the mean across simulations at the specified
+#'        time step; if \code{type="formation"}, a vector of simulation numbers
+#'        to plot.
+#' @param network Network number, for simulations with multiple networks
 #'        representing the population.
-#' @param at if \code{type="network"}, time step for network graph.
-#' @param col.status if \code{TRUE} and \code{type="network"}, automatic disease
+#' @param at If \code{type="network"}, time step for network graph.
+#' @param col.status If \code{TRUE} and \code{type="network"}, automatic disease
 #'        status colors (blue = susceptible, red = infected, , green = recovered).
-#' @param shp.bip if \code{type="network"} and a bipartite simulation, shapes
+#' @param shp.bip If \code{type="network"} and a bipartite simulation, shapes
 #'        for the mode 2 vertices, with acceptable inputs of "triangle" and
 #'        "square". Mode 1 vertices will be circles.
-#' @param stats if \code{type="formation"}, network statistics to plot, among
+#' @param stats If \code{type="formation"}, network statistics to plot, among
 #'        those specified in \code{nwstats.formula} of \code{\link{control.net}},
 #'        with the default to plot all statistics.
-#' @param sim.col a vector of standard R colors to be used for individual
+#' @param sim.col A vector of standard R colors to be used for individual
 #'        simulation lines, with default colors based on \code{RColorBrewer}
 #'        color palettes.
-#' @param sim.lwd line width for individual simulation lines, with defaults based
+#' @param sim.lwd Line width for individual simulation lines, with defaults based
 #'        on number of simulations (more simulations equals thinner lines).
-#' @param sim.lty line type for the individual simulation lines.
-#' @param targ.col vector of standard R colors for target statistic lines, with
+#' @param sim.lty Line type for the individual simulation lines.
+#' @param targ.col Vector of standard R colors for target statistic lines, with
 #'        default colors based on \code{RColorBrewer} color palettes.
-#' @param targ.lwd line width for the line showing the target statistic values.
-#' @param targ.lty line type for the line showing the target statistic values.
-#' @param plots.joined if \code{TRUE} and \code{type="formation"}, combine all
+#' @param targ.lwd Line width for the line showing the target statistic values.
+#' @param targ.lty Line type for the line showing the target statistic values.
+#' @param plots.joined If \code{TRUE} and \code{type="formation"}, combine all
 #'        target statistics in one plot, versus one plot per target statistic if
 #'        \code{FALSE}.
-#' @param plot.leg if \code{TRUE}, show legend (only if \code{plots.joined=TRUE}).
+#' @param plot.leg If \code{TRUE}, show legend (only if \code{plots.joined=TRUE}).
 #' @param ... additional arguments to pass.
 #'
 #' @details
@@ -1365,7 +1443,7 @@ plot.netdx <- function(x,
 #' plot(mod, type = "sim")
 #' plot(mod, type = "sim", popfrac = FALSE)
 #' plot(mod, type = "sim", y = "si.flow")
-#' plot(mod, type = "sim", y = "si.flow",
+#' plot(mod, type = "sim", y = "si.flow", add = TRUE,
 #'      mean.smooth = TRUE, mean.col = "firebrick")
 #'
 #' # Plot static networks
@@ -1373,24 +1451,21 @@ plot.netdx <- function(x,
 #' plot(mod, type = "network")
 #'
 #' # Automatic coloring of infected nodes as red
-#' par(mfrow = c(1, 2))
-#' plot(mod, type = "network",
+#' par(mfrow = c(1, 2), mar = c(0, 0, 2, 0))
+#' plot(mod, type = "network", main = "Sim 1 | Time 50",
 #'      col.status = TRUE, at = 50)
-#' plot(mod, type = "network",
+#' plot(mod, type = "network", main = "Sim 5 | Time 50",
 #'      col.status = TRUE, at = 50, sim = 5)
 #'
 #' # Automatic shape by mode number (circle = mode 1)
+#' par(mar = c(0, 0, 0, 0))
 #' plot(mod, type = "network", at = 50,
 #'      col.status = TRUE, shp.bip = "square")
 #' plot(mod, type = "network", at = 50,
 #'      col.status = TRUE, shp.bip = "triangle")
 #'
-#' # Include a title
-#' par(mar = c(1, 1, 2, 1), mfrow = c(1, 1))
-#' plot(mod, type = "network", main = "My Network Plot")
-#'
 #' # Plot formation statistics
-#' par(mar = c(3, 3, 1, 1), mgp = c(2, 1, 0))
+#' par(mfrow = c(1, 1), mar = c(3, 3, 1, 1), mgp = c(2, 1, 0))
 #' plot(mod, type = "formation")
 #' plot(mod, type = "formation", plots.joined = FALSE)
 #' plot(mod, type = "formation", sim = 2:4)
@@ -1435,12 +1510,21 @@ plot.netsim <- function(x,
     if (missing(sim)) {
       sim <- 1
     }
-    if (length(sim) > 1) {
-      stop("Length of sim must be 1 for network plots", call. = FALSE)
+    if (length(sim) > 1 || (!is.numeric(sim) && !(sim %in% c("mean", "max", "min")))) {
+      stop("sim must be single simulation number or \"mean\", \"max\", or \"min\" ")
     }
-    if (sim > nsims) {
-      stop("Maximum sim number is ", nsims, call. = FALSE)
+
+    if (sim == "mean") {
+      sim <- which.min(abs(as.numeric(x$epi$i.num[at, ]) -
+                           mean(as.numeric(x$epi$i.num[at, ]))))
     }
+    if (sim == "max") {
+      sim <- as.numeric(which.max(x$epi$i.num[at, ]))
+    }
+    if (sim == "min") {
+      sim <- as.numeric(which.min(x$epi$i.num[at, ]))
+    }
+
     obj <- get_network(x, sim, network, collapse = TRUE, at = at)
     tea.status <- x$control$tea.status
 
@@ -1553,7 +1637,7 @@ plot.netsim <- function(x,
 
     ## target stats
     nwparam <- get_nwparam(x, network)
-    formation.terms <- names(nwparam$coef.form)
+    formation.terms <- nwparam$target.stats.names
     target.stats <- nwparam$target.stats
 
     st <- data.frame(sorder = 1:length(nmstats), names = nmstats)
@@ -1739,10 +1823,8 @@ plot.netsim <- function(x,
 #' @param x an \code{EpiModel} object of class \code{dcm}, \code{icm}, or
 #'        \code{netsim}.
 #' @param at time step for model statistics.
-#' @param run model run number, for \code{dcm} class models with multiple runs
-#'        (sensitivity analyses).
 #' @param digits number of significant digits to print.
-#' @param ... additional arguments passed to plot (not used).
+#' @param ... additional arguments passed to plot (not currently used).
 #'
 #' @details
 #' The \code{comp_plot} function provides a visual summary of an epidemic model
@@ -1782,18 +1864,20 @@ plot.netsim <- function(x,
 #' mod2 <- icm(param, init, control)
 #' comp_plot(mod2, at = 25, digits = 1)
 #'
-comp_plot <- function(x, at, run, digits, ...) {
+comp_plot <- function(x, at, digits, ...) {
   UseMethod("comp_plot")
 }
 
 
+#' @param run model run number, for \code{dcm} class models with multiple runs
+#'        (sensitivity analyses).
 #' @method comp_plot dcm
 #' @rdname comp_plot
 #' @export
 comp_plot.dcm <- function(x,
-                          at,
-                          run = 1,
+                          at = 1,
                           digits = 3,
+                          run = 1,
                           ...
                           ) {
 
@@ -1810,14 +1894,10 @@ comp_plot.dcm <- function(x,
     stop("Only 1-group dcm models currently supported",
          call. = FALSE)
   }
-  if (run > nruns) {
-    stop("Specify a run between 1 and ", nruns,
-         call. = FALSE)
-  }
 
   ## Time
-  if (missing(at) || (at > nsteps | at < 1)) {
-    stop("Specify a timestep between 1 and ", nsteps)
+  if (at > nsteps | at < 1) {
+    stop("Specify a time step between 1 and ", nsteps)
   }
   intime <- at
   at <- which(x$control$timesteps == intime)
@@ -1887,7 +1967,6 @@ comp_plot.dcm <- function(x,
 #' @export
 comp_plot.icm <- function(x,
                           at = 1,
-                          run,
                           digits = 3,
                           ...
                           ) {
@@ -1911,7 +1990,7 @@ comp_plot.icm <- function(x,
   }
 
   # Time
-  if (missing(at) || (at > nsteps | at < 1)) {
+  if (at > nsteps | at < 1) {
     stop("Specify a timestep between 1 and ", nsteps,
          call. = FALSE)
   }
@@ -1983,14 +2062,12 @@ comp_plot.icm <- function(x,
 #' @export
 comp_plot.netsim <- function(x,
                              at = 1,
-                             run,
                              digits = 3,
                              ...
                              ) {
 
   comp_plot.icm(x = x,
                 at = at,
-                run = run,
                 digits = digits,
                 ...)
 

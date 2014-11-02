@@ -4,12 +4,13 @@
 #' @description Simulates stochastic network epidemic models for infectious
 #'              disease.
 #'
-#' @param x fitted network model object, as an object of class
-#'        \code{\link{netest}}.
-#' @param param model parameters, as an object of class \code{\link{param.net}}.
-#' @param init initial conditions, as an object of class \code{\link{init.net}}.
-#' @param control control settings, as an object of class
-#'        \code{\link{control.net}}.
+#' @param x Fitted network model object, as an object of class \code{netest}.
+#'        Alternatively, if restarting a previous simulation, may be an object of
+#'        class \code{netsim}.
+#' @param param Model parameters, as an object of class \code{param.net}.
+#' @param init Initial conditions, as an object of class \code{init.net}.
+#' @param control Control settings, as an object of class
+#'        \code{control.net}.
 #'
 #' @details
 #' Stochastic network models move beyond stochastic individual contact models by
@@ -237,19 +238,22 @@ netsim <- function(x,
 #' @details
 #' This is an experimental implementation of the \code{\link{netsim}} function
 #' that runs model simulations in parallel, using the \code{doParallel} and
-#' \code{doMPI} libraries.
+#' \code{doMPI} R packages.
 #'
 #' To run models in parallel on a single node, add an argument to the control
 #' settings called \code{ncores} that is equal to the number of parallel cores
 #' the simulations should be initiated on. Use \code{\link{detectCores}} to find
-#' the maximum on a node. Also available is an MPI option, called by adding a
-#' control argument \code{par.type} set to \code{"mpi"}. This requires a local
-#' MPI installation on the computing cluster, and the run of a bash script with
-#' an mpirun call containing the R script with the \code{netsim_parallel} call.
+#' the maximum on a node.
 #'
-#' This has been tested on Linux, Mac, and Windows but no guarantees are made
-#' that it will work on every platform. It is best-suited to be run in batch
-#' mode.
+#' Also available is an MPI option, called by adding a control argument
+#' \code{par.type} set to \code{"mpi"}. This requires a local MPI installation on
+#' the computing cluster, and the run of a bash script with an mpirun call
+#' containing the R script with the \code{netsim_parallel} call.
+#'
+#' The default single-node method has been tested on Linux, Mac, and Windows
+#' platforms. The MPI method is only intended to be run on Linux-based clusters
+#' with an MPI installation, although it may be possible to run on Mac or Windows.
+#' Both methods are best-suited to be run in non-interactive batch mode.
 #'
 #' Note that this function may be folded into \code{\link{netsim}} and deprecated
 #' in the future.
