@@ -3,29 +3,33 @@
 \alias{netdx}
 \title{Dynamic Network Model Diagnostics}
 \usage{
-netdx(x, nsims = 1, nsteps, nwstats.formula = "formation", set.control.ergm,
-  set.control.stergm, verbose = TRUE, ncores = 1)
+netdx(x, nsims = 1, dynamic = TRUE, nsteps, nwstats.formula = "formation",
+  set.control.ergm, set.control.stergm, verbose = TRUE, ncores = 1)
 }
 \arguments{
-\item{x}{an \code{EpiModel} object of class \code{netest}.}
+\item{x}{An \code{EpiModel} object of class \code{netest}.}
 
-\item{nsims}{number of simulations to run.}
+\item{nsims}{Number of simulations to run.}
 
-\item{nsteps}{number of time steps per simulation.}
+\item{dynamic}{If \code{TRUE}, runs dynamic diagnostics. If \code{FALSE} and
+the \code{netest} object was fit with the Edges Dissolution approximation
+method, simulates from the static ERGM fit.}
 
-\item{nwstats.formula}{a right-hand sided ERGM formula with the network
+\item{nsteps}{Number of time steps per simulation (dynamic simulations only).}
+
+\item{nwstats.formula}{A right-hand sided ERGM formula with the network
 statistics of interest. The default is the formation formula of the
 network model contained in \code{x}.}
 
-\item{set.control.ergm}{control arguments passed to simulate.ergm (see
+\item{set.control.ergm}{Control arguments passed to simulate.ergm (see
 details).}
 
-\item{set.control.stergm}{control arguments passed to simulate.stergm (see
+\item{set.control.stergm}{Control arguments passed to simulate.stergm (see
 details).}
 
-\item{verbose}{print progress to the console.}
+\item{verbose}{Print progress to the console.}
 
-\item{ncores}{sets the number of processor cores to run multiple simulations
+\item{ncores}{Number of processor cores to run multiple simulations
        on, using the \code{foreach} and \code{doParallel} implementations.}
 }
 \description{
@@ -71,27 +75,26 @@ nw <- network.initialize(100, directed = FALSE)
 formation <- ~ edges
 dissolution <- ~ offset(edges)
 target.stats <- 50
-coef.diss <- dissolution_coefs(dissolution, duration = 10)
+coef.diss <- dissolution_coefs(dissolution, duration = 25)
 
 # Estimate the model
-est <- netest(
-  nw,
-  formation,
-  dissolution,
-  target.stats,
-  coef.diss,
-  verbose = FALSE)
+est <- netest(nw, formation, dissolution,
+              target.stats, coef.diss, verbose = FALSE)
 
-# Run diagnostics
-dx <- netdx(est,
-  nsims = 5,
-  nsteps = 500,
-  nwstats.formula = ~ edges + meandeg + concurrent,
-  set.control.ergm = control.simulate.ergm(MCMC.burnin = 1e6),
-  set.control.stergm = control.simulate.network(MCMC.burnin.min = 1e5))
+# Static diagnostics on the ERGM fit
+dx1 <- netdx(est, nsims = 1e4, dynamic = FALSE,
+             nwstats.formula = ~ edges + meandeg + concurrent)
+dx1
+plot(dx1, method = "b", stats = c("edges", "concurrent"))
 
-dx
-plot(dx)
+# Dynamic diagnostics on the STERGM approximation
+dx2 <- netdx(est, nsims = 5, nsteps = 500,
+             nwstats.formula = ~ edges + meandeg + concurrent,
+             set.control.ergm = control.simulate.ergm(MCMC.burnin = 1e6))
+dx2
+plot(dx2, stats = c("edges", "meandeg"), plots.joined = FALSE)
+plot(dx2, type = "duration")
+plot(dx2, type = "dissolution", method = "b", col = "bisque")
 }
 }
 \seealso{

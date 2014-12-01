@@ -6,27 +6,26 @@
 #' @description Outputs static vertex attributes for a bipartite network for one
 #'              specified mode.
 #'
-#' @param nw an object of class \code{network} or \code{networkDynamic}.
-#' @param mode mode number to extract values for.
-#' @param val static attribute values to return.
+#' @param nw An object of class \code{network} or \code{networkDynamic}.
+#' @param mode Mode number.
+#' @param val Nodal attribute to return.
 #'
 #' @export
 #' @keywords netUtils internal
 #'
 #' @examples
-#' nw <- network.initialize(10, bipartite = 5)
-#' nw %v% "sex" <- rep(c("M", "F"), each = 5)
-#' bipvals(nw, mode = 1, "sex")
+#' nw <- network.initialize(n = 10, bipartite = 5)
+#' nw <- set.vertex.attribute(nw, "male", rep(0:1, each = 5))
+#' bipvals(nw, mode = 1, "male")
 #'
-bipvals <- function(nw,
-                    mode,
-                    val
-                    ) {
+bipvals <- function(nw, mode, val) {
 
-  if (!is.numeric(nw$gal$bipartite))
-    stop("nw must be a bipartite network")
-  if (missing(mode))
-    stop("Specify mode=1 or mode=2")
+  if (!is.numeric(nw$gal$bipartite)) {
+    stop("nw must be a bipartite network", call. = FALSE)
+  }
+  if (missing(mode)) {
+    stop("Specify mode=1 or mode=2", call. = FALSE)
+  }
 
   nw %s% modeids(nw, mode) %v% val
 }
@@ -38,10 +37,10 @@ bipvals <- function(nw,
 #'              of a bipartite network in which the mode size and mode-specific
 #'              degree distributions are specified.
 #'
-#' @param num.m1 number of nodes in mode 1.
-#' @param num.m2 number of nodes in mode 2.
-#' @param deg.dist.m1 vector with fractional degree distribution for mode 1.
-#' @param deg.dist.m2 vector with fractional degree distribution for mode 2.
+#' @param num.m1 Number of nodes in mode 1.
+#' @param num.m2 Number of nodes in mode 2.
+#' @param deg.dist.m1 Vector with fractional degree distribution for mode 1.
+#' @param deg.dist.m2 Vector with fractional degree distribution for mode 2.
 #'
 #' @details
 #' This function outputs the number of nodes of degree 0 to m, where m is the
@@ -51,7 +50,7 @@ bipvals <- function(nw,
 #' which the degree-constrained counts must be equal across modes.
 #'
 #' @seealso
-#' For a detailed explanation of this function, see the HTML vignette:
+#' For a detailed explanation of this function, see the tutorial:
 #' \href{http://statnet.org/EpiModel/vignette/NetUtils.html}{EpiModel Network
 #' Utility Functions}.
 #'
@@ -59,50 +58,58 @@ bipvals <- function(nw,
 #' @keywords netUtils
 #'
 #' @examples
-#' # An unbalanced distribution
+#' # An imbalanced distribution
 #' check_bip_degdist(num.m1 = 500, num.m2 = 500,
-#'                   deg.dist.m1 = c(0.40, 0.55, 0.03, 0.02),
-#'                   deg.dist.m2 = c(0.48, 0.41, 0.08, 0.03))
+#'                   deg.dist.m2 = c(0.40, 0.55, 0.03, 0.02),
+#'                   deg.dist.m1 = c(0.48, 0.41, 0.08, 0.03))
 #'
 #' # A balanced distribution
-#' targets <- check_bip_degdist(num.m1 = 500, num.m2 = 500,
+#' check_bip_degdist(num.m1 = 500, num.m2 = 500,
 #'                   deg.dist.m1 = c(0.40, 0.55, 0.04, 0.01),
 #'                   deg.dist.m2 = c(0.48, 0.41, 0.08, 0.03))
-#' targets
 #'
-check_bip_degdist <- function(num.m1,
-                              num.m2,
-                              deg.dist.m1,
-                              deg.dist.m2
-                              ) {
+check_bip_degdist <- function(num.m1, num.m2,
+                              deg.dist.m1, deg.dist.m2) {
 
   num <- num.m1 + num.m2
 
-  deg.counts.m1 <- deg.dist.m1*num.m1
-  deg.counts.m2 <- deg.dist.m2*num.m2
+  deg.counts.m1 <- deg.dist.m1 * num.m1
+  deg.counts.m2 <- deg.dist.m2 * num.m2
 
-  tot.deg.m1 <- sum(deg.counts.m1 * (1:length(deg.dist.m1)-1))
-  tot.deg.m2 <- sum(deg.counts.m2 * (1:length(deg.dist.m2)-1))
+  tot.deg.m1 <- sum(deg.counts.m1 * (1:length(deg.dist.m1) - 1))
+  tot.deg.m2 <- sum(deg.counts.m2 * (1:length(deg.dist.m2) - 1))
 
   mat <- matrix(c(deg.dist.m1, deg.counts.m1,
                   deg.dist.m2, deg.counts.m2), ncol=4)
   mat <- rbind(mat, c(sum(deg.dist.m1), tot.deg.m1, sum(deg.dist.m2), tot.deg.m2))
 
   colnames(mat) <- c("m1.dist", "m1.cnt", "m2.dist", "m2.cnt")
-  rownames(mat) <- c(paste("Deg", 0:(length(deg.dist.m1)-1), sep=""), "TOTAL")
+  rownames(mat) <- c(paste0("Deg", 0:(length(deg.dist.m1)-1)), "Edges")
 
   cat("Bipartite Degree Distribution Check\n")
   cat("=============================================\n")
-  print(mat, print.gap=3)
+  print(mat, print.gap = 3)
   cat("=============================================\n")
 
   if (sum(deg.dist.m1) != 1 | sum(deg.dist.m2) != 1 | round(tot.deg.m1) != round(tot.deg.m2)) {
-    if (sum(deg.dist.m1) != 1) cat("** deg.dist.m1 TOTAL != 1 \n")
-    if (sum(deg.dist.m2) != 1) cat("** deg.dist.m2 TOTAL != 1 \n")
+    if (sum(deg.dist.m1) != 1) {
+      cat("** deg.dist.m1 TOTAL != 1 \n")
+    }
+    if (sum(deg.dist.m2) != 1) {
+      cat("** deg.dist.m2 TOTAL != 1 \n")
+    }
 
-    if (round(tot.deg.m1) != round(tot.deg.m2)) cat("** m1.cnt TOTAL != m2.cnt TOTAL \n")
+    if (round(tot.deg.m1) != round(tot.deg.m2)) {
+      reldiff <- (tot.deg.m1-tot.deg.m2)/tot.deg.m2
+      if (reldiff > 0) {
+        msg <- "Mode 1 Edges > Mode 2 Edges:"
+      } else {
+        msg <- "Mode 1 Edges < Mode 2 Edges:"
+      }
+      cat("**", msg, round(reldiff, 3), "Rel Diff \n")
+    }
   } else {
-    cat("** distributions balanced \n")
+    cat("** Edges balanced ** \n")
   }
   invisible(c(tot.deg.m1, deg.counts.m1, deg.counts.m2))
 }

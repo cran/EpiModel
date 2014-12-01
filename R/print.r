@@ -99,20 +99,23 @@ print.netdx <- function(x, digits = 3, ...) {
 
   cat("EpiModel Network Diagnostics")
   cat("\n=======================")
-  cat("\nNo. Simulations:", x$nsims)
-  cat("\nNo. Time Steps:", x$nsteps)
+  dxmethod <- ifelse(x$dynamic == TRUE, "Dynamic", "Static")
+  cat("\nDiagnostic Method:", dxmethod)
+  cat("\nSimulations:", x$nsims)
+  if (x$dynamic == TRUE) {
+    cat("\nTime Steps per Sim:", x$nsteps)
+  }
 
   cat("\n\nFormation Diagnostics")
   cat("\n----------------------- \n")
   print(round(x$stats.table.formation, digits = digits))
 
-  cat("\nDuration Diagnostics")
-  cat("\n----------------------- \n")
-  print(round(x$stats.table.duration, digits = digits))
+  if (x$dynamic == TRUE) {
+    cat("\nDissolution Diagnostics")
+    cat("\n----------------------- \n")
+    print(round(x$stats.table.dissolution, digits = digits))
+  }
 
-  cat("\nDissolution Diagnostics")
-  cat("\n----------------------- \n")
-  print(round(x$stats.table.dissolution, digits = digits))
   invisible()
 }
 
@@ -160,7 +163,11 @@ print.netsim <- function(x, ...) {
   cat("\nModel Output")
   cat("\n-----------------------")
   cat("\nCompartments:", names(x$epi)[grep("num", names(x$epi))], fill = 60)
-  cat("Flows:", names(x$epi)[grep("flow", names(x$epi))])
+  cat("Flows:", names(x$epi)[grep("flow", names(x$epi))], fill = 60)
+  othOut <- names(x$epi)[-c(grep("num", names(x$epi)), grep("flow", names(x$epi)))]
+  if (!is.null(othOut)) {
+    cat("Other Output:", othOut, fill = 60)
+  }
   if (!(is.null(x$network))) {
     cat("\nNetworks:", simnames)
   }
@@ -168,7 +175,7 @@ print.netsim <- function(x, ...) {
     cat("\nTransmissions:", simnames)
   }
   if (!is.null(x$control$save.other)) {
-    cat("\nOther:", x$control$save.other)
+    cat("\nOther Elements:", x$control$save.other)
   }
   cat("")
 
