@@ -111,7 +111,6 @@ get_network <- function(x, sim = 1, network = 1, collapse = FALSE, at) {
 #' @export
 #'
 #' @examples
-#' \dontrun{
 #' ## Simulate SI epidemic on bipartite Bernoulli random graph
 #' nw <- network.initialize(n = 100, bipartite = 50, directed = FALSE)
 #' formation <- ~ edges
@@ -133,7 +132,6 @@ get_network <- function(x, sim = 1, network = 1, collapse = FALSE, at) {
 #'
 #' ## Extract the transmission matrix from simulation 2
 #' get_transmat(mod, sim = 2)
-#' }
 #'
 get_transmat <- function(x, sim = 1) {
 
@@ -173,7 +171,6 @@ get_transmat <- function(x, sim = 1) {
 #' @export
 #'
 #' @examples
-#' \dontrun{
 #' ## Simulate SI epidemic on bipartite Bernoulli random graph
 #' nw <- network.initialize(n = 100, bipartite = 50, directed = FALSE)
 #' formation <- ~ edges
@@ -197,7 +194,6 @@ get_transmat <- function(x, sim = 1) {
 #' ## Extract the network statistics from simulation 2
 #' get_nwstats(mod)
 #' get_nwstats(mod, sim = c(1,3))
-#' }
 #'
 get_nwstats <- function(x, sim, network = 1) {
 
@@ -248,9 +244,7 @@ get_nwstats <- function(x, sim, network = 1) {
 #' @export
 #'
 get_nwparam <- function(x, network = 1) {
-
-  out <- x$nwparam[[network]]
-  return(out)
+  x$nwparam[[network]]
 }
 
 
@@ -271,6 +265,10 @@ get_nwparam <- function(x, network = 1) {
 #'
 get_sims <- function(x, sims) {
 
+  if (class(x) != "netsim") {
+    stop("x must be of class netsim", call. = FALSE)
+  }
+
   nsims <- x$control$nsims
 
   if (missing(sims)) {
@@ -285,22 +283,24 @@ get_sims <- function(x, sims) {
 
   delsim <- setdiff(1:nsims, sims)
   out <- x
-  for (i in seq_along(out$epi)) {
-    out$epi[[i]] <- out$epi[[i]][, -delsim, drop = FALSE]
-  }
-  if (!is.null(out$network)) {
-    out$network[delsim] <- NULL
-  }
-  if (!is.null(out$stats$nwstats)) {
-    out$stats$nwstats[delsim] <- NULL
-  }
-  if (!is.null(out$stats$transmat)) {
-    out$stats$transmat[delsim] <- NULL
-  }
-  if (!is.null(out$control$save.other)) {
-    oname <- out$control$save.other
-    for (i in seq_along(oname)) {
-      out[[oname[i]]][delsim] <- NULL
+  if (length(delsim) > 0) {
+    for (i in seq_along(out$epi)) {
+      out$epi[[i]] <- out$epi[[i]][, -delsim, drop = FALSE]
+    }
+    if (!is.null(out$network)) {
+      out$network[delsim] <- NULL
+    }
+    if (!is.null(out$stats$nwstats)) {
+      out$stats$nwstats[delsim] <- NULL
+    }
+    if (!is.null(out$stats$transmat)) {
+      out$stats$transmat[delsim] <- NULL
+    }
+    if (!is.null(out$control$save.other)) {
+      oname <- out$control$save.other
+      for (i in seq_along(oname)) {
+        out[[oname[i]]][delsim] <- NULL
+      }
     }
   }
   out$control$nsims <- length(sims)

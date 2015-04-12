@@ -221,20 +221,29 @@ plot.dcm <- function(x,
     }
   }
 
+  ## Defaults for xlab and ylab
+  if (is.null(da$xlab)) {
+    xlab <- "Time"
+  } else {
+    xlab <- da$xlab
+  }
+
+  if (is.null(da$ylab)) {
+    if (popfrac == FALSE) {
+      ylab <- "Number"
+    } else {
+      ylab <- "Prevalence"
+    }
+  } else {
+    ylab <- da$ylab
+  }
+
 
   ## Main plot window
   if (add == FALSE) {
-    if (popfrac == FALSE) {
-      Time <- Number <- 1
-      plot(Time, Number, type = "n", bty = "n",
-           xaxs = axs, yaxs = axs, xlim = xlim, ylim = ylim,
-           main = main)
-    } else {
-      Time <- Prevalence <- 1
-      plot(Time, Prevalence, type = "n", bty = "n",
-           xaxs = axs, yaxs = axs, xlim = xlim, ylim = ylim,
-           main = main)
-    }
+    plot(1, 1, type = "n", bty = "n",
+         xaxs = axs, yaxs = axs, xlim = xlim, ylim = ylim,
+         xlab = xlab, ylab = ylab, main = main)
   }
 
 
@@ -731,20 +740,27 @@ plot.icm <- function(x,
     main <- da$main
   }
 
+  if (is.null(da$xlab)) {
+    xlab <- "Time"
+  } else {
+    xlab <- da$xlab
+  }
+
+  if (is.null(da$ylab)) {
+    if (popfrac == FALSE) {
+      ylab <- "Number"
+    } else {
+      ylab <- "Prevalence"
+    }
+  } else {
+    ylab <- da$ylab
+  }
 
   # Main plot window --------------------------------------------------------
   if (add == FALSE) {
-    if (popfrac == FALSE) {
-      Time <- Number <- 1
-      plot(Time, Number, type = "n", bty = "n",
-           xaxs = axs, yaxs = axs, xlim = xlim, ylim = ylim,
-           main = main)
-    } else {
-      Time <- Prevalence <- 1
-      plot(Time, Prevalence, type = "n", bty = "n",
-           xaxs = axs, yaxs = axs, xlim = xlim, ylim = ylim,
-           main = main)
-    }
+    plot(1, 1, type = "n", bty = "n",
+         xaxs = axs, yaxs = axs, xlim = xlim, ylim = ylim,
+         xlab = xlab, ylab = ylab, main = main)
   }
 
 
@@ -1347,6 +1363,11 @@ plot.netdx <- function(x,
 
   if (type == "duration") {
 
+    if (x$coef.diss$model.type == "hetero") {
+      stop("Duration plots for heterogeneous dissolution models not currently available",
+           call. = FALSE)
+    }
+
     pages <- x$pages
 
     xlim <- c(1, nsteps)
@@ -1413,8 +1434,7 @@ plot.netdx <- function(x,
       ## Sim lines
       if (sim.lines == TRUE) {
         for (i in sim) {
-          lines(x = 1:nsteps,
-                y = pages[[i]],
+          lines(pages[[i]],
                 lwd = sim.lwd, lty = sim.lty,
                 col = sim.col)
         }
@@ -1451,6 +1471,11 @@ plot.netdx <- function(x,
 
   # Dissolution plot -----------------------------------------------------------
   if (type == "dissolution") {
+
+    if (x$coef.diss$model.type == "hetero") {
+      stop("Dissolution plots for heterogeneous dissolution models not currently available",
+           call. = FALSE)
+    }
 
     prop.diss <- x$prop.diss
 
@@ -1518,8 +1543,7 @@ plot.netdx <- function(x,
       # Sim lines
       if (sim.lines == TRUE) {
         for (i in sim) {
-          lines(x = 1:nsteps,
-                y = prop.diss[[i]],
+          lines(prop.diss[[i]],
                 lwd = sim.lwd, lty = sim.lty,
                 col = sim.col)
         }
@@ -1960,8 +1984,7 @@ plot.netsim <- function(x,
            type = "n", xlab = xlab, ylab = ylab)
       for (j in outsts) {
         for (i in seq_along(sim)) {
-          lines(x = 1:nsteps,
-                y = nwstats[[i]][[nmstats[j]]],
+          lines(nwstats[[i]][[nmstats[j]]],
                 lty = sim.lty, lwd = sim.lwd,
                 col = sim.col[which(j == outsts)])
         }
@@ -2013,8 +2036,7 @@ plot.netsim <- function(x,
              type = "n", main = nmstats[j],
              xlab = "", ylab = "", ...)
         for (i in seq_along(sim)) {
-          lines(x = 1:nsteps,
-                y = nwstats[[i]][[nmstats[j]]],
+          lines(nwstats[[i]][[nmstats[j]]],
                 lwd = sim.lwd, lty = sim.lty,
                 col = sim.col[which(j == outsts)])
         }

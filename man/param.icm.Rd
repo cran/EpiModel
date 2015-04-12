@@ -4,14 +4,23 @@
 \alias{param.icm}
 \title{Epidemic Parameters for Stochastic Individual Contact Models}
 \usage{
-param.icm(inf.prob, act.rate, rec.rate, b.rate, ds.rate, di.rate, dr.rate,
-  inf.prob.g2, act.rate.g2, rec.rate.g2, b.rate.g2, ds.rate.g2, di.rate.g2,
-  dr.rate.g2, balance, ...)
+param.icm(inf.prob, inter.eff, inter.start, act.rate, rec.rate, b.rate, ds.rate,
+  di.rate, dr.rate, inf.prob.g2, act.rate.g2, rec.rate.g2, b.rate.g2,
+  ds.rate.g2, di.rate.g2, dr.rate.g2, balance, ...)
 }
 \arguments{
 \item{inf.prob}{Probability of infection per transmissible act between
 a susceptible and an infected person. In two-group models, this is the
 probability of infection for the group 1 members.}
+
+\item{inter.eff}{Efficacy of an intervention which affects the per-act
+probability of infection. Efficacy is defined as 1 - the relative
+hazard of infection given exposure to the intervention, compared to no
+exposure.}
+
+\item{inter.start}{Time step at which the intervention starts, between 1 and
+the number of time steps specified in the model. This will default to
+1 if the inter.eff is defined but this parameter is not.}
 
 \item{act.rate}{Average number of transmissible acts per person per unit time.
 For two-group models, this is the number of acts per group 1 persons
@@ -81,9 +90,8 @@ Sets the epidemic parameters for stochastic individual contact
 contact models simulated with the \code{\link{icm}} function. Models
 may use the built-in types, for which these parameters are used, or new process
 modules which may use these parameters (but not necessarily). A detailed
-description of ICM parameterization for built-in models is found in Section 3
-of the \href{http://statnet.org/EpiModel/vignette/Tutorial.pdf}{EpiModel
-Tutorial}.
+description of ICM parameterization for built-in models is found in the
+\href{http://statnet.github.io/tut/BasicICMs.html}{Basic ICMs} tutorial.
 
 For built-in models, the model specification will be chosen as a result of
 the model parameters entered here and the control settings in
@@ -103,8 +111,7 @@ the other group size and act rate: \eqn{N_1 \alpha_1 = N_2 \alpha_2}, where
 \eqn{N_i} is the group size and \eqn{\alpha_i} the group-specific act rates
 at time \eqn{t}. The \code{balance} parameter here specifies which group's
 act rate should control the others with respect to balancing. See the
-\href{http://statnet.org/EpiModel/vignette/Tutorial.pdf}{EpiModel Tutorial}
-for further details.
+\href{http://statnet.github.io/tut/BasicDCMs.html}{Basic DCMs} tutorial.
 }
 
 \section{New Modules}{

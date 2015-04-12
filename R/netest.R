@@ -41,8 +41,9 @@
 #' With a fitted network model, one should always first proceed to model
 #' diagnostics, available through the \code{\link{netdx}} function, to check
 #' model fit. A detailed description of fitting these models, along with examples,
-#' may be found in Section 4 of the
-#' \href{http://statnet.org/EpiModel/vignette/Tutorial.pdf}{EpiModel Tutorial}.
+#' may be found in the
+#' \href{http://statnet.github.io/tut/BasicNet.html}{Basic Network Models}
+#' tutorial.
 #'
 #' @section Edges Dissolution Approximation:
 #' The edges dissolution approximation method is described in Carnegie et al.
@@ -153,9 +154,9 @@ netest <- function(nw,
     constraints	<- ~.
   }
 
-	if (dissolution != ~ offset(edges)) {
-	  stop("Currently only ~offset(edges) dissolution models supported")
-	}
+  if (class(coef.diss) != "disscoef" || coef.diss$model.type == "invalid") {
+    stop("Dissolution model not currently supported. See ?dissolution_coefs", call. = FALSE)
+  }
 
   if (edapprox == FALSE) {
 
@@ -219,9 +220,11 @@ netest <- function(nw,
 
     coef.form <- fit$coef
     coef.form.crude <- coef.form
-    if (coef.diss$coef.crude > -Inf) {
-      nwDens <- und_dens(network.size(nw), target.stats[1])
-      coef.form[1] <- coef.form[1] - log(coef.diss$duration - nwDens/(1-nwDens))
+    if (coef.diss$coef.crude[1] > -Inf) {
+      # nwDens <- und_dens(network.size(nw), target.stats[1])
+      # coef.form[1] <- coef.form[1] - log(coef.diss$duration - nwDens/(1-nwDens))
+      l.cd <- length(coef.diss$coef.crude)
+      coef.form[1:l.cd] <- coef.form[1:l.cd] - coef.diss$coef.crude
     }
 
     # Reduce size of output object

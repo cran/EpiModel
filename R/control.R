@@ -33,7 +33,7 @@
 #' compartmental models solved with the \code{\link{dcm}} function. Controls are
 #' required for both built-in model types and original models. For an overview of
 #' control settings for built-in DCM class models, consult the
-#' \href{http://statnet.org/EpiModel/vignette/Tutorial.pdf}{EpiModel Tutorial}.
+#' \href{http://statnet.github.io/tut/BasicDCMs.html}{Basic DCMs} tutorial.
 #' For all built-in models, the \code{type} argument is a necessary parameter
 #' and it has no default.
 #'
@@ -45,8 +45,8 @@
 #'
 #' These new models may be input and solved with \code{\link{dcm}} using the
 #' \code{new.mod} argument, which requires as input a model function. Details and
-#' examples are found in the \href{http://statnet.org/EpiModel/vignette/NewDCMs.html}{Solving
-#' New DCMs with EpiModel} tutorial.
+#' examples are found in the \href{http://statnet.github.io/tut/NewDCMs.html}{Solving
+#' New DCMs} tutorial.
 #'
 #' @seealso Use \code{\link{param.dcm}} to specify model parameters and
 #'          \code{\link{init.dcm}} to specify the initial conditions. Run the
@@ -159,8 +159,8 @@ control.dcm <- function(type,
 #' individual contact model solved with the \code{\link{icm}} function. Controls
 #' are required for both built-in model types and when passing original process
 #' modules. For an overview of control settings for built-in ICM class models,
-#' consult the \href{http://statnet.org/EpiModel/vignette/Tutorial.pdf}{EpiModel
-#' Tutorial}. For all built-in models, the \code{type} argument is a necessary
+#' consult the \href{http://statnet.github.io/tut/BasicICMs.html}{Basic ICMs}
+#' tutorial. For all built-in models, the \code{type} argument is a necessary
 #' parameter and it has no default.
 #'
 #' @section New Modules:
@@ -175,7 +175,7 @@ control.dcm <- function(type,
 #' the default functions. New modules may be added to the workflow at each time
 #' step by passing a module function via the \code{...} argument. Further details
 #' and examples of passing new modules to \code{icm} are found in the
-#' \href{http://statnet.org/EpiModel/vignette/NewICMs.html}{Solving New ICMs with
+#' \href{http://statnet.github.io/tut/NewICMs.html}{Solving New ICMs with
 #' EpiModel} tutorial.
 #'
 #' @seealso Use \code{\link{param.icm}} to specify model parameters and
@@ -286,9 +286,13 @@ control.icm <- function(type,
 #'        which subgroup epidemic prevalences should be calculated. This nodal
 #'        attribute must be contained in the network model formation formula,
 #'        otherwise it is ignored.
-#' @param pid.prefix A character vector of length 2 containing the prefixes for
-#'        persistent ids initialized in bipartite networks with vital dynamics,
-#'        with the default of \code{c("F", "M")}.
+#' @param use.pids If \code{TRUE}, use persistent ids for vertices; otherwise,
+#'        numeric ids will be recycled in models with vital dynamics. For one-mode
+#'        simulations, this will be a random hexidecimal value; for bipartite
+#'        simulations, it will be based on \code{pid.prefix}.
+#' @param pid.prefix For bipartite network simulations with vital dynamics,
+#'        a character vector of length 2 containing the prefixes, with the
+#'        default of \code{c("F", "M")}.
 #' @param initialize.FUN Module to initialize the model at time 1, with the
 #'        default function of \code{\link{initialize.net}}.
 #' @param deaths.FUN Module to simulate death or exit, with the default function
@@ -353,7 +357,7 @@ control.icm <- function(type,
 #' solved with the \code{\link{netsim}} function. Controls are required for both
 #' built-in model types and when passing original process modules. For an overview
 #' of control settings for built-in network models, consult the
-#' \href{http://statnet.org/EpiModel/vignette/Tutorial.pdf}{EpiModel Tutorial}.
+#' \href{http://statnet.github.io/tut/BasicNet.html}{Basic Network Models} tutorial.
 #' For all built-in models, the \code{type} argument is a necessary parameter
 #' and it has no default.
 #'
@@ -391,7 +395,7 @@ control.icm <- function(type,
 #' For original models, one may substitute replacement module functions for any
 #' the default functions. New modules may be added to the workflow at each time
 #' step by passing a module function via the \code{...} argument. Consult the
-#' New Network Models with EpiModel tutorial at \url{http://www.epimodel.org}.
+#' \href{http://statnet.github.io/tut/NewNet.html}{New Network Models} tutorial.
 #'
 #' @seealso Use \code{\link{param.net}} to specify model parameters and
 #'          \code{\link{init.net}} to specify the initial conditions. Run the
@@ -412,6 +416,7 @@ control.net <- function(type,
                         tea.status = TRUE,
                         attr.rules,
                         epi.by,
+                        use.pids = TRUE,
                         pid.prefix,
                         initialize.FUN = initialize.net,
                         deaths.FUN = deaths.net,
@@ -484,10 +489,6 @@ control.net <- function(type,
 
   if (p$delete.nodes == TRUE) {
     p$tea.status <- FALSE
-  }
-
-  if (p$start > 1) {
-    p$skip.check <- TRUE
   }
 
   ## Output

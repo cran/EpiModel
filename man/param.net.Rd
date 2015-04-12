@@ -4,8 +4,9 @@
 \alias{param.net}
 \title{Epidemic Parameters for Stochastic Network Models}
 \usage{
-param.net(inf.prob, act.rate, rec.rate, b.rate, ds.rate, di.rate, dr.rate,
-  inf.prob.m2, rec.rate.m2, b.rate.m2, ds.rate.m2, di.rate.m2, dr.rate.m2, ...)
+param.net(inf.prob, inter.eff, inter.start, act.rate, rec.rate, b.rate, ds.rate,
+  di.rate, dr.rate, inf.prob.m2, rec.rate.m2, b.rate.m2, ds.rate.m2, di.rate.m2,
+  dr.rate.m2, ...)
 }
 \arguments{
 \item{inf.prob}{Probability of infection per transmissible act between
@@ -13,6 +14,15 @@ a susceptible and an infected person. In bipartite models, this is the
 probability of infection to the mode 1 nodes. This may also be a vector
 of probabilities, with each element corresponding to the probability
 in that time step of infection (see Time-Varying Parameters below).}
+
+\item{inter.eff}{Efficacy of an intervention which affects the per-act
+probability of infection. Efficacy is defined as 1 - the relative
+hazard of infection given exposure to the intervention, compared to no
+exposure.}
+
+\item{inter.start}{Time step at which the intervention starts, between 1 and
+the number of time steps specified in the model. This will default to
+1 if the inter.eff is defined but this parameter is not.}
 
 \item{act.rate}{Average number of transmissible acts \emph{per partnership}
 per unit time (see act.rate Parameter below). This may also be a vector
@@ -77,8 +87,8 @@ models simulated with the \code{\link{netsim}} function. Models
 may use the built-in types, for which these parameters are used, or new process
 modules which may use these parameters (but not necessarily). A detailed
 description of network model parameterization for built-in models is found in
-Section 4 of the \href{http://statnet.org/EpiModel/vignette/Tutorial.pdf}{EpiModel
-Tutorial}.
+the \href{http://statnet.github.io/tut/BasicNet.html}{Basic Network Models}
+tutorial.
 
 For built-in models, the model specification will be chosen as a result of
 the model parameters entered here and the control settings in
@@ -112,8 +122,10 @@ of \code{c(0.5, 0.5, 0.1)} would simulate a 0.5 transmission probability for
 the first two time steps of a person's infection, followed by a 0.1 for the
 third time step. If the infected person has not recovered or exited the
 population by the fourth time step, the third element in the vector will carry
-forward until one of those occurs or the simulation ends. For further examples, see
-\href{http://statnet.csde.washington.edu/EpiModel/nme/2014/d4-tut3.html}{this tutorial}.
+forward until one of those occurs or the simulation ends. For further examples,
+see the NME tutorial,
+\href{http://statnet.csde.washington.edu/EpiModel/nme/d4-tut3.html}{Additional
+Modeling Topics}.
 }
 
 \section{New Modules}{

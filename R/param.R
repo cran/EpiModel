@@ -7,6 +7,13 @@
 #' @param inf.prob Probability of infection per transmissible act between
 #'        a susceptible and an infected person. In two-group models, this is the
 #'        probability of infection for the group 1 members.
+#' @param inter.eff Efficacy of an intervention which affects the per-act
+#'        probability of infection. Efficacy is defined as 1 - the relative
+#'        hazard of infection given exposure to the intervention, compared to no
+#'        exposure.
+#' @param inter.start Time step at which the intervention starts, between 1 and
+#'        the number of time steps specified in the model. This will default to
+#'        1 if the inter.eff is defined but this parameter is not.
 #' @param act.rate Average number of transmissible acts per person per unit time.
 #'        For two-group models, this is the number of acts per group 1 persons
 #'        per unit time; a balance between the acts in groups 1 and 2 is necessary,
@@ -58,8 +65,8 @@
 #' built-in types, for which these parameters are used, or original model
 #' specifications for which these parameters may be used (but not necessarily).
 #' A detailed description of DCM parameterization for built-in models is found
-#' in Section 2 of the
-#' \href{http://statnet.org/EpiModel/vignette/Tutorial.pdf}{EpiModel Tutorial}.
+#' in the
+#' \href{http://statnet.github.io/tut/BasicDCMs.html}{Basic DCMs} tutorial.
 #'
 #' For built-in models, the model specification will be selected as a function
 #' of the model parameters entered here and the control settings in
@@ -78,7 +85,7 @@
 #' \eqn{N_i} is the group size and \eqn{\alpha_i} the group-specific act rates
 #' at time \eqn{t}. The \code{balance} parameter here specifies which group's
 #' act rate should control the others with respect to balancing. See the
-#' \href{http://statnet.org/EpiModel/vignette/Tutorial.pdf}{EpiModel Tutorial}
+#' \href{http://statnet.github.io/tut/BasicDCMs.html}{Basic DCMs} tutorial
 #' for further details.
 #'
 #' @section Sensitivity Analyses:
@@ -86,12 +93,11 @@
 #' series of models varying one or more of the model parameters is run. This is
 #' possible by setting any parameter as a vector of length greater than one. See
 #' both the example below and the
-#' \href{http://statnet.org/EpiModel/vignette/Tutorial.pdf}{EpiModel Tutorial}
-#' for details.
+#' \href{http://statnet.github.io/tut/BasicDCMs.html}{Basic DCMs} tutorial.
 #'
 #' @section New Model Types:
 #' To build original model specifications outside of the built-in models, start
-#' by consulting the \href{http://statnet.org/EpiModel/vignette/NewDCMs.html}{Solving
+#' by consulting the \href{http://statnet.github.io/tut/NewDCMs.html}{Solving
 #' New DCMs with EpiModel} tutorial. Briefly, an original model may use either
 #' the existing model parameters named here, an original set of parameters, or
 #' a combination of both. The \code{...} argument allows the user to pass an
@@ -108,6 +114,8 @@
 #' @export
 #'
 param.dcm <- function(inf.prob,
+                      inter.eff,
+                      inter.start,
                       act.rate,
                       rec.rate,
                       b.rate,
@@ -141,6 +149,10 @@ param.dcm <- function(inf.prob,
     }
   }
 
+  if (!is.null(p$inter.eff) && is.null(p$inter.start)) {
+    p$inter.start <- 1
+  }
+
   class(p) <- "param.dcm"
   return(p)
 }
@@ -158,9 +170,8 @@ param.dcm <- function(inf.prob,
 #' contact models simulated with the \code{\link{icm}} function. Models
 #' may use the built-in types, for which these parameters are used, or new process
 #' modules which may use these parameters (but not necessarily). A detailed
-#' description of ICM parameterization for built-in models is found in Section 3
-#' of the \href{http://statnet.org/EpiModel/vignette/Tutorial.pdf}{EpiModel
-#' Tutorial}.
+#' description of ICM parameterization for built-in models is found in the
+#' \href{http://statnet.github.io/tut/BasicICMs.html}{Basic ICMs} tutorial.
 #'
 #' For built-in models, the model specification will be chosen as a result of
 #' the model parameters entered here and the control settings in
@@ -179,8 +190,7 @@ param.dcm <- function(inf.prob,
 #' \eqn{N_i} is the group size and \eqn{\alpha_i} the group-specific act rates
 #' at time \eqn{t}. The \code{balance} parameter here specifies which group's
 #' act rate should control the others with respect to balancing. See the
-#' \href{http://statnet.org/EpiModel/vignette/Tutorial.pdf}{EpiModel Tutorial}
-#' for further details.
+#' \href{http://statnet.github.io/tut/BasicDCMs.html}{Basic DCMs} tutorial.
 #'
 #' @section New Modules:
 #' To build original models outside of the built-in models, new process modules
@@ -201,6 +211,8 @@ param.dcm <- function(inf.prob,
 #' @export
 #'
 param.icm <- function(inf.prob,
+                      inter.eff,
+                      inter.start,
                       act.rate,
                       rec.rate,
                       b.rate,
@@ -249,6 +261,9 @@ param.icm <- function(inf.prob,
     stop("Specify balance=\"g1\" or balance=\"g2\" with 2-group models")
   }
 
+  if (!is.null(p$inter.eff) && is.null(p$inter.start)) {
+    p$inter.start <- 1
+  }
 
   ## Output
   class(p) <- "param.icm"
@@ -266,6 +281,13 @@ param.icm <- function(inf.prob,
 #'        probability of infection to the mode 1 nodes. This may also be a vector
 #'        of probabilities, with each element corresponding to the probability
 #'        in that time step of infection (see Time-Varying Parameters below).
+#' @param inter.eff Efficacy of an intervention which affects the per-act
+#'        probability of infection. Efficacy is defined as 1 - the relative
+#'        hazard of infection given exposure to the intervention, compared to no
+#'        exposure.
+#' @param inter.start Time step at which the intervention starts, between 1 and
+#'        the number of time steps specified in the model. This will default to
+#'        1 if the inter.eff is defined but this parameter is not.
 #' @param act.rate Average number of transmissible acts \emph{per partnership}
 #'        per unit time (see act.rate Parameter below). This may also be a vector
 #'        of rates, with each element corresponding to the rate in in that time
@@ -313,8 +335,8 @@ param.icm <- function(inf.prob,
 #' may use the built-in types, for which these parameters are used, or new process
 #' modules which may use these parameters (but not necessarily). A detailed
 #' description of network model parameterization for built-in models is found in
-#' Section 4 of the \href{http://statnet.org/EpiModel/vignette/Tutorial.pdf}{EpiModel
-#' Tutorial}.
+#' the \href{http://statnet.github.io/tut/BasicNet.html}{Basic Network Models}
+#' tutorial.
 #'
 #' For built-in models, the model specification will be chosen as a result of
 #' the model parameters entered here and the control settings in
@@ -345,8 +367,10 @@ param.icm <- function(inf.prob,
 #' the first two time steps of a person's infection, followed by a 0.1 for the
 #' third time step. If the infected person has not recovered or exited the
 #' population by the fourth time step, the third element in the vector will carry
-#' forward until one of those occurs or the simulation ends. For further examples, see
-#' \href{http://statnet.csde.washington.edu/EpiModel/nme/2014/d4-tut3.html}{this tutorial}.
+#' forward until one of those occurs or the simulation ends. For further examples,
+#' see the NME tutorial,
+#' \href{http://statnet.csde.washington.edu/EpiModel/nme/d4-tut3.html}{Additional
+#' Modeling Topics}.
 #'
 #' @section New Modules:
 #' To build original models outside of the built-in models, new process modules
@@ -367,6 +391,8 @@ param.icm <- function(inf.prob,
 #' @export
 #'
 param.net <- function(inf.prob,
+                      inter.eff,
+                      inter.start,
                       act.rate,
                       rec.rate,
                       b.rate,
@@ -406,6 +432,10 @@ param.net <- function(inf.prob,
   p$vital <- ifelse(!missing(b.rate) | !missing(ds.rate) |
                     !missing(di.rate) | !missing(dr.rate), TRUE, FALSE)
 
+
+  if (!is.null(p$inter.eff) && is.null(p$inter.start)) {
+    p$inter.start <- 1
+  }
 
   ## Output
   class(p) <- "param.net"

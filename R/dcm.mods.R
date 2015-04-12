@@ -2,17 +2,28 @@
 #' @title Deterministic Compartmental Model Functions
 #'
 #' @description These functions parameterize the built-in deterministic
-#'              compartmental models solved using the \code{\link{dcm}}
-#'              function in \code{EpiModel}.
+#'              compartmental models solved using the \code{dcm} function.
 #'
-#' @param t Time vector.
-#' @param t0 Initial conditions.
-#' @param parms Model parameters.
+#' @param t Time vector, passed into model function internally through
+#'        \code{\link{dcm}} via the control settings in \code{\link{control.dcm}}.
+#' @param t0 Initial conditions for model, passed into model function internally
+#'        through \code{\link{dcm}} via the initial conditions in
+#'        \code{\link{init.dcm}}.
+#' @param parms Model parameters, passed into model function internally through
+#'        \code{\link{dcm}} via the parameter settings in \code{\link{param.dcm}}.
 #'
 #' @details
-#' Details to add.
+#' This help page shows the names of all the integrated deterministic compartmental
+#' model functions supported in EpiModel. Integrated models are those already
+#' programmed interally within the software. The model functions may be printed
+#' to see their internal structure, either directly on the console or by using
+#' the \code{print.mod} argument in \code{\link{control.dcm}}.
 #'
-#' @keywords internal
+#' The naming convention for the models listed here follows the format:
+#' \code{mod_<disease type>_<number of groups>_<vital dynamics>}. The supported
+#' disease types are SI, SIS, and SIR; the number of groups are 1 or 2; and the
+#' vital dynamic options are closed (fixed population composition) or open (with
+#' births and deaths).
 #' @name dcm.mods
 #'
 NULL
@@ -25,16 +36,20 @@ NULL
 mod_SI_1g_cl <- function(t, t0, parms) {
   with(as.list(c(t0, parms)), {
 
-    # derived totals
+    # Derivations
     num <- s.num + i.num
 
-    # varying parameters
+    # Parameters
     lambda <- inf.prob * act.rate * i.num / num
+    if (!is.null(parms$inter.eff) && t >= inter.start) {
+      lambda <- lambda * (1 - inter.eff)
+    }
 
-    # main ODEs
+    # ODEs
     dS <- -lambda*s.num
     dI <- lambda*s.num
 
+    # Output
     list(c(dS, dI),
          num = num,
          si.flow = lambda*s.num)
@@ -49,16 +64,20 @@ mod_SI_1g_cl <- function(t, t0, parms) {
 mod_SI_1g_op <- function(t, t0, parms) {
   with(as.list(c(t0, parms)), {
 
-    # derived totals
+    # Derivations
     num <- s.num + i.num
 
-    # varying parameters
+    # Parameters
     lambda <- inf.prob * act.rate * i.num / num
+    if (!is.null(parms$inter.eff) && t >= inter.start) {
+      lambda <- lambda * (1 - inter.eff)
+    }
 
-    # main ODEs
+    # ODEs
     dS <- -lambda*s.num + b.rate*num - ds.rate*s.num
     dI <- lambda*s.num - di.rate*i.num
 
+    # Output
     list(c(dS, dI),
          num = num,
          si.flow = lambda*s.num,
@@ -76,12 +95,12 @@ mod_SI_1g_op <- function(t, t0, parms) {
 mod_SI_2g_cl <- function(t, t0, parms) {
   with(as.list(c(t0, parms)), {
 
-    # derived totals
+    # Derivations
     num.g1 <- s.num + i.num
     num.g2 <- s.num.g2 + i.num.g2
     num <- num.g1 + num.g2
 
-    # act rate balancing
+    # Act Balancing
     if (balance == "g1") {
       ar.g1 <- act.rate
       ar.g2 <- ar.g1 * num.g1 / num.g2
@@ -91,11 +110,15 @@ mod_SI_2g_cl <- function(t, t0, parms) {
       ar.g1 <- ar.g2 * num.g2 / num.g1
     }
 
-    # group-specific foi
+    # Group Lambdas
     lambda.g1 <- inf.prob * ar.g1 * i.num.g2 / num.g2
     lambda.g2 <- inf.prob.g2 * ar.g2 * i.num / num.g1
+    if (!is.null(parms$inter.eff) && t >= inter.start) {
+      lambda.g1 <- lambda.g1 * (1 - inter.eff)
+      lambda.g2 <- lambda.g2 * (1 - inter.eff)
+    }
 
-    # main ODEs
+    # ODEs
     dSm1 <- -lambda.g1*s.num
     dIm1 <- lambda.g1*s.num
 
@@ -119,12 +142,12 @@ mod_SI_2g_cl <- function(t, t0, parms) {
 mod_SI_2g_op <- function(t, t0, parms) {
   with(as.list(c(t0, parms)), {
 
-    # derived totals
+    # Derivations
     num.g1 <- s.num + i.num
     num.g2 <- s.num.g2 + i.num.g2
     num <- num.g1 + num.g2
 
-    # act rate balancing
+    # Act Balancing
     if (balance == "g1") {
       ar.g1 <- act.rate
       ar.g2 <- ar.g1 * num.g1 / num.g2
@@ -134,9 +157,13 @@ mod_SI_2g_op <- function(t, t0, parms) {
       ar.g1 <- ar.g2 * num.g2 / num.g1
     }
 
-    # group-specific foi
+    # Group Lambdas
     lambda.g1 <- inf.prob * ar.g1 * i.num.g2 / num.g2
     lambda.g2 <- inf.prob.g2 * ar.g2 * i.num / num.g1
+    if (!is.null(parms$inter.eff) && t >= inter.start) {
+      lambda.g1 <- lambda.g1 * (1 - inter.eff)
+      lambda.g2 <- lambda.g2 * (1 - inter.eff)
+    }
 
     # birth rates
     if (is.na(b.rate.g2)) {
@@ -147,7 +174,7 @@ mod_SI_2g_op <- function(t, t0, parms) {
       br.g2 <- b.rate*num.g2
     }
 
-    # main ODEs
+    # ODEs
     dSm1 <- -lambda.g1*s.num + br.g1 - ds.rate*s.num
     dIm1 <- lambda.g1*s.num - di.rate*i.num
 
@@ -177,13 +204,16 @@ mod_SI_2g_op <- function(t, t0, parms) {
 mod_SIR_1g_cl <- function(t, t0, parms) {
   with(as.list(c(t0, parms)), {
 
-    # derived totals
+    # Derivations
     num <- s.num + i.num + r.num
 
-    # varying parameters
+    # Parameters
     lambda <- inf.prob * act.rate * i.num / num
+    if (!is.null(parms$inter.eff) && t >= inter.start) {
+      lambda <- lambda * (1 - inter.eff)
+    }
 
-    # main ODEs
+    # ODEs
     dS <- -lambda*s.num
     dI <- lambda*s.num - rec.rate*i.num
     dR <- rec.rate*i.num
@@ -203,13 +233,16 @@ mod_SIR_1g_cl <- function(t, t0, parms) {
 mod_SIR_1g_op <- function(t, t0, parms) {
   with(as.list(c(t0, parms)), {
 
-    # derived totals
+    # Derivations
     num <- s.num + i.num + r.num
 
-    # varying parameters
+    # Parameters
     lambda <- inf.prob * act.rate * i.num / num
+    if (!is.null(parms$inter.eff) && t >= inter.start) {
+      lambda <- lambda * (1 - inter.eff)
+    }
 
-    # main ODEs
+    # ODEs
     dS <- -lambda*s.num + b.rate*num - ds.rate*s.num
     dI <- lambda*s.num - rec.rate*i.num - di.rate*i.num
     dR <- rec.rate*i.num - dr.rate*r.num
@@ -233,12 +266,12 @@ mod_SIR_1g_op <- function(t, t0, parms) {
 mod_SIR_2g_cl <- function(t, t0, parms) {
   with(as.list(c(t0, parms)), {
 
-    # derived totals
+    # Derivations
     num.g1 <- s.num + i.num + r.num
     num.g2 <- s.num.g2 + i.num.g2 + r.num.g2
     num <- num.g1 + num.g2
 
-    # act rate balancing
+    # Act Balancing
     if (balance == "g1") {
       ar.g1 <- act.rate
       ar.g2 <- ar.g1 * num.g1 / num.g2
@@ -248,11 +281,15 @@ mod_SIR_2g_cl <- function(t, t0, parms) {
       ar.g1 <- ar.g2 * num.g2 / num.g1
     }
 
-    # group-specific foi
+    # Group Lambdas
     lambda.g1 <- inf.prob * ar.g1 * i.num.g2 / num.g2
     lambda.g2 <- inf.prob.g2 * ar.g2 * i.num / num.g1
+    if (!is.null(parms$inter.eff) && t >= inter.start) {
+      lambda.g1 <- lambda.g1 * (1 - inter.eff)
+      lambda.g2 <- lambda.g2 * (1 - inter.eff)
+    }
 
-    # main ODEs
+    # ODEs
     dSm1 <- -lambda.g1*s.num
     dIm1 <- lambda.g1*s.num - rec.rate*i.num
     dRm1 <- rec.rate*i.num
@@ -280,12 +317,12 @@ mod_SIR_2g_cl <- function(t, t0, parms) {
 mod_SIR_2g_op <- function(t, t0, parms) {
   with(as.list(c(t0, parms)), {
 
-    # derived totals
+    # Derivations
     num.g1 <- s.num + i.num + r.num
     num.g2 <- s.num.g2 + i.num.g2 + r.num.g2
     num <- num.g1 + num.g2
 
-    # act rate balancing
+    # Act Balancing
     if (balance == "g1") {
       ar.g1 <- act.rate
       ar.g2 <- ar.g1 * num.g1 / num.g2
@@ -295,9 +332,13 @@ mod_SIR_2g_op <- function(t, t0, parms) {
       ar.g1 <- ar.g2 * num.g2 / num.g1
     }
 
-    # group-specific foi
+    # Group Lambdas
     lambda.g1 <- inf.prob * ar.g1 * i.num.g2 / num.g2
     lambda.g2 <- inf.prob.g2 * ar.g2 * i.num / num.g1
+    if (!is.null(parms$inter.eff) && t >= inter.start) {
+      lambda.g1 <- lambda.g1 * (1 - inter.eff)
+      lambda.g2 <- lambda.g2 * (1 - inter.eff)
+    }
 
     # birth rates
     if (is.na(b.rate.g2)) {
@@ -308,7 +349,7 @@ mod_SIR_2g_op <- function(t, t0, parms) {
       br.g2 <- b.rate*num.g2
     }
 
-    # main ODEs
+    # ODEs
     dSm1 <- -lambda.g1*s.num + br.g1 - ds.rate*s.num
     dIm1 <- lambda.g1*s.num - rec.rate*i.num - di.rate*i.num
     dRm1 <- rec.rate*i.num - dr.rate*r.num
@@ -344,13 +385,16 @@ mod_SIR_2g_op <- function(t, t0, parms) {
 mod_SIS_1g_cl <- function(t, t0, parms) {
   with(as.list(c(t0, parms)), {
 
-    # derived totals
+    # Derivations
     num <- s.num + i.num
 
-    # varying parameters
+    # Parameters
     lambda <- inf.prob * act.rate * i.num / num
+    if (!is.null(parms$inter.eff) && t >= inter.start) {
+      lambda <- lambda * (1 - inter.eff)
+    }
 
-    # main ODEs
+    # ODEs
     dS <- -lambda*s.num + rec.rate*i.num
     dI <- lambda*s.num - rec.rate*i.num
 
@@ -369,13 +413,16 @@ mod_SIS_1g_cl <- function(t, t0, parms) {
 mod_SIS_1g_op <- function(t, t0, parms) {
   with(as.list(c(t0, parms)), {
 
-    # derived totals
+    # Derivations
     num <- s.num + i.num
 
-    # varying parameters
+    # Parameters
     lambda <- inf.prob * act.rate * i.num / num
+    if (!is.null(parms$inter.eff) && t >= inter.start) {
+      lambda <- lambda * (1 - inter.eff)
+    }
 
-    # main ODEs
+    # ODEs
     dS <- -lambda*s.num + rec.rate*i.num + b.rate*num - ds.rate*s.num
     dI <- lambda*s.num - rec.rate*i.num - di.rate*i.num
 
@@ -397,12 +444,12 @@ mod_SIS_1g_op <- function(t, t0, parms) {
 mod_SIS_2g_cl <- function(t, t0, parms) {
   with(as.list(c(t0, parms)), {
 
-    # derived totals
+    # Derivations
     num.g1 <- s.num + i.num
     num.g2 <- s.num.g2 + i.num.g2
     num <- num.g1 + num.g2
 
-    # act rate balancing
+    # Act Balancing
     if (balance == "g1") {
       ar.g1 <- act.rate
       ar.g2 <- ar.g1 * num.g1 / num.g2
@@ -412,11 +459,15 @@ mod_SIS_2g_cl <- function(t, t0, parms) {
       ar.g1 <- ar.g2 * num.g2 / num.g1
     }
 
-    # group-specific foi
+    # Group Lambdas
     lambda.g1 <- inf.prob * ar.g1 * i.num.g2/num.g2
     lambda.g2 <- inf.prob.g2 * ar.g2 * i.num/num.g1
+    if (!is.null(parms$inter.eff) && t >= inter.start) {
+      lambda.g1 <- lambda.g1 * (1 - inter.eff)
+      lambda.g2 <- lambda.g2 * (1 - inter.eff)
+    }
 
-    # main ODEs
+    # ODEs
     dSm1 <- -lambda.g1*s.num + rec.rate*i.num
     dIm1 <- lambda.g1*s.num - rec.rate*i.num
 
@@ -442,12 +493,12 @@ mod_SIS_2g_cl <- function(t, t0, parms) {
 mod_SIS_2g_op <- function(t, t0, parms) {
   with(as.list(c(t0, parms)), {
 
-    # derived totals
+    # Derivations
     num.g1 <- s.num + i.num
     num.g2 <- s.num.g2 + i.num.g2
     num <- num.g1 + num.g2
 
-    # act rate balancing
+    # Act Balancing
     if (balance == "g1") {
       ar.g1 <- act.rate
       ar.g2 <- ar.g1 * num.g1 / num.g2
@@ -457,9 +508,13 @@ mod_SIS_2g_op <- function(t, t0, parms) {
       ar.g1 <- ar.g2 * num.g2 / num.g1
     }
 
-    # group-specific foi
+    # Group Lambdas
     lambda.g1 <- inf.prob * ar.g1 * i.num.g2/num.g2
     lambda.g2 <- inf.prob.g2 * ar.g2 * i.num/num.g1
+    if (!is.null(parms$inter.eff) && t >= inter.start) {
+      lambda.g1 <- lambda.g1 * (1 - inter.eff)
+      lambda.g2 <- lambda.g2 * (1 - inter.eff)
+    }
 
     # birth rates
     if (is.na(b.rate.g2)) {
@@ -470,7 +525,7 @@ mod_SIS_2g_op <- function(t, t0, parms) {
       br.g2 <- b.rate*num.g2
     }
 
-    # main ODEs
+    # ODEs
     dSm1 <- -lambda.g1*s.num + rec.rate*i.num + br.g1 - ds.rate*s.num
     dIm1 <- lambda.g1*s.num - rec.rate*i.num - di.rate*i.num
 
