@@ -31,6 +31,91 @@ bipvals <- function(nw, mode, val) {
 }
 
 
+#' @title Calculate Equilibrium for Infection Prevalence
+#'
+#' @description Calculates the relative change in infection prevalence across a
+#'              time series of an epidemic model to assess equilibrium.
+#'
+#' @param x An \code{EpiModel} object of class \code{dcm}, \code{icm}, or
+#'        \code{netsim}.
+#' @param numer Numerator for prevalence calculation.
+#' @param denom Denominator for prevalence calculation.
+#' @param nsteps Number of time steps at end of model simulation to calculate
+#'        equilibrium as the absolute value of the difference between the
+#'        minimum prevalence value and the maximum prevalence value over that
+#'        time range.
+#' @param threshold Threshold value for determining equilibrium.
+#' @param digits Number of digits to round for table output.
+#'
+#' @details
+#' This function calculates whether equilibrium in disease prevalence, or any
+#' other fraction of two compartments contained in an epidemic model, have
+#' reach equilibrium over a time series. Equilibrium is calculated as the
+#' absolute value of the difference of the maximum prevalence and minimum
+#' prevalence over a specified time series. That time series is specified as the
+#' final \code{nsteps} time steps of an epidemic model. A larger \code{nsteps}
+#' specification will therefore calculate differences over a longer time series.
+#'
+#' @export
+#'
+#' @examples
+#' # Calculate equilibrium for a DCM
+#' param <- param.dcm(inf.prob = 0.2, inf.prob.g2 = 0.1, act.rate = 0.5,
+#'                    balance = "g1", rec.rate = 1 / 50, rec.rate.g2 = 1 / 50,
+#'                    b.rate = 1 / 100, b.rate.g2 = NA, ds.rate = 1 / 100,
+#'                    ds.rate.g2 = 1 / 100, di.rate = 1 / 90,
+#'                    di.rate.g2 = 1 / 90)
+#' init <- init.dcm(s.num = 500, i.num = 1,
+#'                  s.num.g2 = 500, i.num.g2 = 1)
+#' control <- control.dcm(type = "SIS", nsteps = 500, verbose = FALSE)
+#' x <- dcm(param, init, control)
+#' plot(x)
+#'
+#' # Different calculation options
+#' calc_eql(x, nsteps = 100)
+#' calc_eql(x, nsteps = 250)
+#' calc_eql(x, nsteps = 100, numer = "i.num.g2", denom = "num.g2")
+#' calc_eql(x, nsteps = 100, numer = "i.num.g2", denom = "num.g2",
+#'          threshold = 0.00001)
+#'
+calc_eql <- function(x, numer = "i.num", denom = "num",
+                     nsteps, threshold = 0.001, digits = 4) {
+
+  if (!(class(x) %in% c("dcm", "icm", "netsim"))) {
+    stop("x must an object of class dcm, icm, or netsim", call. = FALSE)
+  }
+
+  # Change scipen based on digits
+  old.scipen <- options()$scipen
+  options(scipen = digits + 1)
+
+  # Convert model to df and calculate prevalence
+  df <- as.data.frame(x)
+  if (!(numer %in% names(df))) {
+    stop("numer must be an output compartment on x", call. = FALSE)
+  }
+  if (!(denom %in% names(df))) {
+    stop("denom must be an output compartment on x", call. = FALSE)
+  }
+  prev <- df[[numer]]/df[[denom]]
+
+  # Truncate vector and calculate difference
+  tprev <- tail(prev, nsteps)
+  diff <- abs(max(tprev) - min(tprev))
+
+  cat("Equilibrium Results")
+  cat("\n=================================")
+  cat("\nStart Prev.:  ", round(head(tprev, 1), digits))
+  cat("\nEnd Prev.:    ", round(tail(tprev, 1), digits))
+  cat("\nMax Prev.:    ", round(max(tprev), digits))
+  cat("\nMin Prev.:    ", round(min(tprev), digits))
+  cat("\nRel. Diff.:   ", round(diff, digits))
+  cat("\n<= Threshold: ", diff <= threshold)
+
+  on.exit(options(scipen = old.scipen))
+}
+
+
 #' @title Check Degree Distribution for Bipartite Target Statistics
 #'
 #' @description Checks for consistency in the implied network statistics
@@ -80,18 +165,19 @@ check_bip_degdist <- function(num.m1, num.m2,
   tot.deg.m2 <- sum(deg.counts.m2 * (1:length(deg.dist.m2) - 1))
 
   mat <- matrix(c(deg.dist.m1, deg.counts.m1,
-                  deg.dist.m2, deg.counts.m2), ncol=4)
+                  deg.dist.m2, deg.counts.m2), ncol = 4)
   mat <- rbind(mat, c(sum(deg.dist.m1), tot.deg.m1, sum(deg.dist.m2), tot.deg.m2))
 
   colnames(mat) <- c("m1.dist", "m1.cnt", "m2.dist", "m2.cnt")
-  rownames(mat) <- c(paste0("Deg", 0:(length(deg.dist.m1)-1)), "Edges")
+  rownames(mat) <- c(paste0("Deg", 0:(length(deg.dist.m1) - 1)), "Edges")
 
   cat("Bipartite Degree Distribution Check\n")
   cat("=============================================\n")
   print(mat, print.gap = 3)
   cat("=============================================\n")
 
-  if (sum(deg.dist.m1) != 1 | sum(deg.dist.m2) != 1 | round(tot.deg.m1) != round(tot.deg.m2)) {
+  if (sum(deg.dist.m1) != 1 | sum(deg.dist.m2) != 1 |
+      round(tot.deg.m1) != round(tot.deg.m2)) {
     if (sum(deg.dist.m1) != 1) {
       cat("** deg.dist.m1 TOTAL != 1 \n")
     }
@@ -100,7 +186,7 @@ check_bip_degdist <- function(num.m1, num.m2,
     }
 
     if (round(tot.deg.m1) != round(tot.deg.m2)) {
-      reldiff <- (tot.deg.m1-tot.deg.m2)/tot.deg.m2
+      reldiff <- (tot.deg.m1 - tot.deg.m2) / tot.deg.m2
       if (reldiff > 0) {
         msg <- "Mode 1 Edges > Mode 2 Edges:"
       } else {
@@ -196,7 +282,7 @@ color_tea <- function(nd,
                               onset = at, terminus = Inf, v = recovered)
 
     if (verbose == TRUE) {
-      cat("\n", at, "/", max(times), "\t", sep="")
+      cat("\n", at, "/", max(times), "\t", sep = "")
     }
   }
 
@@ -369,14 +455,14 @@ dissolution_coefs <- function(dissolution, duration, d.rate = 0) {
       stop("Dissolution model length is 1, but number of duration was ",
            length(duration), call. = FALSE)
     }
-    pg <- (duration[1] - 1)/duration[1]
-    ps2 <- (1 - d.rate)^2
-    coef.crude <- log(pg/(1 - pg))
+    pg <- (duration[1] - 1) / duration[1]
+    ps2 <- (1 - d.rate) ^ 2
+    coef.crude <- log(pg / (1 - pg))
     if (sqrt(ps2) <= pg) {
       stop("The competing risk of mortality is too high given the duration. Specify a lower d.rate",
            call. = FALSE)
     }
-    coef.adj <- log(pg/(ps2 - pg))
+    coef.adj <- log(pg / (ps2 - pg))
   }
   if (form.length == 2) {
    if (t2.term %in% c("nodematch", "nodefactor", "nodemix")) {
@@ -385,24 +471,24 @@ dissolution_coefs <- function(dissolution, duration, d.rate = 0) {
      for (i in 1:length(duration)) {
 
        pg.thetaX <- (duration[i] - 1) / duration[i]
-       ps2.thetaX <- (1 - d.rate)^2
+       ps2.thetaX <- (1 - d.rate) ^ 2
        if (sqrt(ps2.thetaX) <= pg.thetaX) {
-         stop("The competing risk of mortality is too high for the given the duration in place ", i,
-              ". Specify a lower d.rate", call. = FALSE)
+         stop("The competing risk of mortality is too high for the given the ",
+              "duration in place ", i, ". Specify a lower d.rate", call. = FALSE)
        }
        if (i == 1) {
-         coef.crude[i] <- log(pg.thetaX/(1 - pg.thetaX))
-         coef.adj[i] <- log(pg.thetaX/(ps2.thetaX - pg.thetaX))
+         coef.crude[i] <- log(pg.thetaX / (1 - pg.thetaX))
+         coef.adj[i] <- log(pg.thetaX / (ps2.thetaX - pg.thetaX))
        } else {
-         coef.crude[i] <- log(pg.thetaX/(1 - pg.thetaX)) - coef.crude[1]
-         coef.adj[i] <- log(pg.thetaX/(ps2.thetaX - pg.thetaX)) - coef.adj[1]
+         coef.crude[i] <- log(pg.thetaX / (1 - pg.thetaX)) - coef.crude[1]
+         coef.adj[i] <- log(pg.thetaX / (ps2.thetaX - pg.thetaX)) - coef.adj[1]
        }
 
      }
 
    } else {
-     stop("Supported heterogeneous dissolution model terms are nodematch, nodefactor, or nodemix",
-          call. = FALSE)
+     stop("Supported heterogeneous dissolution model terms are nodematch, ",
+          "nodefactor, or nodemix", call. = FALSE)
    }
   }
 
@@ -471,22 +557,22 @@ edgelist_censor <- function(el) {
   # left censored
   leftcens <- el$onset.censored
   leftcens.num <- sum(leftcens)
-  leftcens.pct <- leftcens.num/nrow(el)
+  leftcens.pct <- leftcens.num / nrow(el)
 
   # right censored
   rightcens <- el$terminus.censored
   rightcens.num <- sum(rightcens)
-  rightcens.pct <- rightcens.num/nrow(el)
+  rightcens.pct <- rightcens.num / nrow(el)
 
   # partnership lasts for entire window (left and right censored)
   lrcens <- el$onset.censored & el$terminus.censored
   lrcens.num <- sum(lrcens)
-  lrcens.pct <- lrcens.num/nrow(el)
+  lrcens.pct <- lrcens.num / nrow(el)
 
   # fully observed
   nocens <- el$onset.censored == FALSE & el$terminus.censored == FALSE
   nocens.num <- sum(nocens)
-  nocens.pct <- nocens.num/nrow(el)
+  nocens.pct <- nocens.num / nrow(el)
 
   ## Table
   nums <- rbind(leftcens.num, rightcens.num, lrcens.num, nocens.num)
@@ -565,7 +651,7 @@ edgelist_meanage <- function(x, el) {
     meanpage[at] <- mean(page)
   }
 
-  meanpage <- meanpage[1:(length(meanpage)-1)]
+  meanpage <- meanpage[1:(length(meanpage) - 1)]
 
   return(meanpage)
 }
@@ -971,7 +1057,7 @@ modeids <- function(nw, mode) {
     out <- 1:m1size
   }
   if (mode == 2) {
-    out <- (m1size+1):n
+    out <- (m1size + 1):n
   }
 
   return(out)
@@ -1029,14 +1115,14 @@ node_active <- function(nw,
 
   if (out %in% c("vec", "ids", "prev")) {
     if (missing(mode)) {
-      node.active <- is.active(nw, v=seq_len(network.size(nw)), at=at,
-                               active.default=active.default)
+      node.active <- is.active(nw, v = seq_len(network.size(nw)), at = at,
+                               active.default = active.default)
       out.vec <- node.active
       out.ids <- which(node.active)
       out.prev <- sum(node.active)
     } else {
-      node.active <- is.active(nw, v=seq_len(network.size(nw)), at=at,
-                               active.default=active.default)
+      node.active <- is.active(nw, v = seq_len(network.size(nw)), at = at,
+                               active.default = active.default)
       ids.m1 <- modeids(nw, 1)
       ids.m2 <- modeids(nw, 2)
       if (mode == 1) {
@@ -1053,15 +1139,15 @@ node_active <- function(nw,
   }
   if (out == "all") {
     if (!is.numeric(nw$gal$bipartite)) {
-      node.active <- is.active(nw, v=seq_len(network.size(nw)), at=at,
-                               active.default=active.default)
+      node.active <- is.active(nw, v = seq_len(network.size(nw)), at = at,
+                               active.default = active.default)
       out.all <- list()
       out.all$vec$all <- node.active
       out.all$ids$all <- which(node.active)
       out.all$prev$all <- sum(node.active)
     } else {
-      node.active <- is.active(nw, v=seq_len(network.size(nw)), at=at,
-                               active.default=active.default)
+      node.active <- is.active(nw, v = seq_len(network.size(nw)), at = at,
+                               active.default = active.default)
       out.all <- list()
       ids.m1 <- modeids(nw, 1)
       ids.m2 <- modeids(nw, 2)

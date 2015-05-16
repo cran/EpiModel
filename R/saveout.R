@@ -14,7 +14,7 @@
 #' @keywords internal
 #' @export
 #'
-saveout.dcm <- function(df, s, param, control, out) {
+saveout.dcm <- function(df, s, param, control, out = NULL) {
 
   if (s == 1) {
     out <- list()
@@ -58,7 +58,7 @@ saveout.dcm <- function(df, s, param, control, out) {
 #' @keywords internal
 #' @export
 #'
-saveout.icm <- function(dat, s, out) {
+saveout.icm <- function(dat, s, out = NULL) {
 
   if (s == 1) {
     out <- list()
@@ -105,7 +105,7 @@ saveout.icm <- function(dat, s, out) {
 #' @keywords internal
 #' @export
 #'
-saveout.net <- function(dat, s, out) {
+saveout.net <- function(dat, s, out = NULL) {
 
   # Counts number of simulated networks
   num.nw <- ifelse(any(class(dat$nw) == "network"), 1, length(dat$nw))
@@ -199,7 +199,10 @@ saveout.net <- function(dat, s, out) {
     out$control$currsim <- NULL
     environment(out$control$nwstats.formula) <- NULL
 
-    out$temp <- NULL
+    if (!("temp" %in% dat$control$save.other)) {
+      out$temp <- NULL
+    }
+
   }
 
   return(out)
