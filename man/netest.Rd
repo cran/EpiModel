@@ -4,29 +4,25 @@
 \alias{netest}
 \title{Dynamic Network Model Estimation}
 \usage{
-netest(nw, formation, dissolution, target.stats, coef.diss, constraints,
-  coef.form = NULL, edapprox = TRUE, output = "fit", set.control.ergm,
-  set.control.stergm, nonconv.error = FALSE, verbose = TRUE)
+netest(nw, formation, target.stats, coef.diss, constraints, coef.form = NULL,
+  edapprox = TRUE, output = "fit", set.control.ergm, set.control.stergm,
+  nonconv.error = FALSE, verbose = FALSE)
 }
 \arguments{
-\item{nw}{An object of class \code{\link{network}}.}
+\item{nw}{An object of class \code{network}.}
 
 \item{formation}{Right-hand sided STERGM formation formula in the form
-\code{~ edges + ...}, where \code{...} are additional network statistics.}
-
-\item{dissolution}{Right-hand sided STERGM dissolution formula of the form
-\code{~ offset(edges)}. This dissolution model is the only model currently
-supported in \code{EpiModel}.}
+\code{~edges + ...}, where \code{...} are additional network statistics.}
 
 \item{target.stats}{Vector of target statistics for the formation model, with
-one number for each network statistic in the model (see \code{\link{stergm}}).}
+one number for each network statistic in the model.}
 
 \item{coef.diss}{An object of class \code{disscoef} output from the
 \code{\link{dissolution_coefs}} function.}
 
 \item{constraints}{Right-hand sided formula specifying constraints for the
 modeled network, in the form \code{~...}, where \code{...} are constraint
-terms described in \code{\link{stergm}}. By default, no constraints are set.}
+terms. By default, no constraints are set.}
 
 \item{coef.form}{Vector of coefficients for the offset terms in the formation
 formula.}
@@ -50,7 +46,7 @@ converge after the specified number of iterations. This may be useful
 in batch mode while fitting many models and there is no desire to
 return to the nonconverged model object.}
 
-\item{verbose}{Print progress to the console.}
+\item{verbose}{Print model fitting progress to console.}
 }
 \description{
 Estimates statistical network models using the exponential
@@ -94,9 +90,8 @@ formation model; thus, this approach is of most use when the main goal of
 estimation is to drive dynamic network simulations rather than to conduct
 inference on the formation model. The user is strongly encouraged to examine
 the behavior of the resulting simulations to confirm that the approximation
-is adequate for their purposes. For an example, see this
-\href{http://statnet.org/workshops/SUNBELT/current/tergm/tergm_tutorial.html}{STERGM
-Tutorial}.
+is adequate for their purposes. For an example, see the vignette for the
+package \code{tergm}.
 }
 
 \section{Control Arguments}{
@@ -117,38 +112,26 @@ the \code{control.ergm()} function, with the available parameters listed in the
 package. An example is below.
 }
 \examples{
-\dontrun{
 # Initialize a network of 100 nodes
 nw <- network.initialize(n = 100, directed = FALSE)
 
-# Set formation and dissolution formulas
-formation <- ~ edges + concurrent
-dissolution <- ~ offset(edges)
+# Set formation formula
+formation <- ~edges + concurrent
 
 # Set target statistics for formation
 target.stats <- c(50, 25)
 
 # Obtain the offset coefficients
-coef.diss <- dissolution_coefs(dissolution, duration = 10)
+coef.diss <- dissolution_coefs(dissolution = ~offset(edges), duration = 10)
 
 # Estimate the STERGM using the edges dissolution approximation
-est <- netest(nw,
-              formation,
-              dissolution,
-              target.stats,
-              coef.diss,
+est <- netest(nw, formation, target.stats, coef.diss,
               set.control.ergm = control.ergm(MCMC.burnin = 1e5,
                                               MCMC.interval = 1000))
 est
 
 # To estimate the STERGM directly, use edapprox = FALSE
-# est2 <- netest(nw,
-#                formation,
-#                dissolution,
-#                target.stats,
-#                coef.diss,
-#                edapprox = FALSE)
-}
+# est2 <- netest(nw, formation, target.stats, coef.diss, edapprox = FALSE)
 }
 \references{
 Krivitsky PN, Handcock MS. "A separable model for dynamic networks." JRSS(B).

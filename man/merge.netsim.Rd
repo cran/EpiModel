@@ -54,21 +54,16 @@ binds the results.
 \examples{
 # Network model
 nw <- network.initialize(n = 100, directed = FALSE)
-dissolution <- ~offset(edges)
-coef.diss <- dissolution_coefs(dissolution, duration = 10)
-est <- netest(nw,
-              formation = ~ edges,
-              dissolution = ~offset(edges),
-              target.stats = 25,
-              coef.diss = coef.diss,
-              verbose = FALSE)
+coef.diss <- dissolution_coefs(dissolution = ~offset(edges), duration = 10)
+est <- netest(nw, formation = ~edges, target.stats = 25,
+              coef.diss = coef.diss, verbose = FALSE)
 
 # Epidemic models
 param <- param.net(inf.prob = 1)
 init <- init.net(i.num = 1)
 control <- control.net(type = "SI", nsteps = 20, nsims = 2,
                        save.nwstats = TRUE,
-                       nwstats.formula = ~ edges + degree(0),
+                       nwstats.formula = ~edges + degree(0),
                        verbose = FALSE)
 x <- netsim(est, param, init, control)
 y <- netsim(est, param, init, control)

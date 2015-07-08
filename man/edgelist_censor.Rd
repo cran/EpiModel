@@ -26,18 +26,12 @@ duration approaches the length of the simulation.
 \examples{
 # Initialize and parameterize network model
 nw <- network.initialize(n = 100, directed = FALSE)
-formation <- ~ edges
+formation <- ~edges
 target.stats <- 50
-dissolution <- ~ offset(edges)
-coef.diss <- dissolution_coefs(dissolution, duration = 20)
+coef.diss <- dissolution_coefs(dissolution = ~offset(edges), duration = 20)
 
 # Model estimation
-est <- netest(nw,
-              formation,
-              dissolution,
-              target.stats,
-              coef.diss,
-              verbose = FALSE)
+est <- netest(nw, formation, target.stats, coef.diss, verbose = FALSE)
 
 # Simulate the network and extract a timed edgelist
 sim <- netdx(est, nsims = 1, nsteps = 100, verbose = FALSE)

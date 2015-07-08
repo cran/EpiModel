@@ -34,11 +34,7 @@
 #' summary(mod, at = 25, run = 3)
 #' summary(mod, at = 26, run = 3)
 #'
-summary.dcm <- function(object,
-                        at,
-                        run = 1,
-                        digits = 3,
-                        ...) {
+summary.dcm <- function(object, at, run = 1, digits = 3, ...) {
 
   nruns <- object$control$nruns
   type <- object$control$type
@@ -83,8 +79,7 @@ summary.dcm <- function(object,
                           ds.flow, NA,
                           di.flow, NA))
       mat <- rbind(mat, matrix(stats, byrow = TRUE, nrow = length(stats) / 2))
-      rownames(mat)[rownames(mat) == ""] <- c("Birth ->",
-                                              "S Death ->",
+      rownames(mat)[rownames(mat) == ""] <- c("Birth ->", "S Death ->",
                                               "I Death ->")
     }
     if (groups == 2) {
@@ -146,8 +141,7 @@ summary.dcm <- function(object,
                         si.flow, NA,
                         is.flow, NA))
     mat <- matrix(stats, byrow = TRUE, nrow = length(stats) / 2)
-    rownames(mat) <- c("Suscept.", "Infect.", "Total",
-                       "S -> I", "I -> S")
+    rownames(mat) <- c("Suscept.", "Infect.", "Total", "S -> I", "I -> S")
     if (vital == TRUE) {
       stats <- c(df$b.flow, NA,
                  df$ds.flow, NA,
@@ -243,10 +237,7 @@ summary.dcm <- function(object,
 #' summary(mod, at = 25)
 #' summary(mod, at = 50)
 #'
-summary.icm <- function(object,
-                        at,
-                        digits = 3,
-                        ...) {
+summary.icm <- function(object, at, digits = 3, ...) {
 
   nsims <- object$control$nsims
   type <- object$control$type
@@ -279,10 +270,7 @@ summary.icm <- function(object,
                df.mn$num, df.sd$num, 1,
                df.mn$si.flow, df.sd$si.flow, NA)
     mat <- matrix(stats, byrow = TRUE, nrow = length(stats) / 3)
-    rownames(mat) <- c("Suscept.",
-                       "Infect.",
-                       "Total",
-                       "S -> I")
+    rownames(mat) <- c("Suscept.", "Infect.", "Total", "S -> I")
     if (vital == TRUE) {
       stats <- c(df.mn$b.flow, df.sd$b.flow, NA,
                  df.mn$ds.flow, df.sd$ds.flow, NA,
@@ -332,22 +320,16 @@ summary.icm <- function(object,
                df.mn$si.flow, df.sd$si.flow, NA,
                df.mn$ir.flow, df.sd$ir.flow, NA)
     mat <- matrix(stats, byrow = TRUE, nrow = length(stats) / 3)
-    rownames(mat) <- c("Suscept.",
-                       "Infect.",
-                       "Recov.",
-                       "Total",
-                       "S -> I",
-                       "I -> R")
+    rownames(mat) <- c("Suscept.", "Infect.", "Recov.", "Total",
+                       "S -> I", "I -> R")
     if (vital == TRUE) {
       stats <- c(df.mn$b.flow, df.sd$b.flow, NA,
                  df.mn$ds.flow, df.sd$ds.flow, NA,
                  df.mn$di.flow, df.sd$di.flow, NA,
                  df.mn$dr.flow, df.sd$dr.flow, NA)
       mat <- rbind(mat, matrix(stats, byrow = TRUE, nrow = length(stats) / 3))
-      rownames(mat)[rownames(mat) == ""] <- c("Birth ->",
-                                              "S Death ->",
-                                              "I Death ->",
-                                              "R Death ->")
+      rownames(mat)[rownames(mat) == ""] <- c("Birth ->", "S Death ->",
+                                              "I Death ->", "R Death ->")
     }
 
     ## Group 2 stats
@@ -364,7 +346,8 @@ summary.icm <- function(object,
                    df.mn$ds.flow.g2, df.sd$ds.flow.g2, NA,
                    df.mn$di.flow.g2, df.sd$di.flow.g2, NA,
                    df.mn$dr.flow.g2, df.sd$dr.flow.g2, NA)
-        mat.g2 <- rbind(mat.g2, matrix(stats, byrow = TRUE, nrow = length(stats) / 3))
+        mat.g2 <- rbind(mat.g2, matrix(stats, byrow = TRUE,
+                                       nrow = length(stats) / 3))
       }
       mat <- cbind(mat, mat.g2)
     }
@@ -388,18 +371,13 @@ summary.icm <- function(object,
                df.mn$si.flow, df.sd$si.flow, NA,
                df.mn$is.flow, df.sd$is.flow, NA)
     mat <- matrix(stats, byrow = TRUE, nrow = length(stats) / 3)
-    rownames(mat) <- c("Suscept.",
-                       "Infect.",
-                       "Total",
-                       "S -> I",
-                       "I -> S")
+    rownames(mat) <- c("Suscept.", "Infect.", "Total", "S -> I", "I -> S")
     if (vital == TRUE) {
       stats <- c(df.mn$b.flow, df.sd$b.flow, NA,
                  df.mn$ds.flow, df.sd$ds.flow, NA,
                  df.mn$di.flow, df.sd$di.flow, NA)
       mat <- rbind(mat, matrix(stats, byrow = TRUE, nrow = length(stats) / 3))
-      rownames(mat)[rownames(mat) == ""] <- c("Birth ->",
-                                            "S Death ->",
+      rownames(mat)[rownames(mat) == ""] <- c("Birth ->", "S Death ->",
                                             "I Death ->")
     }
 
@@ -480,27 +458,18 @@ summary.icm <- function(object,
 #' ## Independent SI Model
 #' # Initialize network and set network model parameters
 #' nw <- network.initialize(n = 100, bipartite = 50, directed = FALSE)
-#' formation <- ~ edges
+#' formation <- ~edges
 #' target.stats <- 50
-#' dissolution <- ~ offset(edges)
-#' duration <- 20
-#' coef.diss <- dissolution_coefs(dissolution, duration)
+#' coef.diss <- dissolution_coefs(dissolution = ~offset(edges), duration = 20)
 #'
 #' # Estimate the ERGM models (see help for netest)
 #' # Skipping model diagnostics for this, but one should always run these
-#' est1 <- netest(nw,
-#'                formation,
-#'                dissolution,
-#'                target.stats,
-#'                coef.diss,
-#'                verbose = FALSE)
+#' est1 <- netest(nw, formation, target.stats, coef.diss, verbose = FALSE)
 #'
 #' # Parameters, initial conditions, and controls for model
-#' param <- param.net(inf.prob = 0.3,
-#'                    inf.prob.m2 = 0.15)
+#' param <- param.net(inf.prob = 0.3, inf.prob.m2 = 0.15)
 #' init <- init.net(i.num = 10, i.num.m2 = 10)
-#' control <- control.net(type = "SI", nsteps = 100,
-#'                        nsims = 5, verbose.int = 0)
+#' control <- control.net(type = "SI", nsteps = 100, nsims = 5, verbose.int = 0)
 #'
 #' # Run the model simulation
 #' mod <- netsim(est1, param, init, control)
@@ -510,10 +479,7 @@ summary.icm <- function(object,
 #' summary(mod, at = 100)
 #' }
 #'
-summary.netsim <- function(object,
-                           at,
-                           digits = 3,
-                           ...) {
+summary.netsim <- function(object, at, digits = 3, ...) {
 
   nsims <- object$control$nsims
   type <- object$control$type
@@ -546,10 +512,7 @@ summary.netsim <- function(object,
                df.mn$num, df.sd$num, 1,
                df.mn$si.flow, df.sd$si.flow, NA)
     mat <- matrix(stats, byrow = TRUE, nrow = length(stats) / 3)
-    rownames(mat) <- c("Suscept.",
-                       "Infect.",
-                       "Total",
-                       "S -> I")
+    rownames(mat) <- c("Suscept.", "Infect.", "Total", "S -> I")
     if (vital == TRUE) {
       stats <- c(df.mn$b.flow, df.sd$b.flow, NA,
                  df.mn$ds.flow, df.sd$ds.flow, NA,
@@ -599,22 +562,16 @@ summary.netsim <- function(object,
                df.mn$si.flow, df.sd$si.flow, NA,
                df.mn$ir.flow, df.sd$ir.flow, NA)
     mat <- matrix(stats, byrow = TRUE, nrow = length(stats) / 3)
-    rownames(mat) <- c("Suscept.",
-                       "Infect.",
-                       "Recov.",
-                       "Total",
-                       "S -> I",
-                       "I -> R")
+    rownames(mat) <- c("Suscept.", "Infect.", "Recov.", "Total",
+                       "S -> I", "I -> R")
     if (vital == TRUE) {
       stats <- c(df.mn$b.flow, df.sd$b.flow, NA,
                  df.mn$ds.flow, df.sd$ds.flow, NA,
                  df.mn$di.flow, df.sd$di.flow, NA,
                  df.mn$dr.flow, df.sd$dr.flow, NA)
       mat <- rbind(mat, matrix(stats, byrow = TRUE, nrow = length(stats) / 3))
-      rownames(mat)[rownames(mat) == ""] <- c("Birth ->",
-                                            "S Death ->",
-                                            "I Death ->",
-                                            "R Death ->")
+      rownames(mat)[rownames(mat) == ""] <- c("Birth ->", "S Death ->",
+                                              "I Death ->", "R Death ->")
     }
 
     ## Group 2 stats
@@ -656,19 +613,15 @@ summary.netsim <- function(object,
                df.mn$si.flow, df.sd$si.flow, NA,
                df.mn$is.flow, df.sd$is.flow, NA)
     mat <- matrix(stats, byrow = TRUE, nrow = length(stats) / 3)
-    rownames(mat) <- c("Suscept.",
-                       "Infect.",
-                       "Total",
-                       "S -> I",
-                       "I -> S")
+    rownames(mat) <- c("Suscept.", "Infect.", "Total",
+                       "S -> I", "I -> S")
     if (vital == TRUE) {
       stats <- c(df.mn$b.flow, df.sd$b.flow, NA,
                  df.mn$ds.flow, df.sd$ds.flow, NA,
                  df.mn$di.flow, df.sd$di.flow, NA)
       mat <- rbind(mat, matrix(stats, byrow = TRUE, nrow = length(stats) / 3))
-      rownames(mat)[rownames(mat) == ""] <- c("Birth ->",
-                                            "S Death ->",
-                                            "I Death ->")
+      rownames(mat)[rownames(mat) == ""] <- c("Birth ->", "S Death ->",
+                                              "I Death ->")
     }
 
     ## Group 2 stats
@@ -728,7 +681,6 @@ summary.netsim <- function(object,
 }
 
 
-
 #' @title Summary for Network Model Fit
 #'
 #' @description Prints the summary model fit statistics for an ERGM or STERGM fit.
@@ -742,10 +694,17 @@ summary.netsim <- function(object,
 #'
 #' @details
 #' This function is simply a wrapper function for \code{summary.ergm} and
-#'   \code{summary.stergm}.
+#' \code{summary.stergm}. Additionally, if the edges dissolution approximation
+#' was used to fit the temporal ERGM, then the dissolution coefficient information
+#' will be printed.
 #'
 summary.netest <- function(object, ...) {
 
-  summary(object$fit, ...)
+  print(summary(object$fit, ...))
+
+  if (object$edapprox == TRUE) {
+    cat("\n")
+    print(object$coef.diss)
+  }
 
 }

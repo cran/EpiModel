@@ -5,19 +5,16 @@
 #'              random graph modeling (ERGM) framework with extensions for
 #'              dynamic/temporal models (STERGM).
 #'
-#' @param nw An object of class \code{\link{network}}.
+#' @param nw An object of class \code{network}.
 #' @param formation Right-hand sided STERGM formation formula in the form
-#'        \code{~ edges + ...}, where \code{...} are additional network statistics.
-#' @param dissolution Right-hand sided STERGM dissolution formula of the form
-#'        \code{~ offset(edges)}. This dissolution model is the only model currently
-#'        supported in \code{EpiModel}.
+#'        \code{~edges + ...}, where \code{...} are additional network statistics.
 #' @param target.stats Vector of target statistics for the formation model, with
-#'        one number for each network statistic in the model (see \code{\link{stergm}}).
+#'        one number for each network statistic in the model.
 #' @param coef.diss An object of class \code{disscoef} output from the
 #'        \code{\link{dissolution_coefs}} function.
 #' @param constraints Right-hand sided formula specifying constraints for the
 #'        modeled network, in the form \code{~...}, where \code{...} are constraint
-#'        terms described in \code{\link{stergm}}. By default, no constraints are set.
+#'        terms. By default, no constraints are set.
 #' @param coef.form Vector of coefficients for the offset terms in the formation
 #'        formula.
 #' @param edapprox If \code{TRUE}, use the indirect edges dissolution approximation
@@ -34,7 +31,7 @@
 #'        converge after the specified number of iterations. This may be useful
 #'        in batch mode while fitting many models and there is no desire to
 #'        return to the nonconverged model object.
-#' @param verbose Print progress to the console.
+#' @param verbose Print model fitting progress to console.
 #'
 #' @details
 #' \code{netest} is a wrapper function for the \code{ergm} and \code{stergm}
@@ -72,9 +69,8 @@
 #' estimation is to drive dynamic network simulations rather than to conduct
 #' inference on the formation model. The user is strongly encouraged to examine
 #' the behavior of the resulting simulations to confirm that the approximation
-#' is adequate for their purposes. For an example, see this
-#' \href{http://statnet.org/workshops/SUNBELT/current/tergm/tergm_tutorial.html}{STERGM
-#' Tutorial}.
+#' is adequate for their purposes. For an example, see the vignette for the
+#' package \code{tergm}.
 #'
 #' @section Control Arguments:
 #' The \code{ergm} and \code{stergm} functions allow control settings for the
@@ -108,52 +104,31 @@
 #' @export
 #'
 #' @examples
-#' \dontrun{
 #' # Initialize a network of 100 nodes
 #' nw <- network.initialize(n = 100, directed = FALSE)
 #'
-#' # Set formation and dissolution formulas
-#' formation <- ~ edges + concurrent
-#' dissolution <- ~ offset(edges)
+#' # Set formation formula
+#' formation <- ~edges + concurrent
 #'
 #' # Set target statistics for formation
 #' target.stats <- c(50, 25)
 #'
 #' # Obtain the offset coefficients
-#' coef.diss <- dissolution_coefs(dissolution, duration = 10)
+#' coef.diss <- dissolution_coefs(dissolution = ~offset(edges), duration = 10)
 #'
 #' # Estimate the STERGM using the edges dissolution approximation
-#' est <- netest(nw,
-#'               formation,
-#'               dissolution,
-#'               target.stats,
-#'               coef.diss,
+#' est <- netest(nw, formation, target.stats, coef.diss,
 #'               set.control.ergm = control.ergm(MCMC.burnin = 1e5,
 #'                                               MCMC.interval = 1000))
 #' est
 #'
 #' # To estimate the STERGM directly, use edapprox = FALSE
-#' # est2 <- netest(nw,
-#' #                formation,
-#' #                dissolution,
-#' #                target.stats,
-#' #                coef.diss,
-#' #                edapprox = FALSE)
-#' }
+#' # est2 <- netest(nw, formation, target.stats, coef.diss, edapprox = FALSE)
 #'
-netest <- function(nw,
-                   formation,
-                   dissolution,
-                   target.stats,
-                   coef.diss,
-                   constraints,
-                   coef.form = NULL,
-                   edapprox = TRUE,
-                   output = "fit",
-                   set.control.ergm,
-                   set.control.stergm,
-                   nonconv.error = FALSE,
-                   verbose = TRUE) {
+netest <- function(nw, formation, target.stats, coef.diss, constraints,
+                   coef.form = NULL, edapprox = TRUE, output = "fit",
+                   set.control.ergm, set.control.stergm, nonconv.error = FALSE,
+                   verbose = FALSE) {
 
   if (missing(constraints)) {
     constraints	<- ~.
@@ -163,15 +138,10 @@ netest <- function(nw,
     stop("dissolution must be of input through dissolution_coefs function",
          call. = FALSE)
   }
+  dissolution <- coef.diss$dissolution
   diss_check(formation, dissolution)
 
   if (edapprox == FALSE) {
-
-    if (verbose == TRUE) {
-      cat("======================")
-      cat("\nFitting STERGM")
-      cat("\n======================\n")
-    }
 
     if (missing(set.control.stergm)) {
       set.control.stergm <- control.stergm(EGMME.MCMC.burnin.min = 1e5)
@@ -187,7 +157,8 @@ netest <- function(nw,
                   constraints = constraints,
                   estimate = "EGMME",
                   eval.loglik = FALSE,
-                  control = set.control.stergm)
+                  control = set.control.stergm,
+                  verbose = verbose)
 
     coef.form <- fit$formation.fit
 
@@ -204,12 +175,6 @@ netest <- function(nw,
 
   } else {
 
-    if (verbose == TRUE) {
-      cat("======================")
-      cat("\nFitting ERGM")
-      cat("\n======================\n")
-    }
-
     if (missing(set.control.ergm)) {
       set.control.ergm <- control.ergm(MCMC.burnin = 1e5,
                                        MCMLE.maxit = 200)
@@ -223,7 +188,8 @@ netest <- function(nw,
                 constraints = constraints,
                 offset.coef = coef.form,
                 eval.loglik = FALSE,
-                control = set.control.ergm)
+                control = set.control.ergm,
+                verbose = verbose)
 
     if (nonconv.error == TRUE) {
       sl <- tail(fit$steplen.hist, 2)
@@ -262,7 +228,6 @@ netest <- function(nw,
     }
     out$coef.form <- coef.form
     out$coef.form.crude <- coef.form.crude
-    out$dissolution <- dissolution
     out$coef.diss <- coef.diss
     out$constraints <- constraints
     out$edapprox <- edapprox

@@ -4,8 +4,8 @@
 #' \tabular{ll}{
 #'    Package: \tab EpiModel\cr
 #'    Type: \tab Package\cr
-#'    Version: \tab 1.1.5\cr
-#'    Date: \tab 2015-05-15\cr
+#'    Version: \tab 1.2.0\cr
+#'    Date: \tab 2015-07-07\cr
 #'    License: \tab GPL (>= 2)\cr
 #'    LazyLoad: \tab yes\cr
 #' }
@@ -110,8 +110,18 @@
 #'
 #' @name EpiModel-package
 #' @aliases EpiModel
-#' @import deSolve ergm network networkDynamic RColorBrewer statnet.common tergm
-#'         foreach doParallel
+#' @import ergm network networkDynamic tergm
+#' @importFrom deSolve dede ode
+#' @importFrom doParallel registerDoParallel
+#' @importFrom foreach foreach "%dopar%"
+#' @importFrom RColorBrewer brewer.pal brewer.pal.info
+#' @importFrom graphics abline arrows boxplot legend lines mtext par plot points
+#'             polygon text title
+#' @importFrom grDevices col2rgb colorRampPalette rgb
+#' @importFrom stats complete.cases quantile rbinom rgeom sd setNames simulate
+#'             supsmu terms.formula update
+#' @importFrom utils head tail
+#'
 #' @docType package
 #' @keywords package
 #'

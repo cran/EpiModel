@@ -132,21 +132,16 @@ merge.icm <- function(x, y, ...) {
 #' @examples
 #' # Network model
 #' nw <- network.initialize(n = 100, directed = FALSE)
-#' dissolution <- ~offset(edges)
-#' coef.diss <- dissolution_coefs(dissolution, duration = 10)
-#' est <- netest(nw,
-#'               formation = ~ edges,
-#'               dissolution = ~offset(edges),
-#'               target.stats = 25,
-#'               coef.diss = coef.diss,
-#'               verbose = FALSE)
+#' coef.diss <- dissolution_coefs(dissolution = ~offset(edges), duration = 10)
+#' est <- netest(nw, formation = ~edges, target.stats = 25,
+#'               coef.diss = coef.diss, verbose = FALSE)
 #'
 #' # Epidemic models
 #' param <- param.net(inf.prob = 1)
 #' init <- init.net(i.num = 1)
 #' control <- control.net(type = "SI", nsteps = 20, nsims = 2,
 #'                        save.nwstats = TRUE,
-#'                        nwstats.formula = ~ edges + degree(0),
+#'                        nwstats.formula = ~edges + degree(0),
 #'                        verbose = FALSE)
 #' x <- netsim(est, param, init, control)
 #' y <- netsim(est, param, init, control)
@@ -157,13 +152,9 @@ merge.icm <- function(x, y, ...) {
 #' y$epi
 #' z$epi
 #'
-merge.netsim <- function(x, y,
-                         keep.transmat = TRUE,
-                         keep.network = TRUE,
-                         keep.nwstats = TRUE,
-                         keep.other = TRUE,
-                         param.error = TRUE,
-                         ...) {
+merge.netsim <- function(x, y, keep.transmat = TRUE, keep.network = TRUE,
+                         keep.nwstats = TRUE, keep.other = TRUE,
+                         param.error = TRUE, ...) {
 
   ## Check structure
   if (length(x) != length(y) || names(x) != names(y)) {
@@ -172,7 +163,7 @@ merge.netsim <- function(x, y,
   x$control$nsims <- as.integer(x$control$nsims)
   y$control$nsims <- as.integer(y$control$nsims)
   if (x$control$nsims > 1 & y$control$nsims > 1 &
-        !all(sapply(x, class) == sapply(y, class))) {
+      !all(sapply(x, function(i) class(i)[1]) == sapply(y, function(i) class(i)[1]))) {
     stop("x and y have different structure")
   }
 
@@ -251,9 +242,9 @@ merge.netsim <- function(x, y,
 
   ## Other
   if (!is.null(x$control$save.other) & !is.null(y$control$save.other)) {
+    other.x <- x$control$save.other
+    other.y <- y$control$save.other
     if (keep.other == TRUE) {
-      other.x <- x$control$save.other
-      other.y <- y$control$save.other
       if (!identical(other.x, other.y)) {
         stop("Elements in save.other differ between x and y", call. = FALSE)
       }

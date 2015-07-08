@@ -46,6 +46,8 @@ bipvals <- function(nw, mode, val) {
 #'        time range.
 #' @param threshold Threshold value for determining equilibrium.
 #' @param digits Number of digits to round for table output.
+#' @param invisible If \code{TRUE}, function will suppress output to console and
+#'        return summary statistics invisibly.
 #'
 #' @details
 #' This function calculates whether equilibrium in disease prevalence, or any
@@ -79,7 +81,7 @@ bipvals <- function(nw, mode, val) {
 #'          threshold = 0.00001)
 #'
 calc_eql <- function(x, numer = "i.num", denom = "num",
-                     nsteps, threshold = 0.001, digits = 4) {
+                     nsteps, threshold = 0.001, digits = 4, invisible = FALSE) {
 
   if (!(class(x) %in% c("dcm", "icm", "netsim"))) {
     stop("x must an object of class dcm, icm, or netsim", call. = FALSE)
@@ -103,16 +105,26 @@ calc_eql <- function(x, numer = "i.num", denom = "num",
   tprev <- tail(prev, nsteps)
   diff <- abs(max(tprev) - min(tprev))
 
-  cat("Equilibrium Results")
-  cat("\n=================================")
-  cat("\nStart Prev.:  ", round(head(tprev, 1), digits))
-  cat("\nEnd Prev.:    ", round(tail(tprev, 1), digits))
-  cat("\nMax Prev.:    ", round(max(tprev), digits))
-  cat("\nMin Prev.:    ", round(min(tprev), digits))
-  cat("\nRel. Diff.:   ", round(diff, digits))
-  cat("\n<= Threshold: ", diff <= threshold)
+  if (invisible == FALSE) {
+    cat("Equilibrium Results")
+    cat("\n=================================")
+    cat("\nStart Prev.:  ", round(head(tprev, 1), digits))
+    cat("\nEnd Prev.:    ", round(tail(tprev, 1), digits))
+    cat("\nMax Prev.:    ", round(max(tprev), digits))
+    cat("\nMin Prev.:    ", round(min(tprev), digits))
+    cat("\nRel. Diff.:   ", round(diff, digits))
+    cat("\n<= Threshold: ", diff <= threshold)
+  }
 
   on.exit(options(scipen = old.scipen))
+  out <- list(strprev = round(head(tprev, 1), digits),
+              endprev = round(tail(tprev, 1), digits),
+              maxprev = round(max(tprev), digits),
+              minprev = round(min(tprev), digits),
+              reldiff = round(diff, digits),
+              thresh = diff <= threshold)
+  invisible(out)
+
 }
 
 
@@ -244,16 +256,9 @@ check_bip_degdist <- function(num.m1, num.m2,
 #' @keywords colorUtils
 #' @export
 #'
-color_tea <- function(nd,
-                      old.var = "testatus",
-                      old.sus = "s",
-                      old.inf = "i",
-                      old.rec = "r",
-                      new.var = "ndtvcol",
-                      new.sus,
-                      new.inf,
-                      new.rec,
-                      verbose = TRUE) {
+color_tea <- function(nd, old.var = "testatus", old.sus = "s", old.inf = "i",
+                      old.rec = "r", new.var = "ndtvcol", new.sus, new.inf,
+                      new.rec, verbose = TRUE) {
 
   if (missing(new.inf)) {
     new.inf <- transco("firebrick", 0.75)
@@ -290,7 +295,6 @@ color_tea <- function(nd,
 }
 
 
-
 #' @title Copies Vertex Attributes in Formation Formula to attr List
 #'
 #' @description Copies the vertex attributes stored on the network object to the
@@ -325,7 +329,6 @@ copy_toall_attr <- function(dat, at, fterms) {
 
   return(dat)
 }
-
 
 
 #' @title Dissolution Coefficients for Stochastic Network Models
@@ -505,7 +508,6 @@ dissolution_coefs <- function(dissolution, duration, d.rate = 0) {
 }
 
 
-
 #' @title Table of Edge Censoring
 #'
 #' @description Outputs a table of the number and percent of edges that are
@@ -529,18 +531,12 @@ dissolution_coefs <- function(dissolution, duration, d.rate = 0) {
 #' @examples
 #' # Initialize and parameterize network model
 #' nw <- network.initialize(n = 100, directed = FALSE)
-#' formation <- ~ edges
+#' formation <- ~edges
 #' target.stats <- 50
-#' dissolution <- ~ offset(edges)
-#' coef.diss <- dissolution_coefs(dissolution, duration = 20)
+#' coef.diss <- dissolution_coefs(dissolution = ~offset(edges), duration = 20)
 #'
 #' # Model estimation
-#' est <- netest(nw,
-#'               formation,
-#'               dissolution,
-#'               target.stats,
-#'               coef.diss,
-#'               verbose = FALSE)
+#' est <- netest(nw, formation, target.stats, coef.diss, verbose = FALSE)
 #'
 #' # Simulate the network and extract a timed edgelist
 #' sim <- netdx(est, nsims = 1, nsteps = 100, verbose = FALSE)
@@ -550,9 +546,6 @@ dissolution_coefs <- function(dissolution, duration, d.rate = 0) {
 #' edgelist_censor(el)
 #'
 edgelist_censor <- function(el) {
-
-  time.steps <- max(el$terminus)
-  min.step <- min(el$onset)
 
   # left censored
   leftcens <- el$onset.censored
@@ -611,14 +604,12 @@ edgelist_censor <- function(el) {
 #' @examples
 #' # Initialize and parameterize the network model
 #' nw <- network.initialize(n = 100, directed = FALSE)
-#' formation <- ~ edges
+#' formation <- ~edges
 #' target.stats <- 50
-#' dissolution <- ~ offset(edges)
-#' coef.diss <- dissolution_coefs(dissolution, duration = 20)
+#' coef.diss <- dissolution_coefs(dissolution = ~offset(edges), duration = 20)
 #'
 #' # Model estimation
-#' est <- netest(nw, formation, dissolution,
-#'               target.stats, coef.diss, verbose = FALSE)
+#' est <- netest(nw, formation, target.stats, coef.diss, verbose = FALSE)
 #'
 #' # Simulate the network and extract a timed edgelist
 #' sim <- netdx(est, nsims = 1, nsteps = 100, verbose = FALSE)
@@ -726,262 +717,6 @@ get_formula_terms <- function(formula) {
 }
 
 
-
-#' @title Get Epidemic Output from netsim Model
-#'
-#' @description Provides all active model state sizes from the network at the
-#'              specified time step, output to a list of vectors.
-#'
-#' @param dat Master list object containing a \code{networkDynamic} object and other
-#'        initialization information passed from \code{\link{netsim}}.
-#' @param at Current time step.
-#'
-#' @details
-#' This network utility is used during the \code{\link{netsim}} simulation
-#' process to efficiently query the current size of each state or compartment
-#' in the model at any given timestep. For a bipartite network, the current state
-#' size for each mode, and overall is provided.
-#'
-#' @export
-#' @keywords netUtils internal
-#'
-get_prev.net <- function(dat, at) {
-
-  active <- dat$attr$active
-  modes <- dat$param$modes
-
-  # Subset attr to active == 1
-  l <- lapply(1:length(dat$attr), function(x) dat$attr[[x]][active == 1])
-  names(l) <- names(dat$attr)
-  l$active <- l$infTime <- NULL
-
-  status <- l$status
-
-  if (modes == 2) {
-    mode <- idmode(dat$nw)[active == 1]
-  }
-
-  ## Subsetting for epi.by control
-  eb <- !is.null(dat$control$epi.by)
-  if (eb == TRUE) {
-    ebn <- dat$control$epi.by
-    ebv <- dat$temp$epi.by.vals
-    ebun <- paste0(".", ebn, ebv)
-    assign(ebn, l[[ebn]])
-  }
-
-  ## One mode networks
-  if (modes == 1) {
-    if (at == 1) {
-      dat$epi <- list()
-      dat$epi$s.num <- sum(status == "s")
-      if (eb == TRUE) {
-        for (i in 1:length(ebun)) {
-          dat$epi[[paste0("s.num", ebun[i])]] <- sum(status == "s" &
-                                                     get(ebn) == ebv[i])
-        }
-      }
-      dat$epi$i.num <- sum(status == "i")
-      if (eb == TRUE) {
-        for (i in 1:length(ebun)) {
-          dat$epi[[paste0("i.num", ebun[i])]] <- sum(status == "i" &
-                                                     get(ebn) == ebv[i])
-        }
-      }
-      if (dat$control$type == "SIR") {
-        dat$epi$r.num <- sum(status == "r")
-        if (eb == TRUE) {
-          for (i in 1:length(ebun)) {
-            dat$epi[[paste0("r.num", ebun[i])]] <- sum(status == "r" &
-                                                       get(ebn) == ebv[i])
-          }
-        }
-      }
-      dat$epi$num <- length(status)
-      if (eb == TRUE) {
-        for (i in 1:length(ebun)) {
-          dat$epi[[paste0("num", ebun[i])]] <- sum(get(ebn) == ebv[i])
-        }
-      }
-    } else {
-      # at > 1
-      dat$epi$s.num[at] <- sum(status == "s")
-      if (eb == TRUE) {
-        for (i in 1:length(ebun)) {
-          dat$epi[[paste0("s.num", ebun[i])]][at] <- sum(status == "s" &
-                                                         get(ebn) == ebv[i])
-        }
-      }
-      dat$epi$i.num[at] <- sum(status == "i")
-      if (eb == TRUE) {
-        for (i in 1:length(ebun)) {
-          dat$epi[[paste0("i.num", ebun[i])]][at] <- sum(status == "i" &
-                                                         get(ebn) == ebv[i])
-        }
-      }
-      if (dat$control$type == "SIR") {
-        dat$epi$r.num[at] <- sum(status == "r")
-        if (eb == TRUE) {
-          for (i in 1:length(ebun)) {
-            dat$epi[[paste0("r.num", ebun[i])]][at] <- sum(status == "r" &
-                                                           get(ebn) == ebv[i])
-          }
-        }
-      }
-      dat$epi$num[at] <- length(status)
-      if (eb == TRUE) {
-        for (i in 1:length(ebun)) {
-          dat$epi[[paste0("num", ebun[i])]][at] <- sum(get(ebn) == ebv[i])
-        }
-      }
-    }
-
-  } else {
-    # Bipartite networks
-    if (at == 1) {
-      dat$epi <- list()
-      dat$epi$s.num <- sum(status == "s" & mode == 1)
-      if (eb == TRUE) {
-        for (i in 1:length(ebun)) {
-          dat$epi[[paste0("s.num", ebun[i])]] <- sum(status == "s" &
-                                                     mode == 1 &
-                                                     get(ebn) == ebv[i])
-        }
-      }
-      dat$epi$i.num <- sum(status == "i" & mode == 1)
-      if (eb == TRUE) {
-        for (i in 1:length(ebun)) {
-          dat$epi[[paste0("i.num", ebun[i])]] <- sum(status == "i" &
-                                                     mode == 1 &
-                                                     get(ebn) == ebv[i])
-        }
-      }
-      if (dat$control$type == "SIR") {
-        dat$epi$r.num <- sum(status == "r" & mode == 1)
-        if (eb == TRUE) {
-          for (i in 1:length(ebun)) {
-            dat$epi[[paste0("s.num", ebun[i])]] <- sum(status == "r" &
-                                                       mode == 1 &
-                                                       get(ebn) == ebv[i])
-          }
-        }
-      }
-      dat$epi$num <- sum(mode == 1)
-      if (eb == TRUE) {
-        for (i in 1:length(ebun)) {
-          dat$epi[[paste0("num", ebun[i])]] <- sum(mode == 1 &
-                                                   get(ebn) == ebv[i])
-        }
-      }
-      dat$epi$s.num.m2 <- sum(status == "s" & mode == 2)
-      if (eb == TRUE) {
-        for (i in 1:length(ebun)) {
-          dat$epi[[paste0("s.num.m2", ebun[i])]] <- sum(status == "s" &
-                                                        mode == 2 &
-                                                        get(ebn) == ebv[i])
-        }
-      }
-      dat$epi$i.num.m2 <- sum(status == "i" & mode == 2)
-      if (eb == TRUE) {
-        for (i in 1:length(ebun)) {
-          dat$epi[[paste0("i.num.m2", ebun[i])]] <- sum(status == "i" &
-                                                        mode == 2 &
-                                                        get(ebn) == ebv[i])
-        }
-      }
-      if (dat$control$type == "SIR") {
-        dat$epi$r.num.m2 <- sum(status == "r" & mode == 2)
-        if (eb == TRUE) {
-          for (i in 1:length(ebun)) {
-            dat$epi[[paste0("r.num.m2", ebun[i])]] <- sum(status == "r" &
-                                                          mode == 2 &
-                                                          get(ebn) == ebv[i])
-          }
-        }
-      }
-      dat$epi$num.m2 <- sum(mode == 2)
-      if (eb == TRUE) {
-        for (i in 1:length(ebun)) {
-          dat$epi[[paste0("num.m2", ebun[i])]] <- sum(mode == 2 &
-                                                      get(ebn) == ebv[i])
-        }
-      }
-    } else {
-      # at > 1
-      dat$epi$s.num[at] <- sum(status == "s" & mode == 1)
-      if (eb == TRUE) {
-        for (i in 1:length(ebun)) {
-          dat$epi[[paste0("s.num", ebun[i])]][at] <- sum(status == "s" &
-                                                         mode == 1 &
-                                                         get(ebn) == ebv[i])
-        }
-      }
-      dat$epi$i.num[at] <- sum(status == "i" & mode == 1)
-      if (eb == TRUE) {
-        for (i in 1:length(ebun)) {
-          dat$epi[[paste0("i.num", ebun[i])]][at] <- sum(status == "i" &
-                                                         mode == 1 &
-                                                         get(ebn) == ebv[i])
-        }
-      }
-      if (dat$control$type == "SIR") {
-        dat$epi$r.num[at] <- sum(status == "r" & mode == 1)
-        if (eb == TRUE) {
-          for (i in 1:length(ebun)) {
-            dat$epi[[paste0("s.num", ebun[i])]][at] <- sum(status == "r" &
-                                                           mode == 1 &
-                                                           get(ebn) == ebv[i])
-          }
-        }
-      }
-      dat$epi$num[at] <- sum(mode == 1)
-      if (eb == TRUE) {
-        for (i in 1:length(ebun)) {
-          dat$epi[[paste0("num", ebun[i])]][at] <- sum(mode == 1 &
-                                                       get(ebn) == ebv[i])
-        }
-      }
-      dat$epi$s.num.m2[at] <- sum(status == "s" & mode == 2)
-      if (eb == TRUE) {
-        for (i in 1:length(ebun)) {
-          dat$epi[[paste0("s.num.m2", ebun[i])]][at] <- sum(status == "s" &
-                                                            mode == 2 &
-                                                            get(ebn) == ebv[i])
-        }
-      }
-      dat$epi$i.num.m2[at] <- sum(status == "i" & mode == 2)
-      if (eb == TRUE) {
-        for (i in 1:length(ebun)) {
-          dat$epi[[paste0("i.num.m2", ebun[i])]][at] <- sum(status == "i" &
-                                                            mode == 2 &
-                                                            get(ebn) == ebv[i])
-        }
-      }
-      if (dat$control$type == "SIR") {
-        dat$epi$r.num.m2[at] <- sum(status == "r" & mode == 2)
-        if (eb == TRUE) {
-          for (i in 1:length(ebun)) {
-            dat$epi[[paste0("r.num.m2", ebun[i])]][at] <- sum(status == "r" &
-                                                              mode == 2 &
-                                                              get(ebn) == ebv[i])
-          }
-        }
-      }
-      dat$epi$num.m2[at] <- sum(mode == 2)
-      if (eb == TRUE) {
-        for (i in 1:length(ebun)) {
-          dat$epi[[paste0("num.m2", ebun[i])]][at] <- sum(mode == 2 &
-                                                          get(ebn) == ebv[i])
-        }
-      }
-    }
-  }
-
-  return(dat)
-}
-
-
-
 #' @title Mode Numbers for Bipartite Network
 #'
 #' @description Outputs mode numbers give ID numbers for a bipartite network.
@@ -1061,121 +796,6 @@ modeids <- function(nw, mode) {
   }
 
   return(out)
-}
-
-
-#' @title Query Active Nodes in NetworkDynamic Object
-#'
-#' @description Outputs information on the active nodes in a \code{networkDynamic}
-#'              object.
-#'
-#' @param nw Object of class \code{networkDynamic}.
-#' @param at Current time step.
-#' @param out Function output, with options of \code{out="vec"} for
-#'        a T/F vector of whether the node is active, \code{out="ids"} for
-#'        a vector of IDs active, \code{out="prev"} for the number of
-#'        nodes that are active, and \code{out="all"} to return a list of
-#'        the prior three elements.
-#' @param mode If \code{nw} is bipartite, the mode number for status (may
-#'        be ignored if requesting output for both modes).
-#' @param active.default If \code{TRUE}, elements without an activity attribute
-#'        will be regarded as active.
-#'
-#' @details
-#' This is a specialized version of \code{\link{is.active}} from the
-#' \code{networkDynamic} package that allows for key output to be efficiently
-#' generated for use in \code{\link{netsim}} simulations.
-#'
-#' @seealso \code{\link{is.active}}, \code{\link{get_prev.net}}
-#'
-#' @export
-#' @keywords netUtils internal
-#'
-#' @examples
-#' # Initialize NW and activate vertices
-#' nw <- network.initialize(20)
-#'
-#' # Activate all vertices, then deactive half at time 5
-#' activate.vertices(nw, onset = 1, terminus = 10)
-#' deactivate.vertices(nw, onset = 5, terminus = 10, v = 1:10)
-#'
-#' # Output all information for vertices at time 1 and time 5
-#' node_active(nw, at = 1, out = "all")
-#' node_active(nw, at = 5, out = "all")
-#'
-node_active <- function(nw,
-                        at,
-                        out,
-                        mode,
-                        active.default = FALSE
-                        ) {
-
-  if (!(missing(mode)) && !is.numeric(nw$gal$bipartite))
-    stop("nw must be bipartite if mode argument is used")
-
-  if (out %in% c("vec", "ids", "prev")) {
-    if (missing(mode)) {
-      node.active <- is.active(nw, v = seq_len(network.size(nw)), at = at,
-                               active.default = active.default)
-      out.vec <- node.active
-      out.ids <- which(node.active)
-      out.prev <- sum(node.active)
-    } else {
-      node.active <- is.active(nw, v = seq_len(network.size(nw)), at = at,
-                               active.default = active.default)
-      ids.m1 <- modeids(nw, 1)
-      ids.m2 <- modeids(nw, 2)
-      if (mode == 1) {
-        out.vec <- node.active[ids.m1]
-        out.ids <- intersect(which(node.active), ids.m1)
-        out.prev <- sum(node.active[ids.m1])
-      }
-      if (mode == 2) {
-        out.vec <- node.active[ids.m2]
-        out.ids <- intersect(which(node.active), ids.m2)
-        out.prev <- sum(node.active[ids.m2])
-      }
-    }
-  }
-  if (out == "all") {
-    if (!is.numeric(nw$gal$bipartite)) {
-      node.active <- is.active(nw, v = seq_len(network.size(nw)), at = at,
-                               active.default = active.default)
-      out.all <- list()
-      out.all$vec$all <- node.active
-      out.all$ids$all <- which(node.active)
-      out.all$prev$all <- sum(node.active)
-    } else {
-      node.active <- is.active(nw, v = seq_len(network.size(nw)), at = at,
-                               active.default = active.default)
-      out.all <- list()
-      ids.m1 <- modeids(nw, 1)
-      ids.m2 <- modeids(nw, 2)
-      out.all$vec$m1 <- node.active[ids.m1]
-      out.all$vec$m2 <- node.active[ids.m2]
-      out.all$vec$all <- node.active
-      out.all$ids$m1 <- intersect(which(node.active), ids.m1)
-      out.all$ids$m2 <- intersect(which(node.active), ids.m2)
-      out.all$ids$all <- which(node.active)
-      out.all$prev$m1 <- sum(node.active[ids.m1])
-      out.all$prev$m2 <- sum(node.active[ids.m2])
-      out.all$prev$all <- sum(node.active)
-    }
-  }
-
-  if (out == "vec") {
-    return(out.vec)
-  }
-  if (out == "ids") {
-    return(out.ids)
-  }
-  if (out == "prev") {
-    return(out.prev)
-  }
-  if (out == "all") {
-    return(out.all)
-  }
-
 }
 
 
@@ -1276,12 +896,3 @@ update_nwattr <- function(nw, newNodes, rules, curr.tab, t1.tab) {
 
   return(nw)
 }
-
-
-# Unexported Functions ----------------------------------------------------
-
-# logit transformation of a probability
-logit <- function(x) {
-  log(x / (1 - x))
-}
-

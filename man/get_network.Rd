@@ -29,21 +29,13 @@ Extracts the networkDynamic object from a network epidemic model
 \dontrun{
 ## Simulate SI epidemic on bipartite Bernoulli random graph
 nw <- network.initialize(n = 100, bipartite = 50, directed = FALSE)
-formation <- ~ edges
+formation <- ~edges
 target.stats <- 50
-dissolution <- ~ offset(edges)
-duration <- 20
-coef.diss <- dissolution_coefs(dissolution, duration)
-est <- netest(nw,
-               formation,
-               dissolution,
-               target.stats,
-               coef.diss,
-               verbose = FALSE)
+coef.diss <- dissolution_coefs(dissolution = ~offset(edges), duration = 20)
+est <- netest(nw, formation, target.stats, coef.diss, verbose = FALSE)
 param <- param.net(inf.prob = 0.3, inf.prob.m2 = 0.15)
 init <- init.net(i.num = 10, i.num.m2 = 10)
-control <- control.net(type = "SI", nsteps = 10, nsims = 3,
-                       verbose = FALSE)
+control <- control.net(type = "SI", nsteps = 10, nsims = 3, verbose = FALSE)
 mod <- netsim(est, param, init, control)
 
 ## Extract the network from simulation 2

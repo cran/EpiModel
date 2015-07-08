@@ -62,24 +62,22 @@
 #' \dontrun{
 #' # Network initialization and model parameterization
 #' nw <- network.initialize(100, directed = FALSE)
-#' formation <- ~ edges
-#' dissolution <- ~ offset(edges)
+#' formation <- ~edges
 #' target.stats <- 50
-#' coef.diss <- dissolution_coefs(dissolution, duration = 25)
+#' coef.diss <- dissolution_coefs(dissolution = ~offset(edges), duration = 25)
 #'
 #' # Estimate the model
-#' est <- netest(nw, formation, dissolution,
-#'               target.stats, coef.diss, verbose = FALSE)
+#' est <- netest(nw, formation, target.stats, coef.diss, verbose = FALSE)
 #'
 #' # Static diagnostics on the ERGM fit
 #' dx1 <- netdx(est, nsims = 1e4, dynamic = FALSE,
-#'              nwstats.formula = ~ edges + meandeg + concurrent)
+#'              nwstats.formula = ~edges + meandeg + concurrent)
 #' dx1
 #' plot(dx1, method = "b", stats = c("edges", "concurrent"))
 #'
 #' # Dynamic diagnostics on the STERGM approximation
 #' dx2 <- netdx(est, nsims = 5, nsteps = 500,
-#'              nwstats.formula = ~ edges + meandeg + concurrent,
+#'              nwstats.formula = ~edges + meandeg + concurrent,
 #'              set.control.ergm = control.simulate.ergm(MCMC.burnin = 1e6))
 #' dx2
 #' plot(dx2, stats = c("edges", "meandeg"), plots.joined = FALSE)
@@ -87,16 +85,9 @@
 #' plot(dx2, type = "dissolution", method = "b", col = "bisque")
 #' }
 #'
-netdx <- function(x,
-                  nsims = 1,
-                  dynamic = TRUE,
-                  nsteps,
-                  nwstats.formula = "formation",
-                  set.control.ergm,
-                  set.control.stergm,
-                  keep.tedgelist = FALSE,
-                  verbose = TRUE,
-                  ncores = 1) {
+netdx <- function(x, nsims = 1, dynamic = TRUE, nsteps, nwstats.formula = "formation",
+                  set.control.ergm, set.control.stergm, keep.tedgelist = FALSE,
+                  verbose = TRUE, ncores = 1) {
 
   if (class(x) != "netest") {
     stop("x must be an object of class netest", call. = FALSE)
@@ -110,11 +101,11 @@ netdx <- function(x,
   }
   formation <- x$formation
   coef.form <- x$coef.form
-  dissolution <- x$dissolution
+  dissolution <- x$coef.diss$dissolution
   coef.diss <- x$coef.diss
   constraints <- x$constraints
   if (is.null(constraints)) {
-    constraints <- ~ .
+    constraints <- ~.
   }
   target.stats <- x$target.stats
   edapprox <- x$edapprox
@@ -128,9 +119,8 @@ netdx <- function(x,
   }
 
   if (verbose == TRUE) {
-    cat("\n======================")
-    cat("\nRunning Diagnostics")
-    cat("\n======================\n")
+    cat("\nNetwork Diagnostics")
+    cat("\n-----------------------\n")
   }
 
   if (verbose == TRUE) {
