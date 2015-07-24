@@ -1,3 +1,18 @@
+Version 1.2.1
+------------------------------------------------------------------------------
+
+BUG FIXES
+* `check_bip_degdist` now uses more tolerant checks of equality when comparing
+  bipartite mode statistics.
+* Fixes a formatting issue with output for DCMs run with the `dcm` function.
+* Fixes a variable name collision problem for epidemic plotting functions.
+* Removes long burn-ins from network model estimation in `netest` to improve
+  performance of fitting models.
+* In stochastic network models, one may now remove built-in modules, such as
+  `births.FUN`, from the dynamic workflow by setting the argument value for that
+  module to `NULL` in the `control.net` inputs.
+
+
 Version 1.2.0
 ------------------------------------------------------------------------------
 

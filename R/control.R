@@ -166,10 +166,7 @@ control.dcm <- function(type, nsteps, dt = 1, odemethod = "rk4",
 #'
 #' For original models, one may substitute replacement module functions for any
 #' the default functions. New modules may be added to the workflow at each time
-#' step by passing a module function via the \code{...} argument. Further details
-#' and examples of passing new modules to \code{icm} are found in the
-#' \href{http://statnet.github.io/tut/NewICMs.html}{Solving New ICMs with
-#' EpiModel} tutorial.
+#' step by passing a module function via the \code{...} argument.
 #'
 #' @seealso Use \code{\link{param.icm}} to specify model parameters and
 #'          \code{\link{init.icm}} to specify the initial conditions. Run the
@@ -379,6 +376,8 @@ control.icm <- function(type, nsteps, nsims = 1, rec.rand = TRUE, b.rand = TRUE,
 #' the default functions. New modules may be added to the workflow at each time
 #' step by passing a module function via the \code{...} argument. Consult the
 #' \href{http://statnet.github.io/tut/NewNet.html}{New Network Models} tutorial.
+#' One may remove existing modules, such as \code{births.FUN}, from the workflow
+#' by setting the parameter value for that argument to \code{NULL}.
 #'
 #' @seealso Use \code{\link{param.net}} to specify model parameters and
 #'          \code{\link{init.net}} to specify the initial conditions. Run the
@@ -421,7 +420,10 @@ control.net <- function(type, nsteps, start = 1, nsims = 1, depend, rec.rand = T
 
 
   ## Module classification
-  p$bi.mods <- grep(".FUN", names(formal.args), value = TRUE)
+  bi.mods <- grep(".FUN", names(formal.args), value = TRUE)
+  bi.mods <- bi.mods[which(sapply(bi.mods, function(x) !is.null(eval(parse(text = x))),
+                                  USE.NAMES = FALSE) == TRUE)]
+  p$bi.mods <- bi.mods
   p$user.mods <- grep(".FUN", names.dot.args, value = TRUE)
 
 
