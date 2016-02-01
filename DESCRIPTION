@@ -1,22 +1,24 @@
 Package: EpiModel
-Version: 1.2.2
-Date: 2015-11-02
+Version: 1.2.4
+Date: 2016-02-01
 Title: Mathematical Modeling of Infectious Disease
 Description: Tools for simulating mathematical models of infectious disease.
     Epidemic model classes include deterministic compartmental models,
-    stochastic individual contact models, and stochastic network models.
-    Disease types include SI, SIR, and SIS epidemics with and without
-    demography, with tools available for expansion to model complex epidemic
-    processes.
-Maintainer: Samuel Jenness <sjenness@uw.edu>
+    stochastic agent-based, and stochastic network models. Network models use
+    robust statistical methods of exponential-family random graph models (ERGMs)
+    from the Statnet suite of software packages in R. Standard templates for epidemic
+    modeling include SI, SIR, and SIS disease types. EpiModel features
+    an easy API for extending these templates to address novel scientific research
+    aims.
+Maintainer: Samuel Jenness <samuel.m.jenness@emory.edu>
 Authors@R: c(person("Samuel", "Jenness",
-    role=c("cre","aut"), email="sjenness@uw.edu"),
+    role=c("cre","aut"), email="samuel.m.jenness@emory.edu"),
     person("Steven M.","Goodreau",
     role=c("aut"), email="goodreau@uw.edu"),
     person("Martina", "Morris",
     role=c("aut"), email="morrism@uw.edu"),
     person("Emily", "Beylerian",
-    role=c("ctb"), email="ebey@uw.edu"),
+    role=c("ctb"), email="emily.beylerian@gmail.com"),
     person("Li", "Wang",
     role=c("ctb"), email="lxwang@uw.edu"),
     person("Skye", "Bender-deMoll",
@@ -28,11 +30,11 @@ Depends: R (>= 3.1), deSolve (>= 1.11), networkDynamic (>= 0.7.1),
         tergm (>= 3.2.4)
 Imports: graphics, grDevices, stats, utils, doParallel, ergm (>=
         3.2.4), foreach, network (>= 1.12.0), RColorBrewer, ape
-Suggests: knitr, ndtv (>= 0.7), shiny, testthat
+Suggests: knitr, ndtv (>= 0.7), rmarkdown, shiny, testthat
 VignetteBuilder: knitr
-RoxygenNote: 5.0.0.9000
+RoxygenNote: 5.0.1
 NeedsCompilation: no
-Packaged: 2015-11-03 02:18:18 UTC; sjenness
+Packaged: 2016-02-01 14:54:22 UTC; sjennes
 Author: Samuel Jenness [cre, aut],
   Steven M. Goodreau [aut],
   Martina Morris [aut],
@@ -40,4 +42,4 @@ Author: Samuel Jenness [cre, aut],
   Li Wang [ctb],
   Skye Bender-deMoll [ctb]
 Repository: CRAN
-Date/Publication: 2015-11-03 11:59:50
+Date/Publication: 2016-02-01 16:35:23
