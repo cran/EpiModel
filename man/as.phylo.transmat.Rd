@@ -4,16 +4,15 @@
 \alias{as.phylo.transmat}
 \title{Convert transmat infection tree into a phylo object}
 \usage{
-\method{as.phylo}{transmat}(x, collapse.singles = TRUE, ...)
+\method{as.phylo}{transmat}(x, collapse.singles, vertex.exit.times, ...)
 }
 \arguments{
 \item{x}{An object of class \code{"transmat"}, the output from
 \code{\link{get_transmat}}.}
 
-\item{collapse.singles}{logical, (default TRUE) should
-\code{\link[ape]{collapse.singles}} be called on the phylo object
-before it is returned? (many infection trees contain intermediate
-nodes that must be removed to be a proper phylo tree)}
+\item{collapse.singles}{logical, DEPRECATED}
+
+\item{vertex.exit.times}{optional numeric vector providing the time of death of vertices, to be used to scale the lengths of branches reaching to the tips. Index position on vector corresponds to network id.  NA indicates no death, so branch will extend to the end of the tree.}
 
 \item{...}{further arguments (unused)}
 }
@@ -22,12 +21,19 @@ Converts the edgelist matrix in the transmat object into a phylo
              object by doing the required reordering and labeling.
 }
 \details{
-Converts the infection timing into elapsed time from parents' infections to be
-appropriate for the \code{edge.length} component.  If the the tree does not
-have the appropriate structure to be a phylogenetic tree (chains of multiple
-vertices with no branches) the branches will be collapsed (depending on
-\code{collapse.singles}) and labeled with the latest vertex in the chain. Does
-not yet support infection trees with multiple sources.
+Converts a \code{\link{transmat}} object containing information about the history of a 
+simulated infection into a \code{\link{phylo}} object representation suitable for plotting
+ as a tree with \code{\link[ape]{plot.phylo}}.  Each infection 
+event becomes a 'node' (horizontal branch) in the resulting phylo tree, and each 
+network vertex becomes a 'tip' of the tree.  The infection events are labled with 
+the vertex id of the infector to make it possible to trace the path of infection.  
+
+The infection timing information is included to position the phylo-nodes, with the
+ lines to the tips drawn to the max time value +1 (unless \code{vertex.exit.times} are passed in it effectively assumes all vertices are active/alive until 
+ the end of the simulation). The function does not yet support infection trees with multiple infection seeds
+
+Note that in EpiModel versions <= 1.2.4, the phylo tree was constructed differently, translating network 
+vertices to both phylo-nodes and tips and requiring 'collapse.singles' to prune it to an appropriate branching structure.
 }
 \examples{
 set.seed(10)
@@ -46,7 +52,9 @@ control <- control.net(type = "SI", nsteps = 40, nsims = 1, verbose = FALSE,
 mod1 <- netsim(est1, param, init, control)
 tm <- get_transmat(mod1)
 tmPhylo <- as.phylo.transmat(tm)
-plot(tmPhylo, show.node.label = TRUE, cex = 0.7)
+plot(tmPhylo, show.node.label = TRUE,
+              root.edge=TRUE, 
+              cex = 0.5)
 
 }
 
