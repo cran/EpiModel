@@ -19,7 +19,7 @@
 #' edge formation and dissolution rates, control over the temporal sequencing of
 #' multiple edges, and specification of network-level features. A detailed
 #' description of these models, along with examples, is found in the
-#' the \href{http://statnet.github.io/tut/BasicNet.html}{Basic Network Models}
+#' \href{http://statnet.github.io/tut/BasicNet.html}{Basic Network Models}
 #' tutorial.
 #'
 #' The \code{netsim} function performs modeling of both the built-in model types
@@ -29,7 +29,7 @@
 #'
 #' Original models may be parameterized by writing new process modules that
 #' either take the place of existing modules (for example, disease recovery), or
-#' supplement the set of existing processes with a new one contained in an new
+#' supplement the set of existing processes with a new one contained in a new
 #' module. This functionality is documented in the
 #' \href{http://statnet.github.io/tut/NewNet.html}{Solving New Network Models}
 #' tutorial. The list of modules within \code{netsim} available for modification
@@ -40,11 +40,11 @@
 #' \itemize{
 #'  \item \strong{param:} the epidemic parameters passed into the model through
 #'        \code{param}, with additional parameters added as necessary.
-#'  \item \strong{control:} the control settings passed into the model through,
+#'  \item \strong{control:} the control settings passed into the model through
 #'        \code{control}, with additional controls added as necessary.
-#'  \item \strong{epi:} a list of of data frames, one for each epidemiological
+#'  \item \strong{epi:} a list of data frames, one for each epidemiological
 #'        output from the model. Outputs for built-in models always include the
-#'        size of each compartment, as well as flows in, out, and between
+#'        size of each compartment, as well as flows in, out of, and between
 #'        compartments.
 #'  \item \strong{stats:} a list containing two sublists, \code{nwstats} for any
 #'        network statistics saved in the simulation, and \code{transmat} for
@@ -136,26 +136,28 @@ netsim <- function(x, param, init, control) {
       
       
       ### TIME LOOP
-      for (at in max(2, control$start):control$nsteps) {
-        
-        ## Module order
-        morder <- control$module.order
-        if (is.null(morder)) {
-          lim.bi.mods <- control$bi.mods[-which(control$bi.mods %in%
-                                                  c("initialize.FUN", "verbose.FUN"))]
-          morder <- c(control$user.mods, lim.bi.mods)
+      if (control$nsteps > 1) {
+        for (at in max(2, control$start):control$nsteps) {
+          
+          ## Module order
+          morder <- control$module.order
+          if (is.null(morder)) {
+            lim.bi.mods <- control$bi.mods[-which(control$bi.mods %in%
+                                                    c("initialize.FUN", "verbose.FUN"))]
+            morder <- c(control$user.mods, lim.bi.mods)
+          }
+          
+          ## Evaluate modules
+          for (i in seq_along(morder)) {
+            dat <- do.call(control[[morder[i]]], list(dat, at))
+          }
+          
+          ## Verbose module
+          if (!is.null(control[["verbose.FUN"]])) {
+            do.call(control[["verbose.FUN"]], list(dat, type = "progress", s, at))
+          }
+          
         }
-        
-        ## Evaluate modules
-        for (i in seq_along(morder)) {
-          dat <- do.call(control[[morder[i]]], list(dat, at))
-        }
-        
-        ## Verbose module
-        if (!is.null(control[["verbose.FUN"]])) {
-          do.call(control[["verbose.FUN"]], list(dat, type = "progress", s, at))
-        }
-        
       }
       
       # Set output
@@ -183,28 +185,30 @@ netsim <- function(x, param, init, control) {
       
       
       ### TIME LOOP
-      for (at in max(2, control$start):control$nsteps) {
-        
-        ## Module order
-        morder <- control$module.order
-        if (is.null(morder)) {
-          lim.bi.mods <- control$bi.mods[-which(control$bi.mods %in%
-                                                  c("initialize.FUN", "verbose.FUN"))]
-          morder <- c(control$user.mods, lim.bi.mods)
+      if (control$nsteps > 1) {
+        for (at in max(2, control$start):control$nsteps) {
+          
+          ## Module order
+          morder <- control$module.order
+          if (is.null(morder)) {
+            lim.bi.mods <- control$bi.mods[-which(control$bi.mods %in%
+                                                    c("initialize.FUN", "verbose.FUN"))]
+            morder <- c(control$user.mods, lim.bi.mods)
+          }
+          
+          ## Evaluate modules
+          for (i in seq_along(morder)) {
+            dat <- do.call(control[[morder[i]]], list(dat, at))
+          }
+          
+          ## Verbose module
+          if (!is.null(control[["verbose.FUN"]])) {
+            do.call(control[["verbose.FUN"]], list(dat, type = "progress", s, at))
+          }
+          
         }
-        
-        ## Evaluate modules
-        for (i in seq_along(morder)) {
-          dat <- do.call(control[[morder[i]]], list(dat, at))
-        }
-        
-        ## Verbose module
-        if (!is.null(control[["verbose.FUN"]])) {
-          do.call(control[["verbose.FUN"]], list(dat, type = "progress", s, at))
-        }
-        
       }
-      
+
       # Set output
       out <- saveout.net(dat, s = 1)
       class(out) <- "netsim"
