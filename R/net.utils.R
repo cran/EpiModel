@@ -232,7 +232,7 @@ check_bip_degdist <- function(num.m1, num.m2,
 #' @param verbose Print progress to console.
 #'
 #' @details
-#' The \code{ndtv} package (\url{http://cran.r-project.org/package=ndtv}) produces
+#' The \code{ndtv} package (\url{https://cran.r-project.org/package=ndtv}) produces
 #' animated visuals for dynamic networks with evolving edge structures and nodal
 #' attributes. Nodal attribute dynamics in \code{ndtv} movies require a temporally
 #' extended attribute (TEA) containing a standard R color for each node at each
@@ -418,6 +418,11 @@ copy_toall_attr <- function(dat, at, fterms) {
 #'
 #'
 dissolution_coefs <- function(dissolution, duration, d.rate = 0) {
+
+  # Error check for duration < 1
+  if (any(duration < 1)) {
+    stop("All values in duration must be >= 1", call. = FALSE)
+  }
 
   # Check form of dissolution formula
   form.length <- length(strsplit(as.character(dissolution)[2], "[+]")[[1]])

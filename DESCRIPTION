@@ -1,6 +1,6 @@
 Package: EpiModel
-Version: 1.2.7
-Date: 2016-07-28
+Version: 1.2.8
+Date: 2016-12-15
 Title: Mathematical Modeling of Infectious Disease
 Description: Tools for simulating mathematical models of infectious disease. 
     Epidemic model classes include deterministic compartmental models, stochastic 
@@ -20,7 +20,7 @@ Authors@R: c(person("Samuel", "Jenness",
     role=c("ctb"), email="emily.beylerian@gmail.com"),
     person("Skye", "Bender-deMoll",
     role=c("ctb"), email="skyebend@uw.edu"),
-    person("Kevis", "Weiss",
+    person("Kevin", "Weiss",
     role=c("ctb"), email="kevin.weiss@emory.edu"))
 License: GPL-3
 URL: http://epimodel.org/
@@ -34,12 +34,12 @@ Suggests: covr, knitr, ndtv, rmarkdown, shiny, testthat
 VignetteBuilder: knitr
 RoxygenNote: 5.0.1
 NeedsCompilation: no
-Packaged: 2016-07-29 17:19:08 UTC; sjennes
+Packaged: 2016-12-16 20:53:55 UTC; sjenness
 Author: Samuel Jenness [cre, aut],
   Steven M. Goodreau [aut],
   Martina Morris [aut],
   Emily Beylerian [ctb],
   Skye Bender-deMoll [ctb],
-  Kevis Weiss [ctb]
+  Kevin Weiss [ctb]
 Repository: CRAN
-Date/Publication: 2016-07-30 00:34:06
+Date/Publication: 2016-12-16 22:51:37
