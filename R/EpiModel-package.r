@@ -4,8 +4,8 @@
 #' \tabular{ll}{
 #'    Package: \tab EpiModel\cr
 #'    Type: \tab Package\cr
-#'    Version: \tab 1.2.8\cr
-#'    Date: \tab 2016-12-15\cr
+#'    Version: \tab 1.3.0\cr
+#'    Date: \tab 2017-03-02\cr
 #'    License: \tab GPL-3\cr
 #'    LazyLoad: \tab yes\cr
 #' }
@@ -118,7 +118,7 @@
 #' @importFrom RColorBrewer brewer.pal brewer.pal.info
 #' @importFrom graphics abline arrows boxplot legend lines mtext par plot points
 #'             polygon text title
-#' @importFrom grDevices col2rgb colorRampPalette rgb
+#' @importFrom grDevices col2rgb colorRampPalette rgb adjustcolor
 #' @importFrom stats complete.cases quantile rbinom rgeom sd setNames simulate
 #'             supsmu terms.formula update
 #' @importFrom utils head tail

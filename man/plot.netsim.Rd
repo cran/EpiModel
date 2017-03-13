@@ -4,13 +4,13 @@
 \alias{plot.netsim}
 \title{Plot Data from a Stochastic Network Epidemic Model}
 \usage{
-\method{plot}{netsim}(x, type = "epi", y, popfrac, sim.lines = FALSE, sims,
-  sim.col, sim.lwd, sim.alpha, mean.line = TRUE, mean.smooth = TRUE,
-  mean.col, mean.lwd = 2, mean.lty = 1, qnts = 0.5, qnts.col, qnts.alpha,
-  qnts.smooth = TRUE, leg, leg.cex = 0.8, axs = "r", add = FALSE,
-  network = 1, at = 1, col.status = FALSE, shp.bip = NULL, stats,
-  targ.line = TRUE, targ.col, targ.lwd = 2, targ.lty = 2, plots.joined,
-  ...)
+\method{plot}{netsim}(x, type = "epi", y, popfrac = FALSE,
+  sim.lines = FALSE, sims, sim.col, sim.lwd, sim.alpha, mean.line = TRUE,
+  mean.smooth = TRUE, mean.col, mean.lwd = 2, mean.lty = 1, qnts = 0.5,
+  qnts.col, qnts.alpha, qnts.smooth = TRUE, leg, leg.cex = 0.8, axs = "r",
+  add = FALSE, network = 1, at = 1, col.status = FALSE,
+  shp.bip = NULL, stats, targ.line = TRUE, targ.col, targ.lwd = 2,
+  targ.lty = 2, plots.joined, ...)
 }
 \arguments{
 \item{x}{An \code{EpiModel} model object of class \code{netsim}.}
@@ -168,7 +168,6 @@ in which the prevalence is lowest, and \code{"max"} to plot the simulation
 in which the prevalence is highest.
 }
 \examples{
-\dontrun{
 ## Independent SI Model
 # Initialize network and set network model parameters
 nw <- network.initialize(n = 100, bipartite = 50, directed = FALSE)
@@ -182,14 +181,14 @@ est <- netest(nw, formation, target.stats, coef.diss, verbose = FALSE)
 # Simulate the epidemic model
 param <- param.net(inf.prob = 0.3, inf.prob.m2 = 0.15)
 init <- init.net(i.num = 10, i.num.m2 = 10)
-control <- control.net(type = "SI", nsteps = 100, nsims = 5,
+control <- control.net(type = "SI", nsteps = 50, nsims = 3,
                        verbose = FALSE, save.nwstats = TRUE,
                        nwstats.formula = ~edges + meandeg + concurrent)
 mod <- netsim(est, param, init, control)
 
 # Plot epidemic trajectory (default type)
 plot(mod, type = "epi")
-plot(mod, type = "epi", popfrac = FALSE)
+plot(mod, type = "epi", popfrac = TRUE)
 plot(mod, type = "epi", y = "si.flow", qnts = 1)
 
 # Plot static networks
@@ -212,12 +211,11 @@ plot(mod, type = "network", at = 50, col.status = TRUE, shp.bip = "triangle")
 par(mfrow = c(1,1), mar = c(3,3,1,1), mgp = c(2,1,0))
 plot(mod, type = "formation")
 plot(mod, type = "formation", plots.joined = FALSE)
-plot(mod, type = "formation", sim = 2:4)
+plot(mod, type = "formation", sims = 2:3)
 plot(mod, type = "formation", plots.joined = FALSE,
      stats = c("edges", "concurrent"))
 plot(mod, type = "formation", stats = "meandeg",
      sim.lwd = 2, sim.col = "seagreen")
-}
 
 }
 \seealso{

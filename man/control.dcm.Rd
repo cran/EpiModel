@@ -5,7 +5,7 @@
 \title{Control Settings for Deterministic Compartmental Models}
 \usage{
 control.dcm(type, nsteps, dt = 1, odemethod = "rk4", dede = FALSE,
-  new.mod = NULL, sens.param = TRUE, print.mod = FALSE, verbose = TRUE,
+  new.mod = NULL, sens.param = TRUE, print.mod = FALSE, verbose = FALSE,
   ...)
 }
 \arguments{
@@ -14,8 +14,9 @@ Susceptible-Infected diseases, \code{"SIR"} for
 Susceptible-Infected-Recovered diseases, and \code{"SIS"} for
 Susceptible-Infected-Susceptible diseases.}
 
-\item{nsteps}{Number of time steps to solve the model over. This must be a
-positive integer.}
+\item{nsteps}{Number of time steps to solve the model over or vector of times
+to solve the model over. If the number of time steps, then this must be
+a positive integer of length 1.}
 
 \item{dt}{Time unit for model solutions, with the default of 1. Model
 solutions for fractional time steps may be obtained by setting this to a

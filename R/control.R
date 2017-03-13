@@ -8,8 +8,9 @@
 #'        Susceptible-Infected diseases, \code{"SIR"} for
 #'        Susceptible-Infected-Recovered diseases, and \code{"SIS"} for
 #'        Susceptible-Infected-Susceptible diseases.
-#' @param nsteps Number of time steps to solve the model over. This must be a
-#'        positive integer.
+#' @param nsteps Number of time steps to solve the model over or vector of times
+#'        to solve the model over. If the number of time steps, then this must be
+#'        a positive integer of length 1.
 #' @param dt Time unit for model solutions, with the default of 1. Model
 #'        solutions for fractional time steps may be obtained by setting this to a
 #'        number between 0 and 1.
@@ -58,7 +59,7 @@
 #'
 control.dcm <- function(type, nsteps, dt = 1, odemethod = "rk4",
                         dede = FALSE, new.mod = NULL, sens.param = TRUE,
-                        print.mod = FALSE, verbose = TRUE, ...) {
+                        print.mod = FALSE, verbose = FALSE, ...) {
 
   # Get arguments
   p <- list()
@@ -76,7 +77,9 @@ control.dcm <- function(type, nsteps, dt = 1, odemethod = "rk4",
       p[[names.dot.args[i]]] <- dot.args[[i]]
     }
   }
-
+  if (!is.null(p$new.mod)) {
+    p$new.mod.name <- as.list(match.call())$new.mod
+  }
 
   ## Defaults and checks
   if (is.null(p$nsteps)) {
@@ -92,7 +95,7 @@ control.dcm <- function(type, nsteps, dt = 1, odemethod = "rk4",
   }
 
   ## Output
-  class(p) <- "control.dcm"
+  class(p) <- c("control.dcm", "list")
   return(p)
 }
 
@@ -181,7 +184,7 @@ control.icm <- function(type, nsteps, nsims = 1, rec.rand = TRUE, b.rand = TRUE,
                         d.rand = TRUE, initialize.FUN = initialize.icm,
                         infection.FUN = infection.icm, recovery.FUN = recovery.icm,
                         deaths.FUN = deaths.icm, births.FUN = births.icm,
-                        get_prev.FUN = get_prev.icm, verbose = TRUE,
+                        get_prev.FUN = get_prev.icm, verbose = FALSE,
                         verbose.int = 0, skip.check = FALSE, ...) {
 
   # Get arguments
@@ -217,7 +220,7 @@ control.icm <- function(type, nsteps, nsims = 1, rec.rand = TRUE, b.rand = TRUE,
 
 
   ## Output
-  class(p) <- "control.icm"
+  class(p) <- c("control.icm", "list")
   return(p)
 }
 
@@ -409,7 +412,7 @@ control.net <- function(type, nsteps, start = 1, nsims = 1, ncores = 1,
                         module.order = NULL, set.control.stergm,
                         save.nwstats = TRUE, nwstats.formula = "formation",
                         delete.nodes = FALSE, save.transmat = TRUE,
-                        save.network = TRUE, save.other, verbose = TRUE,
+                        save.network = TRUE, save.other, verbose = FALSE,
                         verbose.int = 1, skip.check = FALSE, ...) {
 
   # Get arguments
@@ -475,6 +478,6 @@ control.net <- function(type, nsteps, start = 1, nsims = 1, ncores = 1,
   }
 
   ## Output
-  class(p) <- "control.net"
+  class(p) <- c("control.net", "list")
   return(p)
 }
