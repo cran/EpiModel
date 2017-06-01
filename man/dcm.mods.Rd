@@ -2,6 +2,10 @@
 % Please edit documentation in R/dcm.mods.R
 \name{dcm.mods}
 \alias{dcm.mods}
+\alias{mod_SI_1g_cl}
+\alias{mod_SI_1g_op}
+\alias{mod_SI_2g_cl}
+\alias{mod_SI_2g_op}
 \alias{mod_SIR_1g_cl}
 \alias{mod_SIR_1g_op}
 \alias{mod_SIR_2g_cl}
@@ -10,10 +14,6 @@
 \alias{mod_SIS_1g_op}
 \alias{mod_SIS_2g_cl}
 \alias{mod_SIS_2g_op}
-\alias{mod_SI_1g_cl}
-\alias{mod_SI_1g_op}
-\alias{mod_SI_2g_cl}
-\alias{mod_SI_2g_op}
 \title{Deterministic Compartmental Model Functions}
 \usage{
 mod_SI_1g_cl(t, t0, parms)
@@ -52,12 +52,12 @@ through \code{\link{dcm}} via the initial conditions in
 \code{\link{dcm}} via the parameter settings in \code{\link{param.dcm}}.}
 }
 \description{
-These functions parameterize the integrated deterministic
+These functions parameterize the base deterministic
              compartmental models solved using the \code{dcm} function.
 }
 \details{
-This help page shows the names of all the integrated deterministic compartmental
-model functions supported in EpiModel. Integrated models are those already
+This help page shows the names of all the base deterministic compartmental
+model functions supported in EpiModel. Base models are those already
 programmed interally within the software. The model functions may be printed
 to see their internal structure, either directly on the console or by using
 the \code{print.mod} argument in \code{\link{control.dcm}}.
@@ -69,4 +69,3 @@ vital dynamic options are closed (fixed population composition) or open (with
 births and deaths).
 }
 \keyword{internal}
-

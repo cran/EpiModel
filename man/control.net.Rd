@@ -14,7 +14,7 @@ control.net(type, nsteps, start = 1, nsims = 1, ncores = 1, depend,
   verbose.FUN = verbose.net, module.order = NULL, set.control.stergm,
   save.nwstats = TRUE, nwstats.formula = "formation",
   delete.nodes = FALSE, save.transmat = TRUE, save.network = TRUE,
-  save.other, verbose = FALSE, verbose.int = 1, skip.check = FALSE, ...)
+  save.other, verbose = TRUE, verbose.int = 1, skip.check = FALSE, ...)
 }
 \arguments{
 \item{type}{Disease type to be modeled, with the choice of \code{"SI"} for
@@ -118,7 +118,7 @@ default function of \code{\link{verbose.net}}.}
 order in which they should be evaluated within each time step. If
 \code{NULL}, the modules will be evaluated as follows: first any
 new modules supplied through \code{...} in the order in which they are
-listed, then the integrated modules in their order of the function listing.
+listed, then the built-in modules in their order of the function listing.
 The \code{initialize.FUN} will always be run first and the
 \code{verbose.FUN} always last.}
 
@@ -148,7 +148,7 @@ is set to \code{TRUE}, this will only contain a static network with the
 edge configuration at the final time step of each simulation.}
 
 \item{save.other}{A vector of elements on the \code{dat} master data list
-to save out after each simulation. One example for integrated models is
+to save out after each simulation. One example for base models is
 the attribute list, "attr", at the final time step.}
 
 \item{verbose}{If \code{TRUE}, print model progress to the console.}
@@ -160,7 +160,7 @@ is to print progress after each time step.}
 
 \item{skip.check}{If \code{TRUE}, skips the default error checking for the
 structure and consistency of the parameter values, initial conditions,
-and control settings before running integrated epidemic models. Setting
+and control settings before running base epidemic models. Setting
 this to \code{FALSE} is recommended when running models with new modules
 specified.}
 
@@ -173,10 +173,10 @@ Sets the controls for stochastic network models simulated with
 \details{
 \code{control.net} sets the required control settings for any network model
 solved with the \code{\link{netsim}} function. Controls are required for both
-integrated model types and when passing original process modules. For an overview
-of control settings for integrated network models, consult the
+base model types and when passing original process modules. For an overview
+of control settings for base models, consult the
 \href{http://statnet.github.io/tut/BasicNet.html}{Basic Network Models} tutorial.
-For all integrated models, the \code{type} argument is a necessary parameter
+For all base models, the \code{type} argument is a necessary parameter
 and it has no default.
 }
 \section{The attr.rules Argument}{
@@ -206,7 +206,7 @@ in which case it is "s" (that is, all incoming nodes are susceptible).
 
 \section{New Modules}{
 
-Integrated network models use a set of module functions that specify how the
+Base network models use a set of module functions that specify how the
 individual nodes in the network are subjected to infection, recovery,
 demographics, and other processes. Core modules are those listed in the
 \code{.FUN} arguments. For each module, there is a default function used in
@@ -220,10 +220,10 @@ step by passing a module function via the \code{...} argument. Consult the
 One may remove existing modules, such as \code{births.FUN}, from the workflow
 by setting the parameter value for that argument to \code{NULL}.
 }
+
 \seealso{
 Use \code{\link{param.net}} to specify model parameters and
          \code{\link{init.net}} to specify the initial conditions. Run the
          parameterized model with \code{\link{netsim}}.
 }
 \keyword{parameterization}
-
