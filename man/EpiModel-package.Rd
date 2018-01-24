@@ -4,20 +4,20 @@
 \name{EpiModel-package}
 \alias{EpiModel-package}
 \alias{EpiModel}
-\title{Mathematical Modeling of Infectious Disease}
+\title{Mathematical Modeling of Infectious Disease Dynamics}
 \description{
 \tabular{ll}{
    Package: \tab EpiModel\cr
    Type: \tab Package\cr
-   Version: \tab 1.5.0\cr
-   Date: \tab 2017-06-01\cr
+   Version: \tab 1.6.0\cr
+   Date: \tab 2018-01-25\cr
    License: \tab GPL-3\cr
    LazyLoad: \tab yes\cr
 }
 }
 \details{
 The EpiModel software package provides tools for building, solving, and
-visualizing mathematical models of infectious disease. These tools allow users
+visualizing mathematical models of infectious disease dynamics. These tools allow users
 to simulate epidemic models in multiple frameworks for both pedagogical
 purposes ("base models") and novel research purposes ("extension models").
 }

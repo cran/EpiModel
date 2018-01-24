@@ -85,13 +85,12 @@ as.data.frame.dcm <- function(x, row.names = NULL, optional = FALSE, run = 1,
 #'              the generic \code{as.data.frame} function.
 #'
 #' @param x An \code{EpiModel} object of class \code{icm} or \code{netsim}.
-#' @param sim Simulation number from model; used only if more than 1 simulation
-#'        and \code{out="vals"}.
+#' @param sim If \code{out="vals"}, the simulation number to output, or the default of
+#'        \code{out="all"}, which outputs data from all simulations bound together.
 #' @param out Data output to data frame: \code{"mean"} for row means across
 #'        simulations, \code{"sd"} for row standard deviations across simulations,
 #'        \code{"qnt"} for row quantiles at the level specified in \code{qval},
-#'        or \code{"vals"} for values from one specific simulation (with simulation
-#'        number set with \code{sim} argument).
+#'        or \code{"vals"} for values from one individuals simulation(s).
 #' @param qval Quantile value necessary when \code{out="qnt"}.
 #' @param row.names See \code{\link{as.data.frame.default}}.
 #' @param optional See \code{\link{as.data.frame.default}}.
@@ -114,7 +113,7 @@ as.data.frame.dcm <- function(x, row.names = NULL, optional = FALSE, run = 1,
 #' param <- param.icm(inf.prob = 0.8, act.rate = 2, rec.rate = 0.1)
 #' init <- init.icm(s.num = 500, i.num = 1)
 #' control <- control.icm(type = "SIS", nsteps = 25,
-#'                        nsims = 5, verbose = FALSE)
+#'                        nsims = 2, verbose = FALSE)
 #' mod <- icm(param, init, control)
 #'
 #' # Default output is mean across simulations
@@ -127,12 +126,27 @@ as.data.frame.dcm <- function(x, row.names = NULL, optional = FALSE, run = 1,
 #' as.data.frame(mod, out = "qnt", qval = 0.25)
 #' as.data.frame(mod, out = "qnt", qval = 0.75)
 #'
-#' # Individual simulation runs, with default sim=1
+#' # Individual simulation runs, with default sim="all"
 #' as.data.frame(mod, out = "vals")
 #' as.data.frame(mod, out = "vals", sim = 2)
 #'
+#' ## Stochastic SI network model
+#' nw <- network.initialize(n = 100, directed = FALSE)
+#' formation <- ~edges
+#' target.stats <- 50
+#' coef.diss <- dissolution_coefs(dissolution = ~offset(edges), duration = 20)
+#' est <- netest(nw, formation, target.stats, coef.diss, verbose = FALSE)
+#'
+#' param <- param.net(inf.prob = 0.5)
+#' init <- init.net(i.num = 10)
+#' control <- control.net(type = "SI", nsteps = 10, nsims = 2, verbose = FALSE)
+#' mod <- netsim(est, param, init, control)
+#'
+#' as.data.frame(mod)
+#' as.data.frame(mod, out = "vals")
+#'
 as.data.frame.icm <- function(x, row.names = NULL, optional = FALSE,
-                              sim, out = "mean", qval, ...) {
+                              sim = "all", out = "mean", qval, ...) {
 
   df <- data.frame(time = 1:x$control$nsteps)
   nsims <- x$control$nsims
@@ -147,27 +161,44 @@ as.data.frame.icm <- function(x, row.names = NULL, optional = FALSE,
 
 
   if (out == "vals") {
-    if (missing(sim)) {
-      sim <- 1
-    }
 
     # Output for models with 1 sim
     if (nsims == 1) {
-      if (sim > 1) {
-        stop("Specify sim = 1")
-      }
       for (i in seq_along(x$epi)) {
         df[, i + 1] <- x$epi[[i]]
       }
+      df$sim <- 1
+      df <- df[, c(ncol(df), 1:(ncol(df) - 1))]
     }
 
     # Output for models with multiple sims
     if (nsims > 1) {
-      if (sim > nsims) {
-        stop(paste("Specify sim between 1 and", nsims))
-      }
-      for (i in seq_along(x$epi)) {
-        df[, i + 1] <- x$epi[[i]][, sim]
+      if (sim == "all") {
+        for (j in 1:nsims) {
+          if (j == 1) {
+            for (i in seq_along(x$epi)) {
+              df[, i + 1] <- x$epi[[i]][, j]
+            }
+            df$sim <- j
+          } else {
+            tdf <- data.frame(time = 1:x$control$nsteps)
+            for (i in seq_along(x$epi)) {
+              tdf[, i + 1] <- x$epi[[i]][, j]
+            }
+            tdf$sim <- j
+            df <- rbind(df, tdf)
+          }
+        }
+        df <- df[, c(ncol(df), 1:(ncol(df) - 1))]
+      } else {
+        if (sim > nsims) {
+          stop(paste("Specify sim between 1 and", nsims))
+        }
+        for (i in seq_along(x$epi)) {
+          df[, i + 1] <- x$epi[[i]][, sim]
+        }
+        df$sim <- sim
+        df <- df[, c(ncol(df), 1:(ncol(df) - 1))]
       }
     }
   }
@@ -210,8 +241,11 @@ as.data.frame.icm <- function(x, row.names = NULL, optional = FALSE,
     }
   }
 
-
-  names(df)[2:ncol(df)] <- names(x$epi)
+  if (out == "vals") {
+    names(df)[3:ncol(df)] <- names(x$epi)
+  } else {
+    names(df)[2:ncol(df)] <- names(x$epi)
+  }
 
   return(df)
 }
@@ -221,7 +255,7 @@ as.data.frame.icm <- function(x, row.names = NULL, optional = FALSE,
 #' @export
 #' @rdname as.data.frame.icm
 as.data.frame.netsim <- function(x, row.names = NULL, optional = FALSE,
-                                 sim, out = "mean", ...) {
+                                 sim = "all", out = "mean", ...) {
 
   df <- as.data.frame.icm(x, row.names = row.names, optional = optional,
                           sim = sim, out = out, ...)

@@ -1436,10 +1436,6 @@ plot.netdx <- function(x, type = "formation", method = "l", sims, stats,
         sim.lines <- FALSE
       }
 
-      plot(x = 1, y = 1, type = "n",
-           xlim = xlim, ylim = ylim,
-           xlab = xlab, ylab = ylab)
-
       if (is.numeric(qnts)) {
         if (qnts < 0 | qnts > 1) {
           stop("qnts must be between 0 and 1", call. = FALSE)
@@ -1463,6 +1459,18 @@ plot.netdx <- function(x, type = "formation", method = "l", sims, stats,
           yy <- c(suppressWarnings(supsmu(x = 1:(ncol(qnt.prev)), y = qnt.prev[1, ]))$y,
                   rev(suppressWarnings(supsmu(x = 1:(ncol(qnt.prev)), y = qnt.prev[2, ]))$y))
         }
+
+        if (sim.lines == FALSE) {
+          ylim <- c(0, max(yy) * 1.1)
+          if (length(da) > 0 & !is.null(da$ylim)) {
+            ylim <- da$ylim
+          }
+        }
+
+        plot(x = 1, y = 1, type = "n",
+             xlim = xlim, ylim = ylim,
+             xlab = xlab, ylab = ylab)
+
         polygon(xx, yy, col = qnts.col, border = NA)
       }
 
@@ -1642,7 +1650,7 @@ plot.netdx <- function(x, type = "formation", method = "l", sims, stats,
 #' @export
 #'
 #' @keywords plot
-#' @seealso \code{\link{plot.network}} \code{\link{mutate_epi}}
+#' @seealso \code{\link{plot.network}}, \code{\link{mutate_epi}}
 #'
 #' @examples
 #' ## Independent SI Model
@@ -1658,15 +1666,17 @@ plot.netdx <- function(x, type = "formation", method = "l", sims, stats,
 #' # Simulate the epidemic model
 #' param <- param.net(inf.prob = 0.3, inf.prob.m2 = 0.15)
 #' init <- init.net(i.num = 10, i.num.m2 = 10)
-#' control <- control.net(type = "SI", nsteps = 50, nsims = 3,
+#' control <- control.net(type = "SI", nsteps = 20, nsims = 3,
 #'                        verbose = FALSE, save.nwstats = TRUE,
 #'                        nwstats.formula = ~edges + meandeg + concurrent)
 #' mod <- netsim(est, param, init, control)
 #'
-#' # Plot epidemic trajectory (default type)
+#' # Plot epidemic trajectory
+#' plot(mod)
+#' plot(mod, type = "epi")
 #' plot(mod, type = "epi", grid = TRUE)
 #' plot(mod, type = "epi", popfrac = TRUE)
-#' plot(mod, type = "epi", y = "si.flow", qnts = 1)
+#' plot(mod, type = "epi", y = "si.flow", qnts = 1, ylim = c(0, 4))
 #'
 #' # Plot static networks
 #' par(mar = c(0,0,0,0))
@@ -1675,14 +1685,14 @@ plot.netdx <- function(x, type = "formation", method = "l", sims, stats,
 #' # Automatic coloring of infected nodes as red
 #' par(mfrow = c(1, 2), mar = c(0, 0, 2, 0))
 #' plot(mod, type = "network", main = "Min Prev | Time 50",
-#'      col.status = TRUE, at = 50, sims = "min")
+#'      col.status = TRUE, at = 20, sims = "min")
 #' plot(mod, type = "network", main = "Max Prev | Time 50",
-#'      col.status = TRUE, at = 50, sims = "max")
+#'      col.status = TRUE, at = 20, sims = "max")
 #'
 #' # Automatic shape by mode number (circle = mode 1)
 #' par(mar = c(0,0,0,0))
-#' plot(mod, type = "network", at = 50, col.status = TRUE, shp.bip = "square")
-#' plot(mod, type = "network", at = 50, col.status = TRUE, shp.bip = "triangle")
+#' plot(mod, type = "network", at = 20, col.status = TRUE, shp.bip = "square")
+#' plot(mod, type = "network", at = 20, col.status = TRUE, shp.bip = "triangle")
 #'
 #' # Plot formation statistics
 #' par(mfrow = c(1,1), mar = c(3,3,1,1), mgp = c(2,1,0))
@@ -1717,7 +1727,7 @@ plot.netsim <- function(x, type = "epi", y, popfrac = FALSE, sim.lines = FALSE, 
 
     nsteps <- x$control$nsteps
     if (at > x$control$nsteps) {
-      stop("Specify a time step between 1 and", nsteps)
+      stop("Specify a time step between 1 and ", nsteps, call. = FALSE)
     }
 
     nsims <- x$control$nsims
@@ -2607,6 +2617,51 @@ comp_plot.netsim <- function(x, at = 1, digits = 3, ...) {
 
 }
 
+
+
+# ggplot ------------------------------------------------------------------
+
+#' @title ggplot2 geom for Quantile Bands
+#'
+#' @description Plots quantile bands given a data.frame with stochastic model
+#'              results from \code{icm} or \code{netsim}.
+#'
+#' @param mapping standard aesthetic mapping \code{aes()} input for ggplot2.
+#' @param lower Lower quantile for the time series.
+#' @param upper Upper quantile for the time series.
+#' @param alpha Transparency of the ribbon fill.
+#' @param ... Additional arguments passed to \code{stat_summary}.
+#'
+#' @details
+#' This is a wrapper around \code{ggplot::stat_summary} with a ribbon geom as
+#' aesthetic output.
+#'
+#' @export
+#' @keywords plot
+#'
+#' @examples
+#' param <- param.icm(inf.prob = 0.2, act.rate = 0.25)
+#' init <- init.icm(s.num = 500, i.num = 1)
+#' control <- control.icm(type = "SI", nsteps = 250, nsims = 5)
+#' mod1 <- icm(param, init, control)
+#' df <- as.data.frame(mod1, out = "vals")
+#' df.mean <- as.data.frame(mod1)
+#'
+#' ggplot() +
+#'    geom_line(data = df, mapping = aes(time, i.num, group = sim), alpha = 0.25,
+#'              lwd = 0.25, color = "firebrick") +
+#'    geom_bands(data = df, mapping = aes(time, i.num),
+#'               lower = 0.1, upper = 0.9, fill = "firebrick") +
+#'    geom_line(data = df.mean, mapping = aes(time, i.num)) +
+#'    theme_minimal()
+#'
+geom_bands <- function(mapping, lower = 0.25, upper = 0.75, alpha = 0.25, ...) {
+  stat_summary(mapping,
+               geom = "ribbon",
+               fun.ymin = function(x) quantile(x, lower),
+               fun.ymax = function(x) quantile(x, upper),
+               alpha = alpha, ...)
+}
 
 
 # Helper Functions --------------------------------------------------------

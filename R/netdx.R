@@ -82,6 +82,7 @@
 #' dx2
 #' plot(dx2, stats = c("edges", "meandeg"), plots.joined = FALSE)
 #' plot(dx2, type = "duration")
+#' plot(dx2, type = "dissolution", qnts.col = "orange2")
 #' plot(dx2, type = "dissolution", method = "b", col = "bisque")
 #' }
 #'
@@ -121,7 +122,11 @@ netdx <- function(x, nsims = 1, dynamic = TRUE, nsteps, nwstats.formula = "forma
   }
 
   if (verbose == TRUE) {
-    cat("- Simulating", nsims, "networks")
+    if (nsims == 1) {
+      cat("- Simulating 1 network")
+    } else {
+      cat("- Simulating", nsims, "networks")
+    }
   }
 
   if (edapprox == FALSE) {
