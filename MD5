@@ -1,7 +1,7 @@
-4cf951325b766359b204a50bc4dff688 *DESCRIPTION
+3fae9fdd41704647d8ef0145020fd217 *DESCRIPTION
 47b7e19e58f2e246c53c2f55d7ff9f98 *NAMESPACE
-0deeee54d3d33b21f24f5ec393bc091c *NEWS
-002fc993167b066b2d503168c69f2eec *R/EpiModel-package.r
+f103f68b88a6c647695c058622e9f072 *NEWS
+4d805b65182be5d0b6c35d0d315d0242 *R/EpiModel-package.r
 e56b578b5138d25aedf17260860b6e98 *R/as.data.frame.R
 dbc29d5238eb72014aed80348b594c34 *R/control.R
 3443d99a7916c7212ae68495b5b6cdd8 *R/crosscheck.R
@@ -40,7 +40,7 @@ ea07909ac8d6d2263e39ad669fbe1145 *R/param.R
 409ebbdc5cff416faefa92f3de61b04d *inst/EpiModelJSS.R
 61de690ce81d61f3aabb965ba08b4703 *inst/doc/Intro.R
 38f3777db0e43cedfd9e241dd2196321 *inst/doc/Intro.Rmd
-75143e6ac3bfdd75e61478e4e3e282e1 *inst/doc/Intro.html
+d1ef4f3dc6a38a1e232251e5255f239d *inst/doc/Intro.html
 d138de8ee38fb9ff39478e3bb0eabdfb *inst/shiny/epidcm/server.R
 c8c17cb1a756ffdad630aa8471e00d1c *inst/shiny/epidcm/ui.R
 95f8469ccefc23731bce857fc72c8ef7 *inst/shiny/epiicm/server.R
@@ -49,7 +49,7 @@ c8c17cb1a756ffdad630aa8471e00d1c *inst/shiny/epidcm/ui.R
 081fc17e280b898d2e479bfa11e252a2 *inst/shiny/epinet/server.R
 9f2d6b8ab6c14635cf0060c0d34fe233 *inst/shiny/epinet/ui.R
 235315ed332ae604c2139fd3a0a88142 *inst/shiny/epinet/www/style.css
-a580873a0e73da3bc656304f8ba69e22 *man/EpiModel-package.Rd
+9ebcd97ae077199e0833528ae027e112 *man/EpiModel-package.Rd
 2a3cf9be437aae9fd94f1044a6b5fde5 *man/as.data.frame.dcm.Rd
 b4181d33c463383c4b01da6056c60e26 *man/as.data.frame.icm.Rd
 3b3cff9846ddf3960e4dd82ce6f78684 *man/as.network.transmat.Rd
@@ -155,7 +155,7 @@ db387fab2a54ffe3803d590c0ebc8b87 *man/verbose.icm.Rd
 3b69755a383919c35e1574d653514a71 *tests/testthat/test-net-long.R
 2fc9eed3cfad5e300612aef89051637a *tests/testthat/test-netattr.R
 ed8414e76b95f820bc7585cb76d880b0 *tests/testthat/test-netdx.R
-d86770688b966160c2e39f9613f1c122 *tests/testthat/test-netest.R
+a5790ef4f4082d0634c635d4ea995ca9 *tests/testthat/test-netest.R
 00db7b100e5610fda58152d5016b19bb *tests/testthat/test-netoffset.R
 29cbfcd2eb815b03e013d6312a715604 *tests/testthat/test-netpids.R
 5e252dfad211068ba4bf06778563ddb8 *tests/testthat/test-netrestart.R
@@ -168,5 +168,5 @@ a7aafa8ed3bf801d674e241992311cbd *tests/testthat/test-newnet.R
 31d92db4c06f22efe0c73f2ca5bf4347 *tests/testthat/test-print.R
 f41cd37e7ad53c191bfbdc37fed11e90 *tests/testthat/test-shiny.R
 bde9d78b143a108b89845daebfeeb5c2 *tests/testthat/test-transmat-dendo.R
-081e301eb4a291dd02cf5ac3a7b910d5 *tests/testthat/test-utils.R
+bbd0796df2e4bc28cfef49549e0e3568 *tests/testthat/test-utils.R
 38f3777db0e43cedfd9e241dd2196321 *vignettes/Intro.Rmd
