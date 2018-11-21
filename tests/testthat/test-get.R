@@ -66,9 +66,7 @@ test_that("get_transmat error flags", {
 
 test_that("get_nwstats extracts data frame", {
   a <- get_nwstats(mod, sim = 1)
-  b <- a[[1]]
-  expect_is(a, "list")
-  expect_is(b, "data.frame")
+  expect_is(a, "data.frame")
   expect_equal(get_nwstats(mod, sim = 1:3), get_nwstats(mod))
 })
 
@@ -86,8 +84,10 @@ test_that("get_nwstats error flags", {
 test_that("get_sims extracts simulations", {
   expect_is(get_sims(mod, sims = 1), "netsim")
   expect_is(get_sims(mod, sims = 2:3), "netsim")
-  expect_is(get_sims(mod, sims = "mean"), "netsim")
+  expect_is(get_sims(mod, sims = "mean", var = "i.num"), "netsim")
   expect_is(get_sims(mod, sims = 1:3), "netsim")
+  expect_is(get_sims(mod, sims = 1, var = c("i.num", "s.num")), "netsim")
+  expect_is(get_sims(mod, sims = c(1, 3), var = c("i.num", "s.num")), "netsim")
 })
 
 

@@ -56,6 +56,28 @@ test_that("Edges only models", {
   plot(dx4, method = "b", type = "dissolution")
 })
 
+test_that("Formation plot color vector length", {
+  n = 100
+  mean.degree <- ((0*0.10) + (1*0.41) + (2*0.25) + (3*0.22))
+  expected.concurrent <- n*0.49
+  expected.edges <- (mean.degree)*(n/2)
+  nw <- network.initialize(n, directed = FALSE)
+  formation <- ~edges + concurrent + degrange(from = 4)
+  target.stats <- c(expected.edges, expected.concurrent, 0)
+  coef.diss <- dissolution_coefs(dissolution = ~offset(edges), duration = 40, d.rate = 0.01)
+  est <- netest(nw, formation, target.stats, coef.diss)
+  dx <- netdx(est, nsims = 2, nsteps = 500,
+              nwstats.formula = ~edges + meandeg + degree(0:4) + concurrent)
+
+  expect_error(plot(dx, sim.col = c("green","orange")),
+               cat("sim.col must be either missing or a vector of length 1 or nstats (", dx$nstats,")"))
+  expect_error(plot(dx, mean.col = c("green","orange")),
+               cat("mean.col must be either missing or a vector of length 1 or nstats (", dx$nstats,")"))
+  expect_error(plot(dx, targ.col = c("green","orange")),
+               cat("targ.col must be either missing or a vector of length 1 or nstats (", dx$nstats,")"))
+  expect_error(plot(dx, qnts.col = c("green","orange")),
+               cat("qnts.col must be either missing or a vector of length 1 or nstats (", dx$nstats,")"))
+})
 
 test_that("Offset terms", {
   n <- 50
@@ -181,18 +203,6 @@ test_that("error checking", {
                 edapprox = TRUE, verbose = FALSE)
   expect_error(netdx(x = 1, nsteps = 100))
   expect_error(netdx(est), "Specify number of time steps with nsteps")
-})
-
-test_that("pass in netest with sim", {
-  skip_on_cran()
-  num <- 50
-  nw <- network.initialize(num, directed = FALSE)
-  formation <- ~edges
-  target.stats <- 15
-  coef.diss <- dissolution_coefs(dissolution = ~offset(edges), duration = 20)
-  est1 <- netest(nw, formation, target.stats, coef.diss, output = "sim", verbose = FALSE)
-  dx <- netdx(est1, nsims = 1, nsteps = 10, verbose = FALSE)
-
 })
 
 test_that("Full STERGM", {

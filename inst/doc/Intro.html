@@ -11,7 +11,7 @@
 
 <meta name="author" content="Samuel M. Jenness, Steven M. Goodreau, Martina Morris" />
 
-<meta name="date" content="2018-04-09" />
+<meta name="date" content="2018-11-21" />
 
 <title>EpiModel: Mathematical Modeling of Infectious Disease Dynamics</title>
 
@@ -277,6 +277,9 @@ img {
 .tabbed-pane {
   padding-top: 12px;
 }
+.html-widget {
+  margin-bottom: 20px;
+}
 button.code-folding-btn:focus {
   outline: none;
 }
@@ -306,14 +309,14 @@ $(document).ready(function () {
 
 <h1 class="title toc-ignore">EpiModel: Mathematical Modeling of Infectious Disease Dynamics</h1>
 <h4 class="author"><em>Samuel M. Jenness, Steven M. Goodreau, Martina Morris</em></h4>
-<h4 class="date"><em>2018-04-09</em></h4>
+<h4 class="date"><em>2018-11-21</em></h4>
 
 </div>
 
 
 <div id="introduction" class="section level3">
 <h3>Introduction</h3>
-<p>The <strong>EpiModel</strong> package provides tools for simulating mathematical models of infectious disease dynamics. Epidemic model classes include deterministic compartmental models, stochastic agent-based models, and stochastic network models. Network models use the robust statistical methods of exponential-family random graph models (ERGMs) from the Statnet suite of software packages in R. Standard templates for epidemic modeling include SI, SIR, and SIS disease types. EpiModel features an easy API for extending these templates to address novel scientific research aims.</p>
+<p>The <strong>EpiModel</strong> package provides tools for simulating mathematical models of infectious disease dynamics. Epidemic model classes include deterministic compartmental models, stochastic agent-based models, and stochastic network models. Network models use the robust statistical methods of temporal exponential-family random graph models (ERGMs) from the Statnet suite of software packages in R. Standard templates for epidemic modeling include SI, SIR, and SIS disease types. EpiModel features an API for extending these templates to address novel scientific research aims.</p>
 </div>
 <div id="documentation" class="section level3">
 <h3>Documentation</h3>
@@ -321,8 +324,7 @@ $(document).ready(function () {
 <p>A good place to start learning about <strong>EpiModel</strong> is the main methods paper. It is published <em>Journal of Statistical Software</em> at the reference below.</p>
 <p>Within the package, please consult the extensive help documentation:</p>
 <pre class="r"><code>help(package = &quot;EpiModel&quot;)</code></pre>
-<p>To see the latest updates to <strong>EpiModel</strong>, consult the software <code>NEWS</code>:</p>
-<pre class="r"><code>news(package = &quot;EpiModel&quot;)</code></pre>
+<p>To see the latest updates to <strong>EpiModel</strong>, consult the software <code>NEWS</code> file on Github: <a href="https://github.com/statnet/EpiModel/releases" class="uri">https://github.com/statnet/EpiModel/releases</a>.</p>
 </div>
 <div id="citation" class="section level3">
 <h3>Citation</h3>

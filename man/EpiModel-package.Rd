@@ -9,8 +9,8 @@
 \tabular{ll}{
    Package: \tab EpiModel\cr
    Type: \tab Package\cr
-   Version: \tab 1.6.5\cr
-   Date: \tab 2018-04-09\cr
+   Version: \tab 1.7.0\cr
+   Date: \tab 2018-11-21\cr
    License: \tab GPL-3\cr
    LazyLoad: \tab yes\cr
 }
@@ -32,7 +32,7 @@ EpiModel provides functionality for three classes of epidemic models:
  \item \strong{Stochastic Individual Contact Models:} a novel class of
        individual-based, microsimulation models that were developed to add
        random variation in all components of the transmission system, from
-       infection to recovery to vital dynamics (births and deaths).
+       infection to recovery to vital dynamics (arrivals and departures).
  \item \strong{Stochastic Network Models:} with the underlying statistical
        framework of temporal exponential random graph models (ERGMs) recently
        developed in the \strong{Statnet} suite of software in R, network

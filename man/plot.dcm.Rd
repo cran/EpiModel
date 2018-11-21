@@ -4,9 +4,9 @@
 \alias{plot.dcm}
 \title{Plot Data from a Deterministic Compartmental Epidemic Model}
 \usage{
-\method{plot}{dcm}(x, y, popfrac = FALSE, run, col, lwd, lty, alpha = 0.9,
-  legend, leg.name, leg.cex = 0.8, axs = "r", grid = FALSE, add = FALSE,
-  ...)
+\method{plot}{dcm}(x, y, popfrac = FALSE, run, col, lwd, lty,
+  alpha = 0.9, legend, leg.name, leg.cex = 0.8, axs = "r",
+  grid = FALSE, add = FALSE, ...)
 }
 \arguments{
 \item{x}{An \code{EpiModel} object of class \code{dcm}.}
@@ -98,7 +98,7 @@ with the \code{leg.name} argument.
 \examples{
 # Deterministic SIR model with varying act rate
 param <- param.dcm(inf.prob = 0.2, act.rate = 1:10,
-                   rec.rate = 1/3, b.rate = 0.011, ds.rate = 0.01,
+                   rec.rate = 1/3, a.rate = 0.011, ds.rate = 0.01,
                    di.rate = 0.03, dr.rate = 0.01)
 init <- init.dcm(s.num = 1000, i.num = 1, r.num = 0)
 control <- control.dcm(type = "SIR", nsteps = 100, dt = 0.25)

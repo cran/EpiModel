@@ -1,74 +1,110 @@
 
-#' @title Extract networkDynamic Object from Network Epidemic Model
+#' @title Extract networkDynamic and network Objects from Network Simulations
 #'
-#' @description Extracts the \code{networkDynamic} object from a network epidemic model
-#'              simulated with \code{netsim}, with the option to collapse the
-#'              extracted network at a specific time step.
+#' @description Extracts the \code{networkDynamic} object from a either a network
+#'              epidemic model object generated with \code{netsim} or a network
+#'              diagnostic simulation generated with \code{netdx}, with the option to
+#'              collapse the extracted \code{networkDynamic} object down to a static
+#'              \code{network} object.
 #'
-#' @param x An \code{EpiModel} object of class \code{\link{netsim}}.
+#' @param x An \code{EpiModel} object of class \code{\link{netsim}} or
+#'        \code{\link{netdx}}.
 #' @param sim Simulation number of extracted network.
-#' @param network Network number, for simulations with multiple networks
-#'        representing the population.
+#' @param network Network number, for \code{netsim} objects with multiple
+#'        overlapping networks (advanced use, and not applicable to \code{netdx}
+#'        objects).
 #' @param collapse If \code{TRUE}, collapse the \code{networkDynamic} object to
 #'        a static \code{network} object at a specified time step.
-#' @param at If \code{collapse} is used, the time step at which the extracted
-#'        network should be collapsed.
+#' @param at If \code{collapse} is \code{TRUE}, the time step at which the
+#'        extracted network should be collapsed.
+#'
+#' @details
+#' This function requires that the \code{networkDynamic} is saved during the
+#' network simulation while running either \code{\link{netsim}} or \code{\link{netdx}}.
+#' For the former, that is specified with the \code{save.network} parameter in
+#' \code{\link{control.net}}. For the latter, that is specified with the
+#' \code{keep.tedgelist} parameter directly in \code{\link{netdx}}.
 #'
 #' @keywords extract
 #' @export
 #'
 #' @examples
-#' \dontrun{
-#' ## Simulate SI epidemic on bipartite Bernoulli random graph
+#' # Set up network and TERGM formiula
 #' nw <- network.initialize(n = 100, bipartite = 50, directed = FALSE)
 #' formation <- ~edges
 #' target.stats <- 50
 #' coef.diss <- dissolution_coefs(dissolution = ~offset(edges), duration = 20)
-#' est <- netest(nw, formation, target.stats, coef.diss, verbose = FALSE)
+#'
+#' # Estimate the model
+#' est <- netest(nw, formation, target.stats, coef.diss)
+#'
+#' # Run diagnostics, saving the networkDynamic objects
+#' dx <- netdx(est, nsteps = 10, nsims = 3, keep.tnetwork = TRUE, verbose = FALSE)
+#'
+#' # Extract the network for simulation 2 from dx object
+#' get_network(dx, sim = 2)
+#'
+#' # Extract and collapse the network from simulation 1 at time step 5
+#' get_network(dx, collapse = TRUE, at = 5)
+#'
+#' # Parameterize the epidemic model, and simulate it
 #' param <- param.net(inf.prob = 0.3, inf.prob.m2 = 0.15)
 #' init <- init.net(i.num = 10, i.num.m2 = 10)
 #' control <- control.net(type = "SI", nsteps = 10, nsims = 3, verbose = FALSE)
 #' mod <- netsim(est, param, init, control)
 #'
-#' ## Extract the network from simulation 2
+#' # Extract the network for simulation 2 from mod object
 #' get_network(mod, sim = 2)
 #'
-#' ## Extract and collapse the network from simulation 1
+#' ## Extract and collapse the network from simulation 1 at time step 5
 #' get_network(mod, collapse = TRUE, at = 5)
-#' }
 #'
 get_network <- function(x, sim = 1, network = 1, collapse = FALSE, at) {
 
-  ## Warnings and checks
-  if (class(x) != "netsim") {
-    stop("x must be of class netsim", call. = FALSE)
+  ## Warnings and checks ##
+  if (!(class(x) %in% c("netsim", "netdx"))) {
+    stop("x must be of class netsim or netdx", call. = FALSE)
   }
 
-  if (sim > x$control$nsims) {
-    stop("Specify sim between 1 and ", x$control$nsims, call. = FALSE)
+  nsims <- ifelse(class(x) == "netsim", x$control$nsims, x$nsims)
+  if (sim > nsims) {
+    stop("Specify sim between 1 and ", nsims, call. = FALSE)
   }
 
-  if (x$control$save.network == FALSE || is.null(x$network)) {
-    stop("Network object not saved in netsim object, check control.net settings",
+  if (class(x) == "netsim") {
+    if (x$control$save.network == FALSE || is.null(x$network)) {
+      stop("Network object not saved in netsim object, check control.net settings",
+           call. = FALSE)
+    }
+  } else if (class(x) == "netdx") {
+    if (is.null(x$network)) {
+      stop("Network object not saved in netdx object, check keep.tnetwork parameter",
+           call. = FALSE)
+    }
+  }
+
+  if (class(x) == "netsim") {
+    if (network > x$control$num.nw) {
+      stop("Specify network between 1 and ", x$control$num.nw, call. = FALSE)
+    }
+  }
+
+  nsteps <- ifelse(class(x) == "netsim", x$control$nsteps, x$nsteps)
+  if (collapse == TRUE && (missing(at) || at > nsteps)) {
+    stop("Specify collapse time step between 1 and ", nsteps,
          call. = FALSE)
   }
 
-  if (network > x$control$num.nw) {
-    stop("Specify network between 1 and ", x$control$num.nw, call. = FALSE)
-  }
-
-  if (collapse == TRUE && (missing(at) || at > x$control$nsteps)) {
-    stop("Specify collapse time step between 1 and ", x$control$nsteps,
-         call. = FALSE)
-  }
-
-  ## Extraction
-  if (x$control$num.nw == 1) {
+  ## Extraction ##
+  if (class(x) == "netsim") {
+    if (x$control$num.nw == 1) {
+      out <- x$network[[sim]]
+    } else {
+      out <- x$network[[sim]][[network]]
+    }
+  } else if (class(x) == "netdx") {
     out <- x$network[[sim]]
-  } else {
-    out <- x$network[[sim]][[network]]
   }
-
 
   ## Collapsing
   if (collapse == TRUE) {
@@ -143,26 +179,36 @@ get_transmat <- function(x, sim = 1) {
 }
 
 
-#' @title Extract Network Statistics from Network Epidemic Model
+#' @title Extract Network Statistics from netsim or netdx Object
 #'
 #' @description Extracts a data frame of network statistics from a network
-#'              epidemic model.
+#'              epidemic model simulated with \code{netsim} or a network diagnostics
+#'              object simulated with \code{netdx}.
 #'
-#' @param x An \code{EpiModel} object of class \code{\link{netsim}}.
-#' @param sim A vector of simulation numbers from the extracted network.
-#' @param network Network number, for simulations with multiple networks
-#'        representing the population.
+#' @param x An \code{EpiModel} object of class \code{\link{netsim}} or
+#'        \code{\link{netdx}}.
+#' @param sim A vector of simulation numbers from the extracted object
+#' @param network Network number, for \code{netsim} objects with multiple
+#'        overlapping networks (advanced use, and not applicable to \code{netdx}
+#'        objects).
 #'
 #' @keywords extract
 #' @export
 #'
 #' @examples
-#' ## Simulate SI epidemic on bipartite Bernoulli random graph
+#' # Bipartite Bernoulli random graph TERGM
 #' nw <- network.initialize(n = 100, bipartite = 50, directed = FALSE)
 #' formation <- ~edges
 #' target.stats <- 50
 #' coef.diss <- dissolution_coefs(dissolution = ~offset(edges), duration = 20)
 #' est <- netest(nw, formation, target.stats, coef.diss, verbose = FALSE)
+#'
+#' dx <- netdx(est, nsim = 3, nsteps = 10, verbose = FALSE,
+#'             nwstats.formula = ~edges + isolates)
+#' get_nwstats(dx)
+#' get_nwstats(dx, sim = 1)
+#'
+#' # SI epidemic model
 #' param <- param.net(inf.prob = 0.3, inf.prob.m2 = 0.15)
 #' init <- init.net(i.num = 10, i.num.m2 = 10)
 #' control <- control.net(type = "SI", nsteps = 10, nsims = 3,
@@ -170,42 +216,74 @@ get_transmat <- function(x, sim = 1) {
 #'                        verbose = FALSE)
 #' mod <- netsim(est, param, init, control)
 #'
-#' ## Extract the network statistics from simulation 2
+#' # Extract the network statistics from all or sets of simulations
 #' get_nwstats(mod)
-#' get_nwstats(mod, sim = c(1,3))
+#' get_nwstats(mod, sim = 2)
+#' get_nwstats(mod, sim = c(1, 3))
+#'
+#' # On the fly summary stats
+#' summary(get_nwstats(mod))
+#' colMeans(get_nwstats(mod))
 #'
 get_nwstats <- function(x, sim, network = 1) {
 
-  ## Warnings and checks
-  if (class(x) != "netsim") {
-    stop("x must be of class netsim", call. = FALSE)
+  ## Warnings and checks ##
+  if (!(class(x) %in% c("netsim", "netdx"))) {
+    stop("x must be of class netsim or netdx", call. = FALSE)
+  }
+
+  if (class(x) == "netsim") {
+    nsims <- x$control$nsims
+    nsteps <- x$control$nsteps
+  } else {
+    if (x$dynamic == TRUE) {
+      nsims <- x$nsims
+      nsteps <- x$nsteps
+    } else {
+      nsims <- 1
+      nsteps <- x$nsims
+    }
   }
 
   if (missing(sim)) {
-    sim <- 1:x$control$nsims
+    sim <- 1:nsims
   }
-  if (max(sim) > x$control$nsims) {
-    stop("Specify sims less than or equal to ", x$control$nsims, call. = FALSE)
-  }
-
-  if (x$control$save.nwstats == FALSE || is.null(x$stats$nwstats)) {
-    stop("Network statistics not saved in netsim object, check control.net settings",
-         call. = FALSE)
+  if (max(sim) > nsims) {
+    stop("Specify sims less than or equal to ", nsims, call. = FALSE)
   }
 
-  if (network > x$control$num.nw) {
-    stop("Specify network between 1 and ", x$control$num.nw, call. = FALSE)
+  if (class(x) == "netsim") {
+    if (x$control$save.nwstats == FALSE || is.null(x$stats$nwstats)) {
+      stop("Network statistics not saved in netsim object, check control.net settings",
+           call. = FALSE)
+    }
+    if (network > x$control$num.nw) {
+      stop("Specify network between 1 and ", x$control$num.nw, call. = FALSE)
+    }
   }
 
   ## Extraction
-  if (x$control$num.nw == 1) {
-    out <- x$stats$nwstats[sim]
-  } else {
-    out <- lapply(x$stats$nwstats, function(n) n[[network]])
-    out <- out[sim]
+  if (class(x) == "netsim") {
+    if (x$control$num.nw == 1) {
+      out <- x$stats$nwstats[sim]
+    } else {
+      out <- lapply(x$stats$nwstats, function(n) n[[network]])
+      out <- out[sim]
+    }
+  } else if (class(x) == "netdx") {
+    out <- x$stats[sim]
   }
 
-  out <- lapply(out, as.data.frame)
+  out <- as.data.frame(do.call("rbind", out))
+  out$time <- rep(1:min(nsteps, nrow(out)), length(sim))
+  out$sim <- rep(sim, each = min(nsteps, nrow(out)))
+  row.names(out) <- 1:nrow(out)
+  out <- out[, c((ncol(out)-1):ncol(out), 1:(ncol(out)-2))]
+
+  if (class(x) == "netdx" && x$dynamic == FALSE) {
+    out <- out[, -2]
+    names(out)[1] <- "sim"
+  }
 
   return(out)
 }
@@ -235,17 +313,41 @@ get_nwparam <- function(x, network = 1) {
 #'              \code{merge}.
 #'
 #' @param x An object of class \code{netsim}.
-#' @param sims A vector of simulation numbers to retain in the output object,
+#' @param sims A numeric vector of simulation numbers to retain in the output object,
 #'        or \code{"mean"} which selects the one simulation with the value of the
 #'        variable specified in \code{var} closest to the mean of \code{var}
 #'        across all simulations.
-#' @param var Variable to use when \code{sims = "mean"} for selecting the average
-#'        simulation from the set.
+#' @param var A character vector of variables to retain from \code{x} if \code{sims}
+#'        is a numeric vector, or a single variable name for selecting the average
+#'        simulation from the set if \code{sims = "mean"}.
 #'
 #' @keywords extract
 #' @export
 #'
-get_sims <- function(x, sims, var = "i.num") {
+#' @examples
+#' # Network model estimation
+#' nw <- network.initialize(n = 100, directed = FALSE)
+#' formation <- ~edges
+#' target.stats <- 50
+#' coef.diss <- dissolution_coefs(dissolution = ~offset(edges), duration = 20)
+#' est1 <- netest(nw, formation, target.stats, coef.diss, verbose = FALSE)
+#'
+#' # Epidemic model
+#' param <- param.net(inf.prob = 0.3)
+#' init <- init.net(i.num = 10)
+#' control <- control.net(type = "SI", nsteps = 10, nsims = 3, verbose.int = 0)
+#' mod1 <- netsim(est1, param, init, control)
+#'
+#' # Get sim 2
+#' sim2 <- get_sims(mod1, sims = 2)
+#'
+#' # Get sims 2 and 3 and keep only a subset of variables
+#' sim2.small <- get_sims(mod1, sims = 2:3, var = c("i.num", "si.flow"))
+#'
+#' # Extract the mean simulation for the variable i.num
+#' sim.mean <- get_sims(mod1, sims = "mean", var = "i.num")
+#'
+get_sims <- function(x, sims, var) {
 
   if (class(x) != "netsim") {
     stop("x must be of class netsim", call. = FALSE)
@@ -256,11 +358,18 @@ get_sims <- function(x, sims, var = "i.num") {
   if (missing(sims)) {
     stop("Specify sims as a vector of simulations or \"mean\" ", call. = FALSE)
   }
+  if (sims == "mean" && (missing(var) || length(var) > 1)) {
+    stop("If sims == 'mean' then var must be a single varible name", call. = FALSE)
+  }
 
   if (length(sims) == 1 && sims == "mean") {
     d <- tail(x$epi[[var]], 1)
     md <- mean(as.numeric(d))
     sims <- which.min(abs(d - md))
+  }
+
+  if (sims != "mean" && max(sims) > nsims) {
+    stop("Maximum sims value for this object is ", nsims, call. = FALSE)
   }
 
   delsim <- setdiff(1:nsims, sims)
@@ -286,5 +395,11 @@ get_sims <- function(x, sims, var = "i.num") {
     }
   }
   out$control$nsims <- length(sims)
+
+  if (!missing(var) && var != "mean") {
+    match.vars <- which(var %in% names(x$epi))
+    out$epi <- out$epi[match.vars]
+  }
+
   return(out)
 }

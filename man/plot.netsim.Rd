@@ -5,12 +5,13 @@
 \title{Plot Data from a Stochastic Network Epidemic Model}
 \usage{
 \method{plot}{netsim}(x, type = "epi", y, popfrac = FALSE,
-  sim.lines = FALSE, sims, sim.col, sim.lwd, sim.alpha, mean.line = TRUE,
-  mean.smooth = TRUE, mean.col, mean.lwd = 2, mean.lty = 1, qnts = 0.5,
-  qnts.col, qnts.alpha, qnts.smooth = TRUE, legend, leg.cex = 0.8,
-  axs = "r", grid = FALSE, add = FALSE, network = 1, at = 1,
-  col.status = FALSE, shp.bip = NULL, stats, targ.line = TRUE, targ.col,
-  targ.lwd = 2, targ.lty = 2, plots.joined, ...)
+  sim.lines = FALSE, sims, sim.col, sim.lwd, sim.alpha,
+  mean.line = TRUE, mean.smooth = TRUE, mean.col, mean.lwd = 2,
+  mean.lty = 1, qnts = 0.5, qnts.col, qnts.alpha, qnts.smooth = TRUE,
+  legend, leg.cex = 0.8, axs = "r", grid = FALSE, add = FALSE,
+  network = 1, at = 1, col.status = FALSE, shp.bip = NULL, stats,
+  targ.line = TRUE, targ.col, targ.lwd = 2, targ.lty = 2,
+  plots.joined, ...)
 }
 \arguments{
 \item{x}{An \code{EpiModel} model object of class \code{netsim}.}
@@ -191,7 +192,6 @@ mod <- netsim(est, param, init, control)
 
 # Plot epidemic trajectory
 plot(mod)
-plot(mod, type = "epi")
 plot(mod, type = "epi", grid = TRUE)
 plot(mod, type = "epi", popfrac = TRUE)
 plot(mod, type = "epi", y = "si.flow", qnts = 1, ylim = c(0, 4))
@@ -220,7 +220,7 @@ plot(mod, type = "formation", sims = 2:3)
 plot(mod, type = "formation", plots.joined = FALSE,
      stats = c("edges", "concurrent"))
 plot(mod, type = "formation", stats = "meandeg",
-     sim.lwd = 2, sim.col = "seagreen")
+     mean.lwd = 1, qnts.col = "seagreen", mean.col = "black")
 
 }
 \seealso{

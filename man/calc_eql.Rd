@@ -4,8 +4,8 @@
 \alias{calc_eql}
 \title{Calculate Equilibrium for Infection Prevalence}
 \usage{
-calc_eql(x, numer = "i.num", denom = "num", nsteps, threshold = 0.001,
-  digits = 4, invisible = FALSE)
+calc_eql(x, numer = "i.num", denom = "num", nsteps,
+  threshold = 0.001, digits = 4, invisible = FALSE)
 }
 \arguments{
 \item{x}{An \code{EpiModel} object of class \code{dcm}, \code{icm}, or
@@ -44,7 +44,7 @@ specification will therefore calculate differences over a longer time series.
 # Calculate equilibrium for a DCM
 param <- param.dcm(inf.prob = 0.2, inf.prob.g2 = 0.1, act.rate = 0.5,
                    balance = "g1", rec.rate = 1 / 50, rec.rate.g2 = 1 / 50,
-                   b.rate = 1 / 100, b.rate.g2 = NA, ds.rate = 1 / 100,
+                   a.rate = 1 / 100, a.rate.g2 = NA, ds.rate = 1 / 100,
                    ds.rate.g2 = 1 / 100, di.rate = 1 / 90,
                    di.rate.g2 = 1 / 90)
 init <- init.dcm(s.num = 500, i.num = 1,

@@ -22,7 +22,11 @@
 #'        network; If \code{TRUE}, the end of one simulation is used as the start
 #'        of the next.
 #' @param keep.tedgelist If \code{TRUE}, keep the timed edgelist generated from
-#'        the dynamic simulations, for further analysis on edge durations.
+#'        the dynamic simulations. Returned in the form of a list of matrices, with
+#'        one entry per simulation. Accessible at \code{$edgelist}.
+#' @param keep.tnetwork If \code{TRUE}, keep the full networkDynamic objects from
+#'        the dynamic simulations. Returned in the form of a list of nD objects, with
+#'        one entry per simulation. Accessible at \code{$network}.
 #' @param verbose Print progress to the console.
 #' @param ncores Number of processor cores to run multiple simulations
 #'        on, using the \code{foreach} and \code{doParallel} implementations.
@@ -92,18 +96,17 @@
 #'
 netdx <- function(x, nsims = 1, dynamic = TRUE, nsteps, nwstats.formula = "formation",
                   set.control.ergm, set.control.stergm, sequential = TRUE,
-                  keep.tedgelist = FALSE, verbose = TRUE, ncores = 1) {
+                  keep.tedgelist = FALSE, keep.tnetwork = FALSE,
+                  verbose = TRUE, ncores = 1) {
 
   if (class(x) != "netest") {
     stop("x must be an object of class netest", call. = FALSE)
   }
 
-  if (class(x$fit) == "network") {
-    nw <- x$fit
-  } else {
-    nw <- x$fit$network
-    fit <- x$fit
-  }
+  ncores <- ifelse(nsims == 1, 1, min(parallel::detectCores(), ncores))
+
+  nw <- x$fit$newnetwork
+  fit <- x$fit
   formation <- x$formation
   coef.form <- x$coef.form
   dissolution <- x$coef.diss$dissolution
@@ -187,14 +190,8 @@ netdx <- function(x, nsims = 1, dynamic = TRUE, nsteps, nwstats.formula = "forma
           cat("\n  |")
         }
         for (i in 1:nsims) {
-          if (class(x$fit) == "network") {
-            fit.sim <- simulate(formation,
-                                basis = nw,
-                                coef = x$coef.form.crude,
-                                constraints = constraints)
-          } else {
-            fit.sim <- simulate(fit, control = set.control.ergm)
-          }
+          fit.sim <- simulate(fit, basis = fit$newnetwork,
+                              control = set.control.ergm)
           diag.sim[[i]] <- simulate(fit.sim,
                                     formation = formation,
                                     dissolution = dissolution,
@@ -217,14 +214,8 @@ netdx <- function(x, nsims = 1, dynamic = TRUE, nsteps, nwstats.formula = "forma
         registerDoParallel(cluster.size)
 
         diag.sim <- foreach(i = 1:nsims) %dopar% {
-          if (class(x$fit) == "network") {
-            fit.sim <- simulate(formation,
-                                basis = nw,
-                                coef = x$coef.form.crude,
-                                constraints = constraints)
-          } else {
-            fit.sim <- simulate(fit, control = set.control.ergm)
-          }
+          fit.sim <- simulate(fit, basis = fit$newnetwork,
+                              control = set.control.ergm)
           simulate(fit.sim,
                    formation = formation,
                    dissolution = dissolution,
@@ -239,13 +230,10 @@ netdx <- function(x, nsims = 1, dynamic = TRUE, nsteps, nwstats.formula = "forma
       }
     }
     if (dynamic == FALSE) {
-      if (class(x$fit) == "network") {
-        diag.sim <- simulate(formation,
-                             basis = nw,
-                             coef = x$coef.form.crude,
-                             constraints = constraints,
-                             nsim = nsims,
-                             statsonly = TRUE,
+      if (packageVersion("ergm") >= "3.10") {
+        diag.sim <- simulate(fit, nsim = nsims,
+                             output = "stats",
+                             control = set.control.ergm,
                              sequential = sequential,
                              monitor = nwstats.formula)
       } else {
@@ -447,11 +435,13 @@ netdx <- function(x, nsims = 1, dynamic = TRUE, nsteps, nwstats.formula = "forma
   if (dynamic == TRUE) {
     out$nsteps <- nsteps
     out$stats.table.dissolution <- stats.table.dissolution
-    out$edgelist <- sim.df
     out$pages <- pages
     out$prop.diss <- prop.diss
     if (keep.tedgelist == TRUE) {
       out$tedgelist <- sim.df
+    }
+    if (keep.tnetwork == TRUE) {
+      out$network <- diag.sim
     }
   }
 

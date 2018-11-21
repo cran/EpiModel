@@ -40,8 +40,9 @@ navbarPage(title = NULL, windowTitle = "EpiModel: Network Models",
              static network plots, as well as viewing numerical data summaries."),
            p("The author of this application is Emily Beylerian, Software Developer
              at the University of Washington Centers for Studies in Demoraphy and
-             Ecology. The authors of the larger EpiModel project are Samuel Jenness,
-             Steven Goodreau, and Martina Morris at the University of Washington.
+             Ecology. The authors of the larger EpiModel project are Samuel Jenness
+             at Emory University, and Steven Goodreau and Martina Morris at the
+             University of Washington.
              Development of this software is supported by the following grants from
              the National Institutes of Health: R01HD68395 (NICHD), T32HD007543 (NICHD),
              and R24HD042828 (NICHD).")
@@ -235,24 +236,24 @@ navbarPage(title = NULL, windowTitle = "EpiModel: Network Models",
                                                min = 0,
                                                value = 0,
                                                step = 0.01))
-#                  numericInput(inputId = "b.rate",
-#                               label = "Birth Rate",
+#                  numericInput(inputId = "a.rate",
+#                               label = "Arrival Rate",
 #                               min = 0,
 #                               value = 0.0,
 #                               step = 0.005),
 #                  numericInput(inputId = "ds.rate",
-#                               label = "Death Rate (Sus.)",
+#                               label = "Departure Rate (Sus.)",
 #                               min = 0,
 #                               value = 0.0,
 #                               step = 0.005),
 #                  numericInput(inputId = "di.rate",
-#                               label = "Death Rate (Inf.)",
+#                               label = "Departure Rate (Inf.)",
 #                               min = 0,
 #                               value = 0.0,
 #                               step = 0.005),
 #                  conditionalPanel("input.modtype == 'SIR'",
 #                                   numericInput(inputId = "dr.rate",
-#                                                label = "Death Rate (Rec.)",
+#                                                label = "Departure Rate (Rec.)",
 #                                                min = 0,
 #                                                value = 0.0,
 #                                                step = 0.005))
