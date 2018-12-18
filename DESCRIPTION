@@ -1,6 +1,6 @@
 Package: EpiModel
-Version: 1.7.0
-Date: 2018-11-21
+Version: 1.7.2
+Date: 2018-12-18
 Title: Mathematical Modeling of Infectious Disease Dynamics
 Description: Tools for simulating mathematical models of infectious disease dynamics. 
     Epidemic model classes include deterministic compartmental models, stochastic 
@@ -21,7 +21,9 @@ Authors@R: c(person("Samuel", "Jenness",
     person("Skye", "Bender-deMoll",
     role=c("ctb"), email="skyebend@uw.edu"),
     person("Kevin", "Weiss",
-    role=c("ctb"), email="kevin.weiss@emory.edu"))
+    role=c("ctb"), email="kevin.weiss@emory.edu"),
+    person("Shawnee", "Anderson",
+    role=c("ctb"), email="shawnee.marcell.anderson@emory.edu"))
 License: GPL-3
 URL: http://epimodel.org/, http://github.com/statnet/EpiModel
 BugReports: https://github.com/statnet/EpiModel/issues
@@ -32,15 +34,17 @@ Imports: graphics, grDevices, stats, utils, doParallel, ergm (>= 3.9),
         ggplot2
 Suggests: knitr, ndtv, rmarkdown, shiny, testthat
 VignetteBuilder: knitr
+LinkingTo: ergm
 RoxygenNote: 6.1.1
 Encoding: UTF-8
-NeedsCompilation: no
-Packaged: 2018-11-21 17:13:56 UTC; samuel
+NeedsCompilation: yes
+Packaged: 2018-12-18 16:05:07 UTC; sjennes
 Author: Samuel Jenness [cre, aut],
   Steven M. Goodreau [aut],
   Martina Morris [aut],
   Emily Beylerian [ctb],
   Skye Bender-deMoll [ctb],
-  Kevin Weiss [ctb]
+  Kevin Weiss [ctb],
+  Shawnee Anderson [ctb]
 Repository: CRAN
-Date/Publication: 2018-11-21 17:40:02 UTC
+Date/Publication: 2018-12-18 16:40:18 UTC

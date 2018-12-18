@@ -358,7 +358,7 @@ get_sims <- function(x, sims, var) {
   if (missing(sims)) {
     stop("Specify sims as a vector of simulations or \"mean\" ", call. = FALSE)
   }
-  if (sims == "mean" && (missing(var) || length(var) > 1)) {
+  if (length(sims) == 1 && sims == "mean" && (missing(var) || length(var) > 1)) {
     stop("If sims == 'mean' then var must be a single varible name", call. = FALSE)
   }
 
@@ -368,7 +368,7 @@ get_sims <- function(x, sims, var) {
     sims <- which.min(abs(d - md))
   }
 
-  if (sims != "mean" && max(sims) > nsims) {
+  if (max(sims) > nsims) {
     stop("Maximum sims value for this object is ", nsims, call. = FALSE)
   }
 
@@ -396,10 +396,37 @@ get_sims <- function(x, sims, var) {
   }
   out$control$nsims <- length(sims)
 
-  if (!missing(var) && var != "mean") {
+  if (!missing(var)) {
     match.vars <- which(var %in% names(x$epi))
     out$epi <- out$epi[match.vars]
   }
 
   return(out)
+}
+
+
+#' @title Get Arguments from EpiModel Parameterization Functions
+#'
+#' @description Returns a list of argument names and values for use for parameter
+#'              processing functions.
+#'
+#' @param formal.args The output of \code{formals(sys.function())}.
+#' @param dot.args The output of \code{list(...)}.
+#'
+#' @export
+#'
+get_args <- function(formal.args, dot.args){
+  p <- list()
+  formal.args[["..."]] <- NULL
+  for (arg in names(formal.args)) {
+    p[arg] <- list(get(arg, pos = parent.frame()))
+  }
+
+  names.dot.args <- names(dot.args)
+  if (length(dot.args) > 0) {
+    for (i in 1:length(dot.args)) {
+      p[[names.dot.args[i]]] <- dot.args[[i]]
+    }
+  }
+  return(p)
 }
