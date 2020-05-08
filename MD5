@@ -1,7 +1,7 @@
-18e0b137fe23310b5cfb62964ddae852 *DESCRIPTION
+98e000aa0e1a602bf7e23dd4d737c36f *DESCRIPTION
 8a4a982311fab792a7e12553e96610a1 *NAMESPACE
-5bba4f3e0191b7ceadd148405e1ece49 *NEWS.md
-e96bc808a6567c961f85bc4eafc5fc73 *R/EpiModel-package.r
+9a42bf2cba6734649056b8ee8a5cf68c *NEWS.md
+5666f46d14f3471211051aa0713db446 *R/EpiModel-package.r
 b622f66beaac8ff80f35f0385dccabb5 *R/ErgmTerms.R
 4c43cc95240ef41d326362be5b20cc5b *R/as.data.frame.R
 df704e982a806503e062f70e1d230d04 *R/control.R
@@ -24,9 +24,9 @@ f513a52f929e21fef437d197935b3451 *R/icm.mod.status.R
 d357bcb1b0d04e5c7f6cc0174f0e2386 *R/net.mod.simnet.R
 52f251df4432002db3d6ee98c7c24254 *R/net.mod.status.R
 a491781e3a4401e5a2221b77ce2bb657 *R/net.mod.vital.R
-5bfc054f91e1b9f274db08ec06386289 *R/net.utils.R
+9c48bd6f6b11c9bc925aac72d9e8a65d *R/net.utils.R
 2bbdfaeb889a20e0a4264fe89c08df0a *R/netdx.R
-682fcc04204f157aaf7a6bd55f78187b *R/netest.R
+a43a258d2d550d337d359dbfe3486f41 *R/netest.R
 6e03f76a2d730c2780bac26f3d21805e *R/netsim.R
 6ffa5c0031d2525a75e926962e7cbbb9 *R/param.R
 f74551c9131c4a9946ea788cc5f9cb54 *R/plot.R
@@ -37,12 +37,12 @@ fbfb6bee4940e0acfb5513262c46f633 *R/shiny.R
 b30afdb17e9f1a6970ff78b2fe6f3d72 *R/test.R
 a49c413312ea0ddfcea71278c37cf194 *R/utils.R
 e0fba81651917b129f8e17a70e3eaef5 *R/verbose.R
-2e8571651cfc82672c22277f04cb68e9 *build/vignette.rds
+77aa90165218c561fc8c06e04ade90a6 *build/vignette.rds
 9b39ccb4fd1422d93ff0227d4749ed20 *inst/CITATION
 ef312e9aad6f28245ce46480a63fc427 *inst/EpiModelJSS.R
 fd8cb6093b9d2a4d98f698738a1bb663 *inst/doc/Intro.R
 8ed08ac18d38beb3abee9634bc192836 *inst/doc/Intro.Rmd
-2f77e0cbddea50cfac04ea4659f86075 *inst/doc/Intro.html
+5a9666f7f1e7be753681dea2ab1d3899 *inst/doc/Intro.html
 4c7fa65b7019ed0eac40b24ca189a651 *inst/shiny/epidcm/server.R
 dc21c9d3e32371e4d7631ba637c71721 *inst/shiny/epidcm/ui.R
 ca88a9afcd2cc5f0645ad3f5300643ec *inst/shiny/epiicm/server.R
@@ -51,7 +51,7 @@ ca88a9afcd2cc5f0645ad3f5300643ec *inst/shiny/epiicm/server.R
 c60354a614ce172daf9fbbfe4c146560 *inst/shiny/epinet/server.R
 9bf48b283f890b8d03cadc15d20ca8b5 *inst/shiny/epinet/ui.R
 235315ed332ae604c2139fd3a0a88142 *inst/shiny/epinet/www/style.css
-af87e10c3bd83a32166fc858c99deaee *man/EpiModel-package.Rd
+059b60ca1fd99171bb6343fa9955cb2a *man/EpiModel-package.Rd
 70f8eab25b5e862ac5167bf341d3fe51 *man/InitErgmTerm.absdiffby.Rd
 e13a52fe8c10215d47010907cd370eb3 *man/InitErgmTerm.absdiffnodemix.Rd
 912e656aa29cd2aec5fe8e32a2e07890 *man/apportion_lr.Rd
@@ -178,5 +178,5 @@ d6320f69559667cf2dbf385a80810bcf *tests/testthat/test-newicm.R
 31d92db4c06f22efe0c73f2ca5bf4347 *tests/testthat/test-print.R
 f41cd37e7ad53c191bfbdc37fed11e90 *tests/testthat/test-shiny.R
 e1e4b8bbc51cbb2fd2237307c2e53d1b *tests/testthat/test-transmat-dendo.R
-29ca0f14591f252d03a251af7f8d0bfe *tests/testthat/test-utils.R
+44041bbaaf38325b75dd374dcbae1707 *tests/testthat/test-utils.R
 8ed08ac18d38beb3abee9634bc192836 *vignettes/Intro.Rmd
