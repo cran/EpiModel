@@ -70,7 +70,7 @@
 #' @examples
 #' \dontrun{
 #' # Network initialization and model parameterization
-#' nw <- network.initialize(100, directed = FALSE)
+#' nw <- network_initialize(n = 100)
 #' formation <- ~edges
 #' target.stats <- 50
 #' coef.diss <- dissolution_coefs(dissolution = ~offset(edges), duration = 25)
@@ -106,8 +106,6 @@ netdx <- function(x, nsims = 1, dynamic = TRUE, nsteps, nwstats.formula = "forma
 
   ncores <- ifelse(nsims == 1, 1, min(parallel::detectCores(), ncores))
 
-
-  nw <- x$fit$newnetwork
   fit <- x$fit
   formation <- x$formation
   coef.form <- x$coef.form
@@ -116,6 +114,11 @@ netdx <- function(x, nsims = 1, dynamic = TRUE, nsteps, nwstats.formula = "forma
   constraints <- x$constraints
   target.stats <- x$target.stats
   edapprox <- x$edapprox
+  if (edapprox == TRUE) {
+    nw <- x$fit$newnetwork
+  } else {
+    nw <- x$fit$network
+  }
 
   if (dynamic == TRUE && missing(nsteps)) {
     stop("Specify number of time steps with nsteps", call. = FALSE)

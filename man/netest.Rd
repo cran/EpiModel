@@ -62,9 +62,8 @@ necessary input for running the epidemic simulations in \code{\link{netsim}}.
 With a fitted network model, one should always first proceed to model
 diagnostics, available through the \code{\link{netdx}} function, to check
 model fit. A detailed description of fitting these models, along with examples,
-may be found in the
-\href{http://statnet.github.io/tut/BasicNet.html}{Basic Network Models}
-tutorial.
+may be found in the \href{http://epimodel.org/tut.html}{Basic Network Models}
+tutorials.
 }
 \section{Edges Dissolution Approximation}{
 
@@ -114,7 +113,7 @@ package. An example is below.
 
 \examples{
 # Initialize a network of 100 nodes
-nw <- network.initialize(n = 100, directed = FALSE)
+nw <- network_initialize(n = 100)
 
 # Set formation formula
 formation <- ~edges + concurrent

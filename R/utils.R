@@ -100,77 +100,31 @@ deleteAttr <- function(attrList, ids) {
   return(attrList)
 }
 
-
-#' @title Obtain Transparent Colors
+#' @title Delete Elements from Attribute List
 #'
-#' @description Returns an RGB transparent color from any standard R color.
+#' @description Deletes elements from the master attribute list.
 #'
-#' @param col Vector consisting of colors, of any of the three kinds of
-#'        \code{R} color specifications (named, hexadecimal, or integer; see
-#'        \code{\link{col2rgb}}).
-#' @param alpha Vector of transparency levels, where 0 is transparent and 1
-#'        is opaque.
-#' @param invisible Supresses printing of the RGB color.
-#'
-#' @details
-#' The purpose of this function is to facilitate color transparency, which is
-#' used widely in \code{EpiModel} plots. This is an internal function that is
-#' not ordinarily called by the end-user. This function allows that one of col
-#' or alpha may be of length greater than 1.
-#'
-#' @return
-#' A vector of length equal to the input \code{col} vector or the \code{alpha},
-#' vector, if one or the other is of length greater than 1, containing the
-#' transformed color values in hexidemical format.
-#'
-#' @seealso \code{\link{rgb}}, \code{\link{col2rgb}}
+#' @param dat Master list object containing a sublist of attributes.
+#' @param ids ID numbers to delete from the list.
 #'
 #' @export
-#' @keywords colorUtils internal
-#'
-#' @examples
-#' ## Example 1: Bubble plot with multiple length color vector
-#' n <- 25
-#' x <- sort(sample(1:200, n))
-#' y <- 10 + 2*x + rnorm(n, 0, 10)
-#' z <- rpois(n, 10)
-#' cols <- transco(c("steelblue", "black"), 0.5)
-#' par(mar=c(2, 2, 1, 1))
-#' plot(x, y, cex = z/4, pch = 21, col = "black",
-#'      bg = cols[1], lwd = 1.2, axes = FALSE,
-#'      ylim = c(0, 500), xlim = c(0, 250),
-#'      yaxs = "r", xaxs = "r")
-#' axis(2, seq(0, 500, 100), col = "white", las = 2,
-#'     cex.axis = 0.9, mgp = c(2, 0.5, 0))
-#' axis(1, seq(0, 250, 50), cex.axis = 0.9,
-#'      mgp = c(2, 0.5, 0))
-#' abline(h = seq(100, 500, 100), col = cols[2])
-#'
-#' ## Example 2: Network plot with multiple length alpha vector
-#' net <- network.initialize(500, directed = FALSE)
-#' vcol <- transco("firebrick",
-#'                 alpha = seq(0, 1, length = network.size(net)))
-#' par(mar = c(0, 0, 0, 0))
-#' plot(net, vertex.col = vcol, vertex.border = "grey70",
-#'      vertex.cex = 1.5, edge.col = "grey50")
-#'
-transco <- function(col, alpha = 1, invisible = FALSE) {
+#' @keywords internal
+delete_attr <- function(dat, ids) {
+  attrList <- dat$attr
 
-  if (length(col) == 1 & length(alpha) == 1) {
-    out <- adjustcolor(col, alpha.f = alpha)
-  } else if (length(col) > 1 & length(alpha == 1)) {
-    out <- sapply(col, function(x) adjustcolor(x, alpha.f = alpha))
-  } else if (length(col) == 1 & length(alpha) > 1) {
-    out <- sapply(alpha, function(x) adjustcolor(col, alpha.f = x))
-  } else {
-    stop("length of col or alpha must be 1 if other is >1")
+  if (class(attrList) != "list") {
+    stop("dat object does not contain a valid attribute list", call. = FALSE)
+  }
+  if (length(unique(sapply(attrList, length))) != 1) {
+    stop("attribute list must be rectangular (same number of obs per element)")
   }
 
-  if (invisible == TRUE) {
-    invisible(out)
-  } else {
-    return(out)
+  if (length(ids) > 0) {
+    attrList <- lapply(attrList, function(x) x[-ids])
   }
+
+  dat$attr <- attrList
+  return(dat)
 }
 
 
@@ -228,14 +182,15 @@ ssample <- function(x, size, replace = FALSE, prob = NULL) {
 #' plot(mod1, y = "prev")
 #'
 #' # Network model example
-#' nw <- network.initialize(n = 100, bipartite = 50, directed = FALSE)
+#' nw <- network_initialize(n = 100)
+#' nw <- set_vertex_attribute(nw, "group", rep(1:2, each = 50))
 #' formation <- ~edges
 #' target.stats <- 50
 #' coef.diss <- dissolution_coefs(dissolution = ~offset(edges), duration = 20)
 #' est1 <- netest(nw, formation, target.stats, coef.diss, verbose = FALSE)
 #'
-#' param <- param.net(inf.prob = 0.3, inf.prob.m2 = 0.15)
-#' init <- init.net(i.num = 1, i.num.m2 = 0)
+#' param <- param.net(inf.prob = 0.3, inf.prob.g2 = 0.15)
+#' init <- init.net(i.num = 1, i.num.g2 = 0)
 #' control <- control.net(type = "SI", nsteps = 10, nsims = 3,
 #'                        verbose = FALSE)
 #' mod1 <- netsim(est1, param, init, control)
@@ -243,12 +198,12 @@ ssample <- function(x, size, replace = FALSE, prob = NULL) {
 #'
 #' # Add the prevalences to the dataset
 #' mod1 <- mutate_epi(mod1, i.prev = i.num / num,
-#'                          i.prev.m2 = i.num.m2 / num.m2)
-#' plot(mod1, y = c("i.prev", "i.prev.m2"), qnts = 0.5, legend = TRUE)
+#'                          i.prev.g2 = i.num.g2 / num.g2)
+#' plot(mod1, y = c("i.prev", "i.prev.g2"), qnts = 0.5, legend = TRUE)
 #'
 #' # Add incidence rate per 100 person years (assume time step = 1 week)
-#' mod1 <- mutate_epi(mod1, ir100 = 5200*(si.flow + si.flow.m2) /
-#'                                       (s.num + s.num.m2))
+#' mod1 <- mutate_epi(mod1, ir100 = 5200*(si.flow + si.flow.g2) /
+#'                                       (s.num + s.num.g2))
 #' as.data.frame(mod1)
 #' as.data.frame(mod1, out = "mean")
 #'

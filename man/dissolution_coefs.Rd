@@ -57,11 +57,11 @@ model estimation in \code{\link{netest}} are as follows:
         dyad have similar values of a specified attribute. The duration vector
         should now contain two values: the first is the mean edge duration of
         non-matched dyads, and the second is the duration of the matched dyads.
- \item \code{~offset(edges) + offset(nodemix("<attr>"))}: a heterogenous model
+ \item \code{~offset(edges) + offset(nodemix("<attr>"))}: a heterogeneous model
         that extends the nodematch model to include non-binary attributes for
         homophily. The duration vector should first contain the base value,
         then the values for every other possible combination in the term.
- \item \code{~offset(edges) + offset(nodefactor("<attr>"))}: a heterogenous
+ \item \code{~offset(edges) + offset(nodefactor("<attr>"))}: a heterogeneous
         model in which the edge duration varies by a specified attribute. The
         duration vector should first contain the base value, then the values
         for every other value of that attribute in the term.
@@ -88,9 +88,9 @@ dissolution_coefs(dissolution = ~offset(edges) + offset(nodematch("race")),
 \dontrun{
 ## Extended example for differential homophily by age group
 # Set up the network with nodes categorized into 5 age groups
-nw <- network.initialize(1000, directed = FALSE)
+nw <- network_initialize(n = 1000)
 age.grp <- sample(1:5, 1000, TRUE)
-nw <- set.vertex.attribute(nw, "age.grp", age.grp)
+nw <- set_vertex_attribute(nw, "age.grp", age.grp)
 
 # durations = non-matched, age.grp1 & age.grp1, age.grp2 & age.grp2, ...
 # TERGM will include differential homophily by age group with nodematch term
@@ -140,10 +140,5 @@ mean(te$duration[te$ag.head == 5 & te$ag.tail == 5])
 durs
 }
 
-}
-\seealso{
-The theory and details of this function are explained in detail in the
-\href{http://statnet.github.io/tut/NetUtils.html}{EpiModel Network
-Utility Functions} tutorial.
 }
 \keyword{netUtils}
