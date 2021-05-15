@@ -4,8 +4,8 @@
 #' \tabular{ll}{
 #'    Package: \tab EpiModel\cr
 #'    Type: \tab Package\cr
-#'    Version: \tab 2.0.3\cr
-#'    Date: \tab 2020-11-09\cr
+#'    Version: \tab 2.0.5\cr
+#'    Date: \tab 2021-05-14\cr
 #'    License: \tab GPL-3\cr
 #'    LazyLoad: \tab yes\cr
 #' }
@@ -117,8 +117,7 @@
 #'
 #' Jenness SM, Goodreau SM and Morris M. EpiModel: An R Package for Mathematical
 #' Modeling of Infectious Disease over Networks. Journal of Statistical
-#' Software.2018; 84(8): 1-47. doi: 10.18637/jss.v084.i08
-#' (\url{https://doi.org/10.18637/jss.v084.i08}).
+#' Software.2018; 84(8): 1-47. \doi{10.18637/jss.v084.i08}.
 #'
 #' We have also developed an extension package specifically for modeling HIV and
 #' related sexually transmitted infections, called \code{EpiModelHIV} and
@@ -135,10 +134,11 @@
 #'             polygon text title
 #' @importFrom grDevices col2rgb colorRampPalette rgb adjustcolor
 #' @importFrom stats complete.cases quantile rbinom rgeom sd setNames simulate
-#'             supsmu terms.formula update
+#'             supsmu terms.formula update dgeom
 #' @importFrom utils head tail packageVersion
 #' @importFrom ape as.phylo collapse.singles
 #' @importFrom lazyeval lazy_dots lazy_eval
+#' @importFrom statnet.common trim_env nonsimp_update.formula append_rhs.formula list_rhs.formula
 #'
 #' @useDynLib EpiModel, .registration = TRUE
 #'

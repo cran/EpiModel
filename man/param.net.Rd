@@ -145,6 +145,20 @@ further examples, see the \href{https://statnet.org/nme/}{NME Course
 Tutorials}.
 }
 
+\section{Random Parameters}{
+
+In addition to deterministic parameters in either fixed or time-varying
+varieties above, one may also include a generator for random parameters.
+These might include a vector of potential parameter values or a statistical
+distribution definition; in either case, one draw from the generator would
+be completed per individual simulation. This is possible by passing a list
+named \code{random.params} into \code{param.net}, with each element of
+\code{random.params} a named generator function. See the help page and
+examples in \code{\link{generate_random_params}}. A simple factory function
+for sampling is provided with \code{\link{param_random}} but any function
+will do.
+}
+
 \section{New Modules}{
 
 To build original models outside of the base models, new process modules
@@ -158,6 +172,35 @@ default modules for parameter validity, these checks are the user's
 responsibility with new modules.
 }
 
+\examples{
+## Example SIR model parameterization with fixed and random parameters
+# Network model estimation
+nw <- network_initialize(n = 100)
+formation <- ~edges
+target.stats <- 50
+coef.diss <- dissolution_coefs(dissolution = ~offset(edges), duration = 20)
+est <- netest(nw, formation, target.stats, coef.diss, verbose = FALSE)
+
+# Random epidemic parameter list
+my_randoms <- list(
+  act.rate = param_random(1:3),
+  inf.prob = function() rbeta(1, 1, 2)
+)
+
+# Parameters, initial conditions, and control settings
+param <- param.net(rec.rate = 0.02, random.params = my_randoms)
+init <- init.net(i.num = 10, r.num = 0)
+control <- control.net(type = "SIR", nsteps = 100, nsims = 5,
+                       resimulate.network = FALSE, tergmLite = FALSE)
+
+# Simulate the model
+sim <- netsim(est, param, init, control)
+
+# Print and plot
+sim
+plot(sim)
+
+}
 \seealso{
 Use \code{\link{init.net}} to specify the initial conditions and
          \code{\link{control.net}} to specify the control settings. Run the

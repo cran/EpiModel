@@ -58,6 +58,7 @@
 #' @param di.rate.g2 Departure or exit rate for group 2 infected.
 #' @param dr.rate.g2 Departure or exit rate for group 2 recovered. This
 #'        parameter is only used for \code{SIR} model types.
+#'
 #' @param ... Additional arguments passed to model.
 #'
 #' @details
@@ -102,6 +103,18 @@
 #' further examples, see the \href{https://statnet.org/nme/}{NME Course
 #' Tutorials}.
 #'
+#' @section Random Parameters:
+#' In addition to deterministic parameters in either fixed or time-varying
+#' varieties above, one may also include a generator for random parameters.
+#' These might include a vector of potential parameter values or a statistical
+#' distribution definition; in either case, one draw from the generator would
+#' be completed per individual simulation. This is possible by passing a list
+#' named \code{random.params} into \code{param.net}, with each element of
+#' \code{random.params} a named generator function. See the help page and
+#' examples in \code{\link{generate_random_params}}. A simple factory function
+#' for sampling is provided with \code{\link{param_random}} but any function
+#' will do.
+#'
 #' @section New Modules:
 #' To build original models outside of the base models, new process modules
 #' may be constructed to replace the existing modules or to supplement the
@@ -120,6 +133,34 @@
 #' @keywords parameterization
 #'
 #' @export
+#'
+#' @examples
+#' ## Example SIR model parameterization with fixed and random parameters
+#' # Network model estimation
+#' nw <- network_initialize(n = 100)
+#' formation <- ~edges
+#' target.stats <- 50
+#' coef.diss <- dissolution_coefs(dissolution = ~offset(edges), duration = 20)
+#' est <- netest(nw, formation, target.stats, coef.diss, verbose = FALSE)
+#'
+#' # Random epidemic parameter list
+#' my_randoms <- list(
+#'   act.rate = param_random(1:3),
+#'   inf.prob = function() rbeta(1, 1, 2)
+#' )
+#'
+#' # Parameters, initial conditions, and control settings
+#' param <- param.net(rec.rate = 0.02, random.params = my_randoms)
+#' init <- init.net(i.num = 10, r.num = 0)
+#' control <- control.net(type = "SIR", nsteps = 100, nsims = 5,
+#'                        resimulate.network = FALSE, tergmLite = FALSE)
+#'
+#' # Simulate the model
+#' sim <- netsim(est, param, init, control)
+#'
+#' # Print and plot
+#' sim
+#' plot(sim)
 #'
 param.net <- function(inf.prob, inter.eff, inter.start, act.rate, rec.rate,
                       a.rate, ds.rate, di.rate, dr.rate, inf.prob.g2,
@@ -182,6 +223,170 @@ param.net <- function(inf.prob, inter.eff, inter.start, act.rate, rec.rate,
   ## Output
   class(p) <- c("param.net", "list")
   return(p)
+}
+
+#' @title Update Model Parameters for Stochastic Network Models
+#'
+#' @description Updates epidemic model parameters originally set with
+#'              \code{\link{param.net}} and adds new parameters.
+#'
+#' @param x Object of class \code{param.net}, output from function of same name.
+#' @param new.param.list Named list of new parameters to add to original
+#'        parameters.
+#'
+#' @details
+#' This function allows for updating any original parameters specified with
+#' \code{\link{param.net}} and adding new parameters. This function would be
+#' used when the inputs to \code{\link{param.net}} may be a long list of
+#' fixed model parameters that may need supplemental replacements or additions
+#' for particular model runs (e.g., changing an intervention efficacy parameter
+#' but leaving all other parameters fixed).
+#'
+#' The \code{new.param.list} object should be a named list object that may
+#' named parameters matching those already in \code{x} (in which case those
+#' original parameter values will be replaced) or not matching (in which case
+#' new parameters will be added to \code{x}).
+#'
+#' @return
+#' An updated list object of class \code{param.net}, which can be passed to
+#' EpiModel function \code{\link{netsim}}.
+#'
+#' @examples
+#' x <- param.net(inf.prob = 0.5, act.rate = 2)
+#' y <- list(inf.prob = 0.75, dx.rate = 0.2)
+#' z <- update_params(x, y)
+#' print(z)
+#'
+#' @export
+#'
+update_params <- function(x, new.param.list) {
+
+  if (!inherits(x, "param.net")) {
+    stop("x should be object of class param.net")
+  }
+  if (class(new.param.list) != "list") {
+    stop("new.param.list should be object of class list")
+  }
+
+  for (ii in seq_along(new.param.list)) {
+    x[[names(new.param.list)[ii]]] <- new.param.list[[ii]]
+  }
+
+  return(x)
+}
+
+
+#' @title Create a Value Sampler for Random Parameters
+#'
+#' @description This function returns a 0 argument function that can be used as
+#'              a generator function in the \code{random_params} argument of the
+#'              \code{\link{param.net}} function.
+#'
+#' @param values a vector of values to sample from.
+#' @param prob a vector of weights to use during sampling, if \code{NULL},
+#'        all values have the same probability of being picked
+#'        (default = \code{NULL}).
+
+#' @return one of the values from the \code{values} vector.
+#'
+#' @seealso \code{\link{param.net}} and \code{\link{generate_random_params}}
+#' @export
+#'
+#' @examples
+#' # Define function with equal sampling probability
+#' a <- param_random(1:5)
+#' a()
+#'
+#' # Define function with unequal sampling probability
+#' b <- param_random(1:5, prob = c(0.1, 0.1, 0.1, 0.1, 0.6))
+#' b()
+#'
+param_random <- function(values, prob = NULL) {
+  if (!is.null(prob) && length(prob) != length(values)) {
+    stop("incorrect number of probabilites")
+  }
+
+  f <- function() {
+    return(sample(x = values, size = 1, prob = prob, replace = TRUE))
+  }
+
+  return(f)
+}
+
+
+#' @title Generate Values for Random Parameters
+#'
+#' @description This function uses the generative functions in the
+#'              \code{random.params} list to create values for the parameters.
+#'
+#' @param param The \code{param} argument received by the \code{netsim}
+#'              functions.
+#' @param verbose Should the function output the generated values
+#'                (default = FALSE)?
+#'
+#' @return A fully instantiated \code{param} list.
+#'
+#' @section \code{random_params}:
+#' The \code{random_params} argument to the \code{param.net} function must be a
+#' named list of functions that return a values that can be used as the argument
+#' with the same name. In the example below, \code{param_random} is a function
+#' factory provided by EpiModel for \code{act.rate} and \code{tx.halt.part.prob}
+#' we provide bespoke functions.
+#'
+#' @section Generator Functions:
+#' The function used inside \code{random_params} must be 0 argument functions
+#' returning a valid value for the parameter with the same name.
+#'
+#' @export
+#'
+#' @examples
+#' # Define random parameter list
+#' my_randoms <- list(
+#'   act.rate = param_random(c(0.25, 0.5, 0.75)),
+#'   tx.prob = function() rbeta(1, 1, 2),
+#'   stratified.test.rate = function() c(
+#'     rnorm(1, 0.05, 0.01),
+#'     rnorm(1, 0.15, 0.03),
+#'     rnorm(1, 0.25, 0.05)
+#'   )
+#' )
+#'
+#' # Parameter model with deterministic and random parameters
+#' param <- param.net(inf.prob = 0.3, random.params = my_randoms)
+#'
+#' # Parameters are drawn automatically in netsim by calling the function
+#' # within netsim_loop. Demonstrating draws here but this is not used by
+#' # end user.
+#' paramDraw <- generate_random_params(param, verbose = TRUE)
+#' paramDraw
+#'
+generate_random_params <- function(param, verbose = FALSE) {
+  if (is.null(param$random.params) || length(param$random.params) == 0) {
+    return(param)
+  }
+
+  if (!is.list(param$random.params)) {
+    stop("`random.params` must be named list of functions")
+  }
+
+  rng_names <- names(param$random.params)
+  if (any(rng_names == "")) {
+    stop("all elements of `random.params` must be named")
+  }
+
+  if (!all(vapply(param$random.params, is.function, TRUE))) {
+    stop("all elements of `random.params` must be functions")
+  }
+
+  param[rng_names] <- lapply(param$random.params, do.call, args = list())
+  if (verbose == TRUE) {
+    msg <-
+     "The following values were randomly generated for the given parameters: \n"
+    msg <- c(msg, paste0("`", rng_names, "`: ", param[rng_names], "\n"))
+    message(msg)
+  }
+
+  return(param)
 }
 
 
@@ -489,14 +694,6 @@ control.net <- function(type,
     p$resimulate.network <- dot.args$depend
     stop("EpiModel >= 2.0 has renamed the control.net setting `depend` to ",
          "`resimulate.network`. Update your code accordingly.",
-         call. = FALSE)
-  }
-
-  if ("save.network" %in% names(dot.args)) {
-    p$tergmLite <- FALSE
-    stop("EpiModel 2.0+ has integrated options for saving of the network
-          object in control.net parameter tergmLite: if FALSE, this are
-          saved; if TRUE, they are not saved.",
          call. = FALSE)
   }
 
