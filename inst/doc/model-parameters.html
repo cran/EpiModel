@@ -1,0 +1,549 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+
+<meta charset="utf-8" />
+<meta name="generator" content="pandoc" />
+<meta http-equiv="X-UA-Compatible" content="IE=EDGE" />
+
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+
+
+
+<title>Working With Model Parameters</title>
+
+<script src="data:application/javascript;base64,Ly8gUGFuZG9jIDIuOSBhZGRzIGF0dHJpYnV0ZXMgb24gYm90aCBoZWFkZXIgYW5kIGRpdi4gV2UgcmVtb3ZlIHRoZSBmb3JtZXIgKHRvCi8vIGJlIGNvbXBhdGlibGUgd2l0aCB0aGUgYmVoYXZpb3Igb2YgUGFuZG9jIDwgMi44KS4KZG9jdW1lbnQuYWRkRXZlbnRMaXN0ZW5lcignRE9NQ29udGVudExvYWRlZCcsIGZ1bmN0aW9uKGUpIHsKICB2YXIgaHMgPSBkb2N1bWVudC5xdWVyeVNlbGVjdG9yQWxsKCJkaXYuc2VjdGlvbltjbGFzcyo9J2xldmVsJ10gPiA6Zmlyc3QtY2hpbGQiKTsKICB2YXIgaSwgaCwgYTsKICBmb3IgKGkgPSAwOyBpIDwgaHMubGVuZ3RoOyBpKyspIHsKICAgIGggPSBoc1tpXTsKICAgIGlmICghL15oWzEtNl0kL2kudGVzdChoLnRhZ05hbWUpKSBjb250aW51ZTsgIC8vIGl0IHNob3VsZCBiZSBhIGhlYWRlciBoMS1oNgogICAgYSA9IGguYXR0cmlidXRlczsKICAgIHdoaWxlIChhLmxlbmd0aCA+IDApIGgucmVtb3ZlQXR0cmlidXRlKGFbMF0ubmFtZSk7CiAgfQp9KTsK"></script>
+
+<style type="text/css">
+  code{white-space: pre-wrap;}
+  span.smallcaps{font-variant: small-caps;}
+  span.underline{text-decoration: underline;}
+  div.column{display: inline-block; vertical-align: top; width: 50%;}
+  div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+  ul.task-list{list-style: none;}
+    </style>
+
+
+<style type="text/css">
+  code {
+    white-space: pre;
+  }
+  .sourceCode {
+    overflow: visible;
+  }
+</style>
+<style type="text/css" data-origin="pandoc">
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+    color: #aaaaaa;
+  }
+pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+code span.al { color: #ff0000; font-weight: bold; } /* Alert */
+code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+code span.at { color: #7d9029; } /* Attribute */
+code span.bn { color: #40a070; } /* BaseN */
+code span.bu { } /* BuiltIn */
+code span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+code span.ch { color: #4070a0; } /* Char */
+code span.cn { color: #880000; } /* Constant */
+code span.co { color: #60a0b0; font-style: italic; } /* Comment */
+code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+code span.do { color: #ba2121; font-style: italic; } /* Documentation */
+code span.dt { color: #902000; } /* DataType */
+code span.dv { color: #40a070; } /* DecVal */
+code span.er { color: #ff0000; font-weight: bold; } /* Error */
+code span.ex { } /* Extension */
+code span.fl { color: #40a070; } /* Float */
+code span.fu { color: #06287e; } /* Function */
+code span.im { } /* Import */
+code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+code span.kw { color: #007020; font-weight: bold; } /* Keyword */
+code span.op { color: #666666; } /* Operator */
+code span.ot { color: #007020; } /* Other */
+code span.pp { color: #bc7a00; } /* Preprocessor */
+code span.sc { color: #4070a0; } /* SpecialChar */
+code span.ss { color: #bb6688; } /* SpecialString */
+code span.st { color: #4070a0; } /* String */
+code span.va { color: #19177c; } /* Variable */
+code span.vs { color: #4070a0; } /* VerbatimString */
+code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+
+</style>
+<script>
+// apply pandoc div.sourceCode style to pre.sourceCode instead
+(function() {
+  var sheets = document.styleSheets;
+  for (var i = 0; i < sheets.length; i++) {
+    if (sheets[i].ownerNode.dataset["origin"] !== "pandoc") continue;
+    try { var rules = sheets[i].cssRules; } catch (e) { continue; }
+    for (var j = 0; j < rules.length; j++) {
+      var rule = rules[j];
+      // check if there is a div.sourceCode rule
+      if (rule.type !== rule.STYLE_RULE || rule.selectorText !== "div.sourceCode") continue;
+      var style = rule.style.cssText;
+      // check if color or background-color is set
+      if (rule.style.color === '' && rule.style.backgroundColor === '') continue;
+      // replace div.sourceCode by a pre.sourceCode rule
+      sheets[i].deleteRule(j);
+      sheets[i].insertRule('pre.sourceCode{' + style + '}', j);
+    }
+  }
+})();
+</script>
+
+
+
+
+<link rel="stylesheet" href="data:text/css,body%20%7B%0Abackground%2Dcolor%3A%20%23fff%3B%0Amargin%3A%201em%20auto%3B%0Amax%2Dwidth%3A%20700px%3B%0Aoverflow%3A%20visible%3B%0Apadding%2Dleft%3A%202em%3B%0Apadding%2Dright%3A%202em%3B%0Afont%2Dfamily%3A%20%22Open%20Sans%22%2C%20%22Helvetica%20Neue%22%2C%20Helvetica%2C%20Arial%2C%20sans%2Dserif%3B%0Afont%2Dsize%3A%2014px%3B%0Aline%2Dheight%3A%201%2E35%3B%0A%7D%0A%23TOC%20%7B%0Aclear%3A%20both%3B%0Amargin%3A%200%200%2010px%2010px%3B%0Apadding%3A%204px%3B%0Awidth%3A%20400px%3B%0Aborder%3A%201px%20solid%20%23CCCCCC%3B%0Aborder%2Dradius%3A%205px%3B%0Abackground%2Dcolor%3A%20%23f6f6f6%3B%0Afont%2Dsize%3A%2013px%3B%0Aline%2Dheight%3A%201%2E3%3B%0A%7D%0A%23TOC%20%2Etoctitle%20%7B%0Afont%2Dweight%3A%20bold%3B%0Afont%2Dsize%3A%2015px%3B%0Amargin%2Dleft%3A%205px%3B%0A%7D%0A%23TOC%20ul%20%7B%0Apadding%2Dleft%3A%2040px%3B%0Amargin%2Dleft%3A%20%2D1%2E5em%3B%0Amargin%2Dtop%3A%205px%3B%0Amargin%2Dbottom%3A%205px%3B%0A%7D%0A%23TOC%20ul%20ul%20%7B%0Amargin%2Dleft%3A%20%2D2em%3B%0A%7D%0A%23TOC%20li%20%7B%0Aline%2Dheight%3A%2016px%3B%0A%7D%0Atable%20%7B%0Amargin%3A%201em%20auto%3B%0Aborder%2Dwidth%3A%201px%3B%0Aborder%2Dcolor%3A%20%23DDDDDD%3B%0Aborder%2Dstyle%3A%20outset%3B%0Aborder%2Dcollapse%3A%20collapse%3B%0A%7D%0Atable%20th%20%7B%0Aborder%2Dwidth%3A%202px%3B%0Apadding%3A%205px%3B%0Aborder%2Dstyle%3A%20inset%3B%0A%7D%0Atable%20td%20%7B%0Aborder%2Dwidth%3A%201px%3B%0Aborder%2Dstyle%3A%20inset%3B%0Aline%2Dheight%3A%2018px%3B%0Apadding%3A%205px%205px%3B%0A%7D%0Atable%2C%20table%20th%2C%20table%20td%20%7B%0Aborder%2Dleft%2Dstyle%3A%20none%3B%0Aborder%2Dright%2Dstyle%3A%20none%3B%0A%7D%0Atable%20thead%2C%20table%20tr%2Eeven%20%7B%0Abackground%2Dcolor%3A%20%23f7f7f7%3B%0A%7D%0Ap%20%7B%0Amargin%3A%200%2E5em%200%3B%0A%7D%0Ablockquote%20%7B%0Abackground%2Dcolor%3A%20%23f6f6f6%3B%0Apadding%3A%200%2E25em%200%2E75em%3B%0A%7D%0Ahr%20%7B%0Aborder%2Dstyle%3A%20solid%3B%0Aborder%3A%20none%3B%0Aborder%2Dtop%3A%201px%20solid%20%23777%3B%0Amargin%3A%2028px%200%3B%0A%7D%0Adl%20%7B%0Amargin%2Dleft%3A%200%3B%0A%7D%0Adl%20dd%20%7B%0Amargin%2Dbottom%3A%2013px%3B%0Amargin%2Dleft%3A%2013px%3B%0A%7D%0Adl%20dt%20%7B%0Afont%2Dweight%3A%20bold%3B%0A%7D%0Aul%20%7B%0Amargin%2Dtop%3A%200%3B%0A%7D%0Aul%20li%20%7B%0Alist%2Dstyle%3A%20circle%20outside%3B%0A%7D%0Aul%20ul%20%7B%0Amargin%2Dbottom%3A%200%3B%0A%7D%0Apre%2C%20code%20%7B%0Abackground%2Dcolor%3A%20%23f7f7f7%3B%0Aborder%2Dradius%3A%203px%3B%0Acolor%3A%20%23333%3B%0Awhite%2Dspace%3A%20pre%2Dwrap%3B%20%0A%7D%0Apre%20%7B%0Aborder%2Dradius%3A%203px%3B%0Amargin%3A%205px%200px%2010px%200px%3B%0Apadding%3A%2010px%3B%0A%7D%0Apre%3Anot%28%5Bclass%5D%29%20%7B%0Abackground%2Dcolor%3A%20%23f7f7f7%3B%0A%7D%0Acode%20%7B%0Afont%2Dfamily%3A%20Consolas%2C%20Monaco%2C%20%27Courier%20New%27%2C%20monospace%3B%0Afont%2Dsize%3A%2085%25%3B%0A%7D%0Ap%20%3E%20code%2C%20li%20%3E%20code%20%7B%0Apadding%3A%202px%200px%3B%0A%7D%0Adiv%2Efigure%20%7B%0Atext%2Dalign%3A%20center%3B%0A%7D%0Aimg%20%7B%0Abackground%2Dcolor%3A%20%23FFFFFF%3B%0Apadding%3A%202px%3B%0Aborder%3A%201px%20solid%20%23DDDDDD%3B%0Aborder%2Dradius%3A%203px%3B%0Aborder%3A%201px%20solid%20%23CCCCCC%3B%0Amargin%3A%200%205px%3B%0A%7D%0Ah1%20%7B%0Amargin%2Dtop%3A%200%3B%0Afont%2Dsize%3A%2035px%3B%0Aline%2Dheight%3A%2040px%3B%0A%7D%0Ah2%20%7B%0Aborder%2Dbottom%3A%204px%20solid%20%23f7f7f7%3B%0Apadding%2Dtop%3A%2010px%3B%0Apadding%2Dbottom%3A%202px%3B%0Afont%2Dsize%3A%20145%25%3B%0A%7D%0Ah3%20%7B%0Aborder%2Dbottom%3A%202px%20solid%20%23f7f7f7%3B%0Apadding%2Dtop%3A%2010px%3B%0Afont%2Dsize%3A%20120%25%3B%0A%7D%0Ah4%20%7B%0Aborder%2Dbottom%3A%201px%20solid%20%23f7f7f7%3B%0Amargin%2Dleft%3A%208px%3B%0Afont%2Dsize%3A%20105%25%3B%0A%7D%0Ah5%2C%20h6%20%7B%0Aborder%2Dbottom%3A%201px%20solid%20%23ccc%3B%0Afont%2Dsize%3A%20105%25%3B%0A%7D%0Aa%20%7B%0Acolor%3A%20%230033dd%3B%0Atext%2Ddecoration%3A%20none%3B%0A%7D%0Aa%3Ahover%20%7B%0Acolor%3A%20%236666ff%3B%20%7D%0Aa%3Avisited%20%7B%0Acolor%3A%20%23800080%3B%20%7D%0Aa%3Avisited%3Ahover%20%7B%0Acolor%3A%20%23BB00BB%3B%20%7D%0Aa%5Bhref%5E%3D%22http%3A%22%5D%20%7B%0Atext%2Ddecoration%3A%20underline%3B%20%7D%0Aa%5Bhref%5E%3D%22https%3A%22%5D%20%7B%0Atext%2Ddecoration%3A%20underline%3B%20%7D%0A%0Acode%20%3E%20span%2Ekw%20%7B%20color%3A%20%23555%3B%20font%2Dweight%3A%20bold%3B%20%7D%20%0Acode%20%3E%20span%2Edt%20%7B%20color%3A%20%23902000%3B%20%7D%20%0Acode%20%3E%20span%2Edv%20%7B%20color%3A%20%2340a070%3B%20%7D%20%0Acode%20%3E%20span%2Ebn%20%7B%20color%3A%20%23d14%3B%20%7D%20%0Acode%20%3E%20span%2Efl%20%7B%20color%3A%20%23d14%3B%20%7D%20%0Acode%20%3E%20span%2Ech%20%7B%20color%3A%20%23d14%3B%20%7D%20%0Acode%20%3E%20span%2Est%20%7B%20color%3A%20%23d14%3B%20%7D%20%0Acode%20%3E%20span%2Eco%20%7B%20color%3A%20%23888888%3B%20font%2Dstyle%3A%20italic%3B%20%7D%20%0Acode%20%3E%20span%2Eot%20%7B%20color%3A%20%23007020%3B%20%7D%20%0Acode%20%3E%20span%2Eal%20%7B%20color%3A%20%23ff0000%3B%20font%2Dweight%3A%20bold%3B%20%7D%20%0Acode%20%3E%20span%2Efu%20%7B%20color%3A%20%23900%3B%20font%2Dweight%3A%20bold%3B%20%7D%20%0Acode%20%3E%20span%2Eer%20%7B%20color%3A%20%23a61717%3B%20background%2Dcolor%3A%20%23e3d2d2%3B%20%7D%20%0A" type="text/css" />
+
+
+
+
+</head>
+
+<body>
+
+
+
+
+<h1 class="title toc-ignore">Working With Model Parameters</h1>
+
+
+
+<div id="introduction" class="section level2">
+<h2>Introduction</h2>
+<p>This vignette discusses mechanisms usable inside <code>EpiModel</code> network models with custom extension modules. More information about these may be found in the “New Network Models with EpiModel” section of the <a href="http://www.epimodel.org/tut.html">EpiModel Tutorials</a>.</p>
+<p>In a model, <em>parameters</em> are the input variables used to define aspects of the system behavior. In the basic built-in SIS (Susceptible-Infected-Susceptible) model, these parameters could be the <strong>act rate</strong>, the <strong>infection probability</strong> and the <strong>recovery rate</strong>. In simple models, each of these parameters are single fixed values that do not change over the course of a simulation. In more complex models, we may want more flexibility in model parameterization.</p>
+<p>Therefore, in this vignette, we demonstrate how to implement:</p>
+<ul>
+<li>Random parameters, which have a distribution of possible values rather than a single fixed value.</li>
+<li>Time-varying parameters, which may change at specific time steps during the simulation.</li>
+</ul>
+</div>
+<div id="random-parameters" class="section level2">
+<h2>Random Parameters</h2>
+<div id="the-model" class="section level3">
+<h3>The Model</h3>
+<p>First, we define a simple SI model.</p>
+<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>nw <span class="ot">&lt;-</span> <span class="fu">network_initialize</span>(<span class="at">n =</span> <span class="dv">50</span>)</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>est <span class="ot">&lt;-</span> <span class="fu">netest</span>(</span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>  nw, <span class="at">formation =</span> <span class="sc">~</span>edges,</span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>  <span class="at">target.stats =</span> <span class="dv">25</span>,</span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>  <span class="at">coef.diss =</span> <span class="fu">dissolution_coefs</span>(<span class="sc">~</span><span class="fu">offset</span>(edges), <span class="dv">10</span>, <span class="dv">0</span>),</span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>  <span class="at">verbose =</span> <span class="cn">FALSE</span></span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Starting maximum pseudolikelihood estimation (MPLE):</span></span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Evaluating the predictor and response matrix.</span></span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Maximizing the pseudolikelihood.</span></span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Finished MPLE.</span></span>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Stopping at the initial estimate.</span></span>
+<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a>param <span class="ot">&lt;-</span> <span class="fu">param.net</span>(</span>
+<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a>  <span class="at">inf.prob =</span> <span class="fl">0.3</span>,</span>
+<span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a>  <span class="at">act.rate =</span> <span class="fl">0.5</span>,</span>
+<span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a>  <span class="at">dummy.param =</span> <span class="dv">4</span>,</span>
+<span id="cb1-19"><a href="#cb1-19" aria-hidden="true" tabindex="-1"></a>  <span class="at">dummy.strat.param =</span> <span class="fu">c</span>(<span class="dv">0</span>, <span class="dv">1</span>)</span>
+<span id="cb1-20"><a href="#cb1-20" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb1-21"><a href="#cb1-21" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-22"><a href="#cb1-22" aria-hidden="true" tabindex="-1"></a>init <span class="ot">&lt;-</span> <span class="fu">init.net</span>(<span class="at">i.num =</span> <span class="dv">10</span>)</span>
+<span id="cb1-23"><a href="#cb1-23" aria-hidden="true" tabindex="-1"></a>control <span class="ot">&lt;-</span> <span class="fu">control.net</span>(<span class="at">type =</span> <span class="st">&quot;SI&quot;</span>, <span class="at">nsims =</span> <span class="dv">1</span>, <span class="at">nsteps =</span> <span class="dv">5</span>, <span class="at">verbose =</span> <span class="cn">FALSE</span>)</span>
+<span id="cb1-24"><a href="#cb1-24" aria-hidden="true" tabindex="-1"></a>mod <span class="ot">&lt;-</span> <span class="fu">netsim</span>(est, param, init, control)</span>
+<span id="cb1-25"><a href="#cb1-25" aria-hidden="true" tabindex="-1"></a>mod</span>
+<span id="cb1-26"><a href="#cb1-26" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; EpiModel Simulation</span></span>
+<span id="cb1-27"><a href="#cb1-27" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; =======================</span></span>
+<span id="cb1-28"><a href="#cb1-28" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Model class: netsim</span></span>
+<span id="cb1-29"><a href="#cb1-29" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb1-30"><a href="#cb1-30" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Simulation Summary</span></span>
+<span id="cb1-31"><a href="#cb1-31" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; -----------------------</span></span>
+<span id="cb1-32"><a href="#cb1-32" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Model type: SI</span></span>
+<span id="cb1-33"><a href="#cb1-33" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; No. simulations: 1</span></span>
+<span id="cb1-34"><a href="#cb1-34" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; No. time steps: 5</span></span>
+<span id="cb1-35"><a href="#cb1-35" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; No. NW groups: 1</span></span>
+<span id="cb1-36"><a href="#cb1-36" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb1-37"><a href="#cb1-37" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Fixed Parameters</span></span>
+<span id="cb1-38"><a href="#cb1-38" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; ---------------------------</span></span>
+<span id="cb1-39"><a href="#cb1-39" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; inf.prob = 0.3</span></span>
+<span id="cb1-40"><a href="#cb1-40" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; act.rate = 0.5</span></span>
+<span id="cb1-41"><a href="#cb1-41" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; dummy.param = 4</span></span>
+<span id="cb1-42"><a href="#cb1-42" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; dummy.strat.param = 0 1</span></span>
+<span id="cb1-43"><a href="#cb1-43" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; groups = 1</span></span>
+<span id="cb1-44"><a href="#cb1-44" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb1-45"><a href="#cb1-45" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Model Output</span></span>
+<span id="cb1-46"><a href="#cb1-46" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; -----------------------</span></span>
+<span id="cb1-47"><a href="#cb1-47" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Variables: s.num i.num num si.flow</span></span>
+<span id="cb1-48"><a href="#cb1-48" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Networks: sim1</span></span>
+<span id="cb1-49"><a href="#cb1-49" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Transmissions: sim1</span></span>
+<span id="cb1-50"><a href="#cb1-50" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb1-51"><a href="#cb1-51" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Formation Diagnostics</span></span>
+<span id="cb1-52"><a href="#cb1-52" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; ----------------------- </span></span>
+<span id="cb1-53"><a href="#cb1-53" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;       Target Sim Mean Pct Diff Sim SD</span></span>
+<span id="cb1-54"><a href="#cb1-54" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; edges     25     29.8     19.2  1.924</span></span>
+<span id="cb1-55"><a href="#cb1-55" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb1-56"><a href="#cb1-56" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb1-57"><a href="#cb1-57" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Dissolution Diagnostics</span></span>
+<span id="cb1-58"><a href="#cb1-58" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; ----------------------- </span></span>
+<span id="cb1-59"><a href="#cb1-59" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;                Target Sim Mean Pct Diff Sim SD</span></span>
+<span id="cb1-60"><a href="#cb1-60" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Edge Duration    10.0    9.310   -6.902     NA</span></span>
+<span id="cb1-61"><a href="#cb1-61" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Pct Edges Diss    0.1    0.106    5.516     NA</span></span></code></pre></div>
+<p>In the parameters, we set the value for <code>inf.prob</code> and <code>act.rate</code> as fixed, but we also define <code>dummy.param</code> and <code>dummy.strat.param</code>. These latter two parameters will serve to illustrate random parameters. <code>dummy.strat.param</code> has two elements; this may be used, for example, to stratify a parameter by subpopulation.</p>
+<p>The last line prints a summary of the model. In it we can see the value of the parameters under the “Fixed Parameters” section. Note the additional <code>groups</code> parameter defined automatically by <code>EpiModel</code> as part of the “SI” model definition.</p>
+</div>
+<div id="adding-random-parameters" class="section level3">
+<h3>Adding Random Parameters</h3>
+<p>To allow our parameters to be drawn from a distribution of random values, we use the <code>random.params</code> argument to <code>param.net</code>. There are two ways of defining which parameters are random, and the distribution of values for those random parameters to draw randomly and how to draw them.</p>
+<div id="generator-functions" class="section level4">
+<h4>Generator Functions</h4>
+<p>The first option is to define a generator function for each parameter we want to treat as random.</p>
+<div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>my.randoms <span class="ot">&lt;-</span> <span class="fu">list</span>(</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>  <span class="at">act.rate =</span> <span class="fu">param_random</span>(<span class="fu">c</span>(<span class="fl">0.25</span>, <span class="fl">0.5</span>, <span class="fl">0.75</span>)),</span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">dummy.param =</span> <span class="cf">function</span>() <span class="fu">rbeta</span>(<span class="dv">1</span>, <span class="dv">1</span>, <span class="dv">2</span>),</span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">dummy.strat.param =</span> <span class="cf">function</span>() <span class="fu">c</span>(</span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>    <span class="fu">rnorm</span>(<span class="dv">1</span>, <span class="fl">0.05</span>, <span class="fl">0.01</span>),</span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>    <span class="fu">rnorm</span>(<span class="dv">1</span>, <span class="fl">0.15</span>, <span class="fl">0.03</span>)</span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a>param <span class="ot">&lt;-</span> <span class="fu">param.net</span>(</span>
+<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a>  <span class="at">inf.prob =</span> <span class="fl">0.3</span>,</span>
+<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a>  <span class="at">random.params =</span> my.randoms</span>
+<span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb2-14"><a href="#cb2-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-15"><a href="#cb2-15" aria-hidden="true" tabindex="-1"></a>param</span>
+<span id="cb2-16"><a href="#cb2-16" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Fixed Parameters</span></span>
+<span id="cb2-17"><a href="#cb2-17" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; ---------------------------</span></span>
+<span id="cb2-18"><a href="#cb2-18" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; inf.prob = 0.3</span></span>
+<span id="cb2-19"><a href="#cb2-19" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb2-20"><a href="#cb2-20" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Random Parameters</span></span>
+<span id="cb2-21"><a href="#cb2-21" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; (Not drawn yet)</span></span>
+<span id="cb2-22"><a href="#cb2-22" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; ---------------------------</span></span>
+<span id="cb2-23"><a href="#cb2-23" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; act.rate = &lt;function&gt;</span></span>
+<span id="cb2-24"><a href="#cb2-24" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; dummy.param = &lt;function&gt;</span></span>
+<span id="cb2-25"><a href="#cb2-25" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; dummy.strat.param = &lt;function&gt;</span></span></code></pre></div>
+<p>Here we kept the <code>inf.prob</code> parameter fixed at <code>0.3</code> and defined a <code>list</code> object called <code>my.randoms</code> containing 3 elements:</p>
+<ul>
+<li><code>act.rate</code> uses the <code>param_random</code> <a href="https://adv-r.hadley.nz/function-factories.html">function factory</a> defined by EpiModel (see <code>?EpiModel::param_random</code>).</li>
+<li><code>dummy.param</code> is a function with no argument that returns a random value from a beta distribution.</li>
+<li><code>dummy.strat.param</code> is a function with no argument that returns 2 values sampled from normal distributions, each with different means and standard deviations.</li>
+</ul>
+<p>Each element is named after the parameter it will fill and MUST BE a function taking no argument and outputting a vector of the right size for the parameter: size 1 for <code>act.rate</code> and <code>dummy.param</code>; size 2 for <code>dummy.strat.param</code>.</p>
+<p>The rest of the model is run as before, although we increase the simulation count to three to demonstrate the parameter stochasticity.</p>
+<div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>control <span class="ot">&lt;-</span> <span class="fu">control.net</span>(<span class="at">type =</span> <span class="st">&quot;SI&quot;</span>, <span class="at">nsims =</span> <span class="dv">3</span>, <span class="at">nsteps =</span> <span class="dv">5</span>, <span class="at">verbose =</span> <span class="cn">FALSE</span>)</span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>mod <span class="ot">&lt;-</span> <span class="fu">netsim</span>(est, param, init, control)</span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>mod</span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; EpiModel Simulation</span></span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; =======================</span></span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Model class: netsim</span></span>
+<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Simulation Summary</span></span>
+<span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; -----------------------</span></span>
+<span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Model type: SI</span></span>
+<span id="cb3-12"><a href="#cb3-12" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; No. simulations: 3</span></span>
+<span id="cb3-13"><a href="#cb3-13" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; No. time steps: 5</span></span>
+<span id="cb3-14"><a href="#cb3-14" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; No. NW groups: 1</span></span>
+<span id="cb3-15"><a href="#cb3-15" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb3-16"><a href="#cb3-16" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Fixed Parameters</span></span>
+<span id="cb3-17"><a href="#cb3-17" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; ---------------------------</span></span>
+<span id="cb3-18"><a href="#cb3-18" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; inf.prob = 0.3</span></span>
+<span id="cb3-19"><a href="#cb3-19" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; groups = 1</span></span>
+<span id="cb3-20"><a href="#cb3-20" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb3-21"><a href="#cb3-21" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Random Parameters</span></span>
+<span id="cb3-22"><a href="#cb3-22" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; ---------------------------</span></span>
+<span id="cb3-23"><a href="#cb3-23" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; act.rate = 0.25 0.5 0.75</span></span>
+<span id="cb3-24"><a href="#cb3-24" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; dummy.param = 0.1766891 0.0350894 0.05774283</span></span>
+<span id="cb3-25"><a href="#cb3-25" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; dummy.strat.param = &lt;list&gt;</span></span>
+<span id="cb3-26"><a href="#cb3-26" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb3-27"><a href="#cb3-27" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Model Output</span></span>
+<span id="cb3-28"><a href="#cb3-28" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; -----------------------</span></span>
+<span id="cb3-29"><a href="#cb3-29" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Variables: s.num i.num num si.flow</span></span>
+<span id="cb3-30"><a href="#cb3-30" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Networks: sim1 ... sim3</span></span>
+<span id="cb3-31"><a href="#cb3-31" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Transmissions: sim1 ... sim3</span></span>
+<span id="cb3-32"><a href="#cb3-32" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb3-33"><a href="#cb3-33" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Formation Diagnostics</span></span>
+<span id="cb3-34"><a href="#cb3-34" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; ----------------------- </span></span>
+<span id="cb3-35"><a href="#cb3-35" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;       Target Sim Mean Pct Diff Sim SD</span></span>
+<span id="cb3-36"><a href="#cb3-36" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; edges     25       23       -8  2.928</span></span>
+<span id="cb3-37"><a href="#cb3-37" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb3-38"><a href="#cb3-38" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb3-39"><a href="#cb3-39" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Dissolution Diagnostics</span></span>
+<span id="cb3-40"><a href="#cb3-40" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; ----------------------- </span></span>
+<span id="cb3-41"><a href="#cb3-41" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;                Target Sim Mean Pct Diff Sim SD</span></span>
+<span id="cb3-42"><a href="#cb3-42" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Edge Duration    10.0    9.340   -6.599  0.077</span></span>
+<span id="cb3-43"><a href="#cb3-43" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Pct Edges Diss    0.1    0.088  -12.197  0.004</span></span></code></pre></div>
+<p>After running 3 simulations we can see that 2 parameters are still displayed under the “Fixed Parameters” section: <code>inf.prob</code> and <code>groups</code>. The other ones are displayed under the “Random Parameters”. <code>act.rate</code> and <code>dummy.param</code> now have 3 values associated with them, one per simulation. <code>dummy.strat.param</code> have <code>&lt;list&gt;</code> as value because each simulation has a vector of size 2.</p>
+<p>We can inspect the values with the <code>get_param_set</code> function:</p>
+<div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="fu">str</span>(mod<span class="sc">$</span>param<span class="sc">$</span>random.params.values)</span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; List of 3</span></span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;  $ act.rate         : num [1:3] 0.25 0.5 0.75</span></span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;  $ dummy.param      : num [1:3] 0.1767 0.0351 0.0577</span></span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;  $ dummy.strat.param:List of 3</span></span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;   ..$ : num [1:2] 0.0585 0.1414</span></span>
+<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;   ..$ : num [1:2] 0.042 0.12</span></span>
+<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;   ..$ : num [1:2] 0.0688 0.1282</span></span></code></pre></div>
+</div>
+<div id="parameter-set" class="section level4">
+<h4>Parameter set</h4>
+<p>The drawback of generator function approach above is that it cannot produce correlated parameters. For instance, we may want <code>dummy.param</code> and <code>dummy.strat.param</code> to be related to one another within a single simulation. We might also use another, external approach for generating parameter sets (e.g., Latin hypercube sampling of multiple parameters).</p>
+<p>For this, we need to pre-define a <code>data.frame</code> of the possible values:</p>
+<div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>n <span class="ot">&lt;-</span> <span class="dv">5</span></span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>related.param <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(</span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">dummy.param =</span> <span class="fu">rbeta</span>(n, <span class="dv">1</span>, <span class="dv">2</span>)</span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a>related.param<span class="sc">$</span>dummy.strat.param_1 <span class="ot">&lt;-</span> related.param<span class="sc">$</span>dummy.param <span class="sc">+</span> <span class="fu">rnorm</span>(n)</span>
+<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a>related.param<span class="sc">$</span>dummy.strat.param_2 <span class="ot">&lt;-</span> related.param<span class="sc">$</span>dummy.param <span class="sc">*</span> <span class="dv">2</span> <span class="sc">+</span> <span class="fu">rnorm</span>(n)</span>
+<span id="cb5-9"><a href="#cb5-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-10"><a href="#cb5-10" aria-hidden="true" tabindex="-1"></a>related.param</span>
+<span id="cb5-11"><a href="#cb5-11" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;   dummy.param dummy.strat.param_1 dummy.strat.param_2</span></span>
+<span id="cb5-12"><a href="#cb5-12" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 1  0.05863257           0.0440742          -1.7124905</span></span>
+<span id="cb5-13"><a href="#cb5-13" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 2  0.35670164           1.4351304           1.1797214</span></span>
+<span id="cb5-14"><a href="#cb5-14" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 3  0.34940824           1.0112533           0.9661398</span></span>
+<span id="cb5-15"><a href="#cb5-15" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 4  0.70393339           2.9708645           1.3497972</span></span>
+<span id="cb5-16"><a href="#cb5-16" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 5  0.04425350           0.8210952          -1.8346540</span></span></code></pre></div>
+<p>We now have a <code>data.frame</code> with 5 rows and 3 columns. Each row contains a set of parameters values that will be used together in a model. This way we keep the relationship between each value.</p>
+<p>The first column of the <code>data.frame</code> is named <code>dummy.param</code>, similar to the name of the parameter. For <code>dummy.start.param</code> we need two columns as the parameter contains two values. To achieve this, we name the 2 columns <code>dummy.start.param_1</code> and <code>dummy.strat.param_2</code>. The value after the underscore informs <code>EpiModel</code> how it should combine these values. This in turn means that the underscore symbol is not allowed in proper parameter names.</p>
+<p>Then we set up the rest of the parameters. <code>related.param</code> is saved in the <code>my.randoms</code> list under the special reserved name <code>param_random_set</code>.</p>
+<div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>my.randoms <span class="ot">&lt;-</span> <span class="fu">list</span>(</span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>  <span class="at">act.rate =</span> <span class="fu">param_random</span>(<span class="fu">c</span>(<span class="fl">0.25</span>, <span class="fl">0.5</span>, <span class="fl">0.75</span>)),</span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">param_random_set =</span> related.param</span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a>param <span class="ot">&lt;-</span> <span class="fu">param.net</span>(</span>
+<span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a>  <span class="at">inf.prob =</span> <span class="fl">0.3</span>,</span>
+<span id="cb6-9"><a href="#cb6-9" aria-hidden="true" tabindex="-1"></a>  <span class="at">random.params =</span> my.randoms</span>
+<span id="cb6-10"><a href="#cb6-10" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb6-11"><a href="#cb6-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-12"><a href="#cb6-12" aria-hidden="true" tabindex="-1"></a>param</span>
+<span id="cb6-13"><a href="#cb6-13" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Fixed Parameters</span></span>
+<span id="cb6-14"><a href="#cb6-14" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; ---------------------------</span></span>
+<span id="cb6-15"><a href="#cb6-15" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; inf.prob = 0.3</span></span>
+<span id="cb6-16"><a href="#cb6-16" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb6-17"><a href="#cb6-17" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Random Parameters</span></span>
+<span id="cb6-18"><a href="#cb6-18" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; (Not drawn yet)</span></span>
+<span id="cb6-19"><a href="#cb6-19" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; ---------------------------</span></span>
+<span id="cb6-20"><a href="#cb6-20" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; act.rate = &lt;function&gt;</span></span>
+<span id="cb6-21"><a href="#cb6-21" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; param_random_set = &lt;data.frame&gt; ( dimensions: 5 3 )</span></span></code></pre></div>
+<p>Notice here that we combined a generator function for <code>act.rate</code> and a set of correlated parameters with <code>param_random_set</code>.</p>
+<div class="sourceCode" id="cb7"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>control <span class="ot">&lt;-</span> <span class="fu">control.net</span>(<span class="at">type =</span> <span class="st">&quot;SI&quot;</span>, <span class="at">nsims =</span> <span class="dv">3</span>, <span class="at">nsteps =</span> <span class="dv">5</span>, <span class="at">verbose =</span> <span class="cn">FALSE</span>)</span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>mod <span class="ot">&lt;-</span> <span class="fu">netsim</span>(est, param, init, control)</span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a>mod</span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; EpiModel Simulation</span></span>
+<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; =======================</span></span>
+<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Model class: netsim</span></span>
+<span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb7-9"><a href="#cb7-9" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Simulation Summary</span></span>
+<span id="cb7-10"><a href="#cb7-10" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; -----------------------</span></span>
+<span id="cb7-11"><a href="#cb7-11" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Model type: SI</span></span>
+<span id="cb7-12"><a href="#cb7-12" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; No. simulations: 3</span></span>
+<span id="cb7-13"><a href="#cb7-13" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; No. time steps: 5</span></span>
+<span id="cb7-14"><a href="#cb7-14" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; No. NW groups: 1</span></span>
+<span id="cb7-15"><a href="#cb7-15" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb7-16"><a href="#cb7-16" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Fixed Parameters</span></span>
+<span id="cb7-17"><a href="#cb7-17" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; ---------------------------</span></span>
+<span id="cb7-18"><a href="#cb7-18" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; inf.prob = 0.3</span></span>
+<span id="cb7-19"><a href="#cb7-19" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; groups = 1</span></span>
+<span id="cb7-20"><a href="#cb7-20" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb7-21"><a href="#cb7-21" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Random Parameters</span></span>
+<span id="cb7-22"><a href="#cb7-22" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; ---------------------------</span></span>
+<span id="cb7-23"><a href="#cb7-23" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; dummy.param = 0.7039334 0.7039334 0.0442535</span></span>
+<span id="cb7-24"><a href="#cb7-24" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; dummy.strat.param = &lt;list&gt;</span></span>
+<span id="cb7-25"><a href="#cb7-25" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; act.rate = 0.5 0.75 0.5</span></span>
+<span id="cb7-26"><a href="#cb7-26" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb7-27"><a href="#cb7-27" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Model Output</span></span>
+<span id="cb7-28"><a href="#cb7-28" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; -----------------------</span></span>
+<span id="cb7-29"><a href="#cb7-29" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Variables: s.num i.num num si.flow</span></span>
+<span id="cb7-30"><a href="#cb7-30" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Networks: sim1 ... sim3</span></span>
+<span id="cb7-31"><a href="#cb7-31" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Transmissions: sim1 ... sim3</span></span>
+<span id="cb7-32"><a href="#cb7-32" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb7-33"><a href="#cb7-33" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Formation Diagnostics</span></span>
+<span id="cb7-34"><a href="#cb7-34" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; ----------------------- </span></span>
+<span id="cb7-35"><a href="#cb7-35" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;       Target Sim Mean Pct Diff Sim SD</span></span>
+<span id="cb7-36"><a href="#cb7-36" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; edges     25   25.933    3.733   5.65</span></span>
+<span id="cb7-37"><a href="#cb7-37" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb7-38"><a href="#cb7-38" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb7-39"><a href="#cb7-39" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Dissolution Diagnostics</span></span>
+<span id="cb7-40"><a href="#cb7-40" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; ----------------------- </span></span>
+<span id="cb7-41"><a href="#cb7-41" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;                Target Sim Mean Pct Diff Sim SD</span></span>
+<span id="cb7-42"><a href="#cb7-42" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Edge Duration    10.0    9.252   -7.476  0.038</span></span>
+<span id="cb7-43"><a href="#cb7-43" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Pct Edges Diss    0.1    0.094   -6.370  0.025</span></span></code></pre></div>
+<p>The output is similar to what we saw with the generator functions.</p>
+</div>
+</div>
+</div>
+<div id="time-varying-parameters" class="section level2">
+<h2>Time-Varying Parameters</h2>
+<p>When doing modeling work, the researcher may want to simulate interventions or events that vary over time. In (our 2021 paper)[<a href="https://academic.oup.com/jid/article/223/6/1019/6122459" class="uri">https://academic.oup.com/jid/article/223/6/1019/6122459</a>], we simulated the effects of COVID-19–Related behavior change and clinical service interruption on HIV and STI incidence. These included simulations with systemic events with a beginning and an end. To work with these situations, EpiModel offers an optional module to programmatically handle parameter changes across time steps.</p>
+<p>This vignette assumes a basic understanding of EpiModel custom models. If the code does not make sense, please check the <a href="http://www.epimodel.org/tut.html">EpiModel Tutorials</a>.</p>
+<div id="parameter-updaters" class="section level3">
+<h3>Parameter Updaters</h3>
+<p>To define what parameters should change and when during the simulation, we need to define <strong>updaters</strong>. An updater is a <code>list</code> with to named elements: <code>at</code>, the time step when the change will take place, and <code>param</code> a named list of parameters to update.</p>
+<div class="sourceCode" id="cb8"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="fu">list</span>(</span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>  <span class="at">at =</span> <span class="dv">10</span>,</span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">param =</span> <span class="fu">list</span>(</span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a>    <span class="at">inf.prob =</span> <span class="fl">0.3</span>,</span>
+<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">act.rate =</span> <span class="fl">0.5</span></span>
+<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div>
+<p>This example defines an updater that will change the value of the <code>inf.prob</code> parameter to <code>0.3</code> and the value to the <code>act.rate</code> parameter to <code>0.5</code>. This change will happen during the 10th time step.</p>
+<p>As mentioned above, we usually want to define several changes at once. EpiModel accept a <code>list</code> of <strong>updaters</strong>.</p>
+<div class="sourceCode" id="cb9"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Create a `list.of.updaters`</span></span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>list.of.updaters <span class="ot">&lt;-</span> <span class="fu">list</span>(</span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a>  <span class="co"># this is one updater</span></span>
+<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">list</span>(</span>
+<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">at =</span> <span class="dv">100</span>,</span>
+<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a>    <span class="at">param =</span> <span class="fu">list</span>(</span>
+<span id="cb9-7"><a href="#cb9-7" aria-hidden="true" tabindex="-1"></a>      <span class="at">inf.prob =</span> <span class="fl">0.3</span>,</span>
+<span id="cb9-8"><a href="#cb9-8" aria-hidden="true" tabindex="-1"></a>      <span class="at">act.rate =</span> <span class="fl">0.3</span></span>
+<span id="cb9-9"><a href="#cb9-9" aria-hidden="true" tabindex="-1"></a>    )</span>
+<span id="cb9-10"><a href="#cb9-10" aria-hidden="true" tabindex="-1"></a>  ),</span>
+<span id="cb9-11"><a href="#cb9-11" aria-hidden="true" tabindex="-1"></a>  <span class="co"># this is another updater</span></span>
+<span id="cb9-12"><a href="#cb9-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">list</span>(</span>
+<span id="cb9-13"><a href="#cb9-13" aria-hidden="true" tabindex="-1"></a>    <span class="at">at =</span> <span class="dv">125</span>,</span>
+<span id="cb9-14"><a href="#cb9-14" aria-hidden="true" tabindex="-1"></a>    <span class="at">param =</span> <span class="fu">list</span>(</span>
+<span id="cb9-15"><a href="#cb9-15" aria-hidden="true" tabindex="-1"></a>      <span class="at">inf.prob =</span> <span class="fl">0.01</span></span>
+<span id="cb9-16"><a href="#cb9-16" aria-hidden="true" tabindex="-1"></a>    )</span>
+<span id="cb9-17"><a href="#cb9-17" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb9-18"><a href="#cb9-18" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb9-19"><a href="#cb9-19" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-20"><a href="#cb9-20" aria-hidden="true" tabindex="-1"></a> <span class="co"># The `list.of.updaters` goes into `param.net` under `param.updater.list`</span></span>
+<span id="cb9-21"><a href="#cb9-21" aria-hidden="true" tabindex="-1"></a> param <span class="ot">&lt;-</span> <span class="fu">param.net</span>(</span>
+<span id="cb9-22"><a href="#cb9-22" aria-hidden="true" tabindex="-1"></a>   <span class="at">inf.prob =</span> <span class="fl">0.1</span>,</span>
+<span id="cb9-23"><a href="#cb9-23" aria-hidden="true" tabindex="-1"></a>   <span class="at">act.rate =</span> <span class="fl">0.1</span>,</span>
+<span id="cb9-24"><a href="#cb9-24" aria-hidden="true" tabindex="-1"></a>   <span class="at">param.updater.list =</span> list.of.updaters</span>
+<span id="cb9-25"><a href="#cb9-25" aria-hidden="true" tabindex="-1"></a> )</span></code></pre></div>
+<p>In this example, we define 2 <strong>updaters</strong>, one that occurs at time step 100 and the other one at time step 20. In practice, <code>inf.prob</code> and <code>act.rate</code> are set to <code>0.1</code> at the beginning by <code>param.net</code>, at time step 100 they are both updated to <code>0.3</code> and at time step 125 <code>act.rate</code> is reduced to <code>0.01</code>.</p>
+</div>
+<div id="enabling-the-updater-module" class="section level3">
+<h3>Enabling the <code>updater</code> Module</h3>
+<p>This functionality is part of an optional module provided by <code>EpiModel</code>, <code>updater.net</code>. This module must then be enabled in <code>control.net</code>.</p>
+<p>Below we set up a complete example with a closed population SI model using the parameters and <strong>updaters</strong> defined above. We then plot the size of the infected and susceptible population over time to see the effects of the <strong>updaters</strong>.</p>
+<div class="sourceCode" id="cb10"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a> control <span class="ot">&lt;-</span> <span class="fu">control.net</span>(</span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>   <span class="at">type =</span> <span class="cn">NULL</span>, <span class="co"># must be NULL as we use a custom module</span></span>
+<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a>   <span class="at">nsims =</span> <span class="dv">1</span>,</span>
+<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a>   <span class="at">nsteps =</span> <span class="dv">200</span>,</span>
+<span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a>   <span class="at">verbose =</span> <span class="cn">FALSE</span>,</span>
+<span id="cb10-6"><a href="#cb10-6" aria-hidden="true" tabindex="-1"></a>   <span class="at">updater.FUN =</span> updater.net,</span>
+<span id="cb10-7"><a href="#cb10-7" aria-hidden="true" tabindex="-1"></a>   <span class="at">infection.FUN =</span> infection.net</span>
+<span id="cb10-8"><a href="#cb10-8" aria-hidden="true" tabindex="-1"></a> )</span>
+<span id="cb10-9"><a href="#cb10-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-10"><a href="#cb10-10" aria-hidden="true" tabindex="-1"></a>nw <span class="ot">&lt;-</span> <span class="fu">network_initialize</span>(<span class="at">n =</span> <span class="dv">50</span>)</span>
+<span id="cb10-11"><a href="#cb10-11" aria-hidden="true" tabindex="-1"></a>nw <span class="ot">&lt;-</span> <span class="fu">set_vertex_attribute</span>(nw, <span class="st">&quot;race&quot;</span>, <span class="fu">rbinom</span>(<span class="dv">50</span>, <span class="dv">1</span>, <span class="fl">0.5</span>))</span>
+<span id="cb10-12"><a href="#cb10-12" aria-hidden="true" tabindex="-1"></a>est <span class="ot">&lt;-</span> <span class="fu">netest</span>(</span>
+<span id="cb10-13"><a href="#cb10-13" aria-hidden="true" tabindex="-1"></a>  nw,</span>
+<span id="cb10-14"><a href="#cb10-14" aria-hidden="true" tabindex="-1"></a>  <span class="at">formation =</span> <span class="sc">~</span>edges,</span>
+<span id="cb10-15"><a href="#cb10-15" aria-hidden="true" tabindex="-1"></a>  <span class="at">target.stats =</span> <span class="dv">25</span>,</span>
+<span id="cb10-16"><a href="#cb10-16" aria-hidden="true" tabindex="-1"></a>  <span class="at">coef.diss =</span> <span class="fu">dissolution_coefs</span>(<span class="sc">~</span><span class="fu">offset</span>(edges), <span class="dv">10</span>, <span class="dv">0</span>),</span>
+<span id="cb10-17"><a href="#cb10-17" aria-hidden="true" tabindex="-1"></a>  <span class="at">verbose =</span> <span class="cn">FALSE</span></span>
+<span id="cb10-18"><a href="#cb10-18" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb10-19"><a href="#cb10-19" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Starting maximum pseudolikelihood estimation (MPLE):</span></span>
+<span id="cb10-20"><a href="#cb10-20" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Evaluating the predictor and response matrix.</span></span>
+<span id="cb10-21"><a href="#cb10-21" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Maximizing the pseudolikelihood.</span></span>
+<span id="cb10-22"><a href="#cb10-22" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Finished MPLE.</span></span>
+<span id="cb10-23"><a href="#cb10-23" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Stopping at the initial estimate.</span></span>
+<span id="cb10-24"><a href="#cb10-24" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-25"><a href="#cb10-25" aria-hidden="true" tabindex="-1"></a>init <span class="ot">&lt;-</span> <span class="fu">init.net</span>(<span class="at">i.num =</span> <span class="dv">10</span>)</span>
+<span id="cb10-26"><a href="#cb10-26" aria-hidden="true" tabindex="-1"></a>mod <span class="ot">&lt;-</span> <span class="fu">netsim</span>(est, param, init, control)</span>
+<span id="cb10-27"><a href="#cb10-27" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb10-28"><a href="#cb10-28" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;  A MESSAGE occured in module &#39;updater.FUN&#39; at step 100</span></span>
+<span id="cb10-29"><a href="#cb10-29" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb10-30"><a href="#cb10-30" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb10-31"><a href="#cb10-31" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; At timestep = 100 the following parameters where modified:</span></span>
+<span id="cb10-32"><a href="#cb10-32" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; &#39;inf.prob&#39;, &#39;act.rate&#39;</span></span>
+<span id="cb10-33"><a href="#cb10-33" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb10-34"><a href="#cb10-34" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;  A MESSAGE occured in module &#39;updater.FUN&#39; at step 125</span></span>
+<span id="cb10-35"><a href="#cb10-35" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb10-36"><a href="#cb10-36" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb10-37"><a href="#cb10-37" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; At timestep = 125 the following parameters where modified:</span></span>
+<span id="cb10-38"><a href="#cb10-38" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; &#39;inf.prob&#39;</span></span>
+<span id="cb10-39"><a href="#cb10-39" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-40"><a href="#cb10-40" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(mod)</span></code></pre></div>
+<p><img src="data:image/png;base64,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" style="display: block; margin: auto;" /></p>
+<p>This is the minimal example to simplify the demonstration of these time-varying parameters.</p>
+<p><strong>Important</strong>: when enabling the <code>updater.net</code> module, the researcher must pay particular attention to the order the modules are run. It is recommended to have the <code>updater.net</code> module run first so the changes happen at the beginning of the time step.</p>
+<p>Some functionality of <code>updater.net</code> were not described above and are explained in <code>?EpiModel::updater.net</code>.</p>
+<div id="verbosity" class="section level4">
+<h4>Verbosity</h4>
+<p>When creating an <strong>updater</strong>, one can add an optional <code>verbose</code> element to the <code>list</code>. If <code>TRUE</code>, <code>updater.net</code> will output a <code>message</code> describing what changes where performed when it occurs during the simulation.</p>
+<pre><code>#&gt; $at
+#&gt; [1] 10
+#&gt; 
+#&gt; $param
+#&gt; $param$inf.prob
+#&gt; [1] 0.3
+#&gt; 
+#&gt; $param$act.rate
+#&gt; [1] 0.5
+#&gt; 
+#&gt; 
+#&gt; $verbose
+#&gt; [1] TRUE</code></pre>
+</div>
+<div id="relative-parameter-changes" class="section level4">
+<h4>Relative Parameter Changes</h4>
+<p>It is sometime useful to configure the changes with respect to the current value instead of a fixed new value. This is possible, as demonstrated below.</p>
+<pre><code>#&gt; $at
+#&gt; [1] 10
+#&gt; 
+#&gt; $param
+#&gt; $param$inf.prob
+#&gt; function(x) plogis(qlogis(x) + log(2))
+#&gt; 
+#&gt; $param$act.rate
+#&gt; [1] 0.5</code></pre>
+<p>This updater will set the value of <code>act.rate</code> to <code>0.5</code> as we saw earlier. But, for <code>inf.prob</code> we put a <code>function</code> (not a function call). In this case, <code>updater.net</code> will apply the <code>function</code> to the current value of <code>act.rate</code>. If we consider as in the previous example that <code>act.rate</code> is set to <code>0.1</code> by <code>param.net</code>, then its new value will be obtained by adding an Odds Ratio of 2 to the original value <code>plogis(qlogis(0.1) + log(2))</code>: <code>0.1818182</code>.</p>
+</div>
+</div>
+</div>
+
+
+
+<!-- code folding -->
+
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    script.src  = "https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML";
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+
+</body>
+</html>

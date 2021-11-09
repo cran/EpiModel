@@ -131,13 +131,13 @@ get_attr <- function(dat, item, posit_ids = NULL, override.null.error = FALSE) {
     } else {
       if (is.logical(posit_ids)) {
         if (length(posit_ids) != length(dat[["attr"]][[item]])) {
-          stop("(logical) `posit_ids` has to have a length equal to the number ",
-               "of nodes in the network")
+          stop("(logical) `posit_ids` has to have a length equal to the ",
+               "number of nodes in the network")
         }
       } else if (is.numeric(posit_ids)) {
         if (any(posit_ids > length(dat[["attr"]][[item]]))) {
-          stop("Some (numeric) `posit_ids` are larger than the number of nodes ",
-               " in the network")
+          stop("Some (numeric) `posit_ids` are larger than the number of ",
+               "nodes in the network")
         }
       } else {
         stop("`posit_ids` must be logical, numeric, or NULL")
@@ -175,7 +175,7 @@ set_attr <- function(dat, item, value, posit_ids = NULL,
       length(value) != length(dat[["attr"]][["active"]])) {
       stop(
         "When trying to edit the ", `item`, " nodal attribute: ",
-        "The size of the `value` vector is not equal to the number of node in",
+        "The size of the `value` vector is not equal to the number of nodes in",
         " the network. \n",
         "Expected: ", length(dat[["attr"]][["active"]]), "\n",
         "Given: ", length(value)
@@ -202,7 +202,7 @@ set_attr <- function(dat, item, value, posit_ids = NULL,
       length(value) != length(dat[["attr"]][["active"]][posit_ids])) {
       stop(
         "When trying to edit the `", item, "` nodal attribute: ",
-        "The size of the `value` vector is not equal to the number of node ",
+        "The size of the `value` vector is not equal to the number of nodes ",
         "selected by the `posit_ids` vector nor of length 1. \n",
         "Expected: ", length(dat[["attr"]][["active"]][posit_ids]), " or 1 \n",
         "Given: ", length(value)
@@ -637,4 +637,35 @@ get_posit_ids <- function(dat, unique_ids = NULL) {
   }
 
   return(posit_ids)
+}
+
+#' @title Are These Nodes Active (Unique IDs)
+#'
+#' @param dat a Master list object of network models
+#' @param unique_ids a vector of node unique identifiers
+#'
+#' @return a logical vector with TRUE if the node is still active and FALSE
+#' otherwise
+#'
+#' @export
+is_active_unique_ids <- function(dat, unique_ids) {
+  suppressWarnings({
+    posit_ids <- get_posit_ids(dat, unique_ids)
+  })
+
+  return(is_active_posit_ids(dat, posit_ids))
+}
+
+#' @title Are These Nodes Active (Positional IDs)
+#'
+#' @param dat a Master list object of network models
+#' @param posit_ids a vector of node positional identifiers
+#'
+#' @return a logical vector with TRUE if the node is still active and FALSE
+#' otherwise
+#'
+#' @export
+is_active_posit_ids <- function(dat, posit_ids) {
+  active <- get_attr(dat, "active")
+  return(active[posit_ids] %in% 1)
 }

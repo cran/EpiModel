@@ -20,7 +20,9 @@ departures.net <- function(dat, at) {
     return(dat)
   }
 
-  type <- get_control(dat, "type")
+  type <- get_control(dat, "type", override.null.error = TRUE)
+  type <- if (is.null(type)) "None" else type
+
   active <- get_attr(dat, "active")
   status <- get_attr(dat, "status")
   exitTime <- get_attr(dat, "exitTime")
@@ -157,7 +159,9 @@ departures.2g.net <- function(dat, at) {
 
   # Variables ---------------------------------------------------------------
 
-  type <- get_control(dat, "type")
+  type <- get_control(dat, "type", override.null.error = TRUE)
+  type <- if (is.null(type)) "None" else type
+
 
   active <- get_attr(dat, "active")
   status <- get_attr(dat, "status")
@@ -266,12 +270,9 @@ arrivals.2g.net <- function(dat, at) {
   a.rate <- get_param(dat, "a.rate")
   a.rate.g2 <- get_param(dat, "a.rate.g2")
   index <- at - 1
-  nCurr <- length(get_attr(dat, "active"))
   nOld <- get_epi(dat, "num", index)
   nOldG2 <- get_epi(dat, "num.g2", index)
-  tergmLite <- get_control(dat, "tergmLite")
   totArr <- nArrivals <- nArrivalsG2 <- 0
-  newNodes <- newNodesG2 <- NULL
 
   # Add Nodes ---------------------------------------------------------------
   if (nOld > 0) {
@@ -287,7 +288,6 @@ arrivals.2g.net <- function(dat, at) {
     }
 
     if (totArr > 0) {
-      newNodes <- (nCurr + 1):(nCurr + totArr)
       dat <- append_core_attr(dat, at, totArr)
       dat <- append_attr(dat, "group", 1, nArrivals)
       dat <- append_attr(dat, "group", 2, nArrivalsG2)
