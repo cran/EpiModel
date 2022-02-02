@@ -199,16 +199,16 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>    dat,</span>
 <span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>    index_posit_ids,</span>
 <span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>    <span class="at">networks =</span> <span class="cn">NULL</span>,</span>
-<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">max.age =</span> <span class="cn">Inf</span>,</span>
-<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a>    <span class="at">only.active =</span> <span class="cn">FALSE</span></span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">truncate =</span> <span class="cn">Inf</span>,</span>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a>    <span class="at">only.active.nodes =</span> <span class="cn">FALSE</span></span>
 <span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div>
 <p>Here we call “indexes” the nodes whose partners (contacts) we want to extract. The arguments are:</p>
 <ol style="list-style-type: decimal">
 <li><code>dat</code>: as in <code>get_cumulative_edgelists_df</code>.</li>
 <li><code>index_posit_ids</code>: a list of positional Ids for the indexes of interest.</li>
 <li><code>networks</code>: as in <code>get_cumulative_edgelists_df</code>.</li>
-<li><code>max.age</code>: similar to the <code>truncate</code> argument to <code>update_cumulative_edgelist</code> this argument filter out partnerships over this age.</li>
-<li><code>only.active</code>: if set to <code>TRUE</code>, partnership with inactive nodes are removed.</li>
+<li><code>truncate</code>: similar to the <code>truncate</code> argument to <code>update_cumulative_edgelist</code> this argument filter out partnerships over this age.</li>
+<li><code>only.active.nodes</code>: if set to <code>TRUE</code>, partnership with inactive nodes are removed.</li>
 </ol>
 <p>The output is similar to <code>get_cumulative_edgelists_df</code> but the first two columns are called <code>index</code> and <code>partner</code> and contains the Unique Ids of the indexes given in argument in the first column and there partners in the second one.</p>
 <p>Note that the we refer to the indexes of interest with their Positional Ids but the <code>index</code> and <code>partners</code> columns contains Unique Ids as they can refer to nodes no longer in the network.</p>

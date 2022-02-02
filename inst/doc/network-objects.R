@@ -26,7 +26,7 @@ library(EpiModel)
 #      dat,
 #      index_posit_ids,
 #      networks = NULL,
-#      max.age = Inf,
-#      only.active = FALSE
+#      truncate = Inf,
+#      only.active.nodes = FALSE
 #  )
 

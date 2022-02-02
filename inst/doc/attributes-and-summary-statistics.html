@@ -168,7 +168,7 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <h4>Modifying Attributes</h4>
 <p>In custom extension modules, we usually want to modify some of the <em>attributes</em>. Below is a minimal module that increments the age of all the nodes by 1.</p>
 <div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>aging_module <span class="ot">&lt;-</span> <span class="cf">function</span>(dat, at) {</span>
-<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Extract current attribute</span></span>
 <span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>  age <span class="ot">&lt;-</span> EpiModel<span class="sc">::</span><span class="fu">get_attr</span>(dat, <span class="st">&quot;age&quot;</span>)</span>
 <span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a></span>
@@ -226,10 +226,10 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <li><code>viral_load</code> as a continuous number for “infected” nodes and <code>NA</code> otherwise.</li>
 </ul>
 <div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>viral_load_logger_module <span class="ot">&lt;-</span> <span class="cf">function</span>(dat, at) {</span>
-<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Run every 10 time steps</span></span>
 <span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span> (at <span class="sc">%%</span> <span class="dv">10</span> <span class="sc">==</span> <span class="dv">0</span>) {</span>
-<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Attributes</span></span>
 <span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a>    status <span class="ot">&lt;-</span> EpiModel<span class="sc">::</span><span class="fu">get_attr</span>(dat, <span class="st">&quot;status&quot;</span>)</span>
 <span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a>    viral_load <span class="ot">&lt;-</span> EpiModel<span class="sc">::</span><span class="fu">get_attr</span>(dat, <span class="st">&quot;viral_load&quot;</span>)</span>
@@ -286,21 +286,21 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <span id="cb5-12"><a href="#cb5-12" aria-hidden="true" tabindex="-1"></a><span class="co"># 8  2   20   viral_load    402    100</span></span>
 <span id="cb5-13"><a href="#cb5-13" aria-hidden="true" tabindex="-1"></a><span class="co"># ...</span></span>
 <span id="cb5-14"><a href="#cb5-14" aria-hidden="true" tabindex="-1"></a><span class="co">#</span></span>
-<span id="cb5-15"><a href="#cb5-15" aria-hidden="true" tabindex="-1"></a><span class="co"># $switch_status</span></span>
+<span id="cb5-15"><a href="#cb5-15" aria-hidden="true" tabindex="-1"></a><span class="co"># $status</span></span>
 <span id="cb5-16"><a href="#cb5-16" aria-hidden="true" tabindex="-1"></a><span class="co">#    sim step attribute      uids     values</span></span>
-<span id="cb5-17"><a href="#cb5-17" aria-hidden="true" tabindex="-1"></a><span class="co"># 1  1   22   switch_status  1001   infected</span></span>
-<span id="cb5-18"><a href="#cb5-18" aria-hidden="true" tabindex="-1"></a><span class="co"># 2  1   64   switch_status  1002   infected</span></span>
-<span id="cb5-19"><a href="#cb5-19" aria-hidden="true" tabindex="-1"></a><span class="co"># 3  1  110   switch_status  1001  recovered</span></span>
-<span id="cb5-20"><a href="#cb5-20" aria-hidden="true" tabindex="-1"></a><span class="co"># 4  1  220   switch_status  1002  recovered</span></span>
-<span id="cb5-21"><a href="#cb5-21" aria-hidden="true" tabindex="-1"></a><span class="co"># 5  2    7   switch_status   401   infected</span></span>
-<span id="cb5-22"><a href="#cb5-22" aria-hidden="true" tabindex="-1"></a><span class="co"># 6  2   15   switch_status   402   infected</span></span>
-<span id="cb5-23"><a href="#cb5-23" aria-hidden="true" tabindex="-1"></a><span class="co"># 7  2   20   switch_status   401  recovered</span></span>
-<span id="cb5-24"><a href="#cb5-24" aria-hidden="true" tabindex="-1"></a><span class="co"># 8  2  120   switch_status   402  recovered</span></span>
+<span id="cb5-17"><a href="#cb5-17" aria-hidden="true" tabindex="-1"></a><span class="co"># 1  1   22   status  1001   infected</span></span>
+<span id="cb5-18"><a href="#cb5-18" aria-hidden="true" tabindex="-1"></a><span class="co"># 2  1   64   status  1002   infected</span></span>
+<span id="cb5-19"><a href="#cb5-19" aria-hidden="true" tabindex="-1"></a><span class="co"># 3  1  110   status  1001  recovered</span></span>
+<span id="cb5-20"><a href="#cb5-20" aria-hidden="true" tabindex="-1"></a><span class="co"># 4  1  220   status  1002  recovered</span></span>
+<span id="cb5-21"><a href="#cb5-21" aria-hidden="true" tabindex="-1"></a><span class="co"># 5  2    7   status   401   infected</span></span>
+<span id="cb5-22"><a href="#cb5-22" aria-hidden="true" tabindex="-1"></a><span class="co"># 6  2   15   status   402   infected</span></span>
+<span id="cb5-23"><a href="#cb5-23" aria-hidden="true" tabindex="-1"></a><span class="co"># 7  2   20   status   401  recovered</span></span>
+<span id="cb5-24"><a href="#cb5-24" aria-hidden="true" tabindex="-1"></a><span class="co"># 8  2  120   status   402  recovered</span></span>
 <span id="cb5-25"><a href="#cb5-25" aria-hidden="true" tabindex="-1"></a><span class="co"># ...</span></span></code></pre></div>
 <p>We would get a named list of two <code>data.frame</code>’s:</p>
 <ul>
 <li>“viral_load” with the <code>value</code> column being the viral loads.</li>
-<li>“switch_status” with the <code>value</code> column being whether the node became “infected” or “recovered” at the given time-step.</li>
+<li>“status” with the <code>value</code> column being whether the node became “infected” or “recovered” at the given time-step.</li>
 </ul>
 </div>
 </div>
@@ -313,13 +313,13 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <h3>Working With Epidemic Trackers in Modules</h3>
 <p>Inside a module, <em>Epidemic Trackers</em> are accessed and modified with the functions <code>EpiModel::get_epi</code> and <code>EpiModel::set_epi</code>. Below is an updated new version of our <code>aging_module</code> above with the addition of epidemic trackers.</p>
 <div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>aging_track_module <span class="ot">&lt;-</span> <span class="cf">function</span>(dat, at) {</span>
-<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Attributes</span></span>
 <span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a>  age <span class="ot">&lt;-</span> EpiModel<span class="sc">::</span><span class="fu">get_attr</span>(dat, <span class="st">&quot;age&quot;</span>)</span>
 <span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Aging process </span></span>
+<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Aging process</span></span>
 <span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a>  new_age <span class="ot">&lt;-</span> age <span class="sc">+</span> <span class="dv">1</span></span>
-<span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb6-9"><a href="#cb6-9" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Calculate summary statistics</span></span>
 <span id="cb6-10"><a href="#cb6-10" aria-hidden="true" tabindex="-1"></a>  mean_age <span class="ot">&lt;-</span> <span class="fu">mean</span>(new_age)</span>
 <span id="cb6-11"><a href="#cb6-11" aria-hidden="true" tabindex="-1"></a>  prev_mean_age <span class="ot">&lt;-</span> EpiModel<span class="sc">::</span><span class="fu">get_epi</span>(dat, at <span class="sc">-</span> <span class="dv">1</span>, <span class="st">&quot;mean_age&quot;</span>)</span>
@@ -368,7 +368,7 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a>  <span class="co"># we use `with` to simplify code</span></span>
 <span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a>  output <span class="ot">&lt;-</span> <span class="fu">with</span>(EpiModel<span class="sc">::</span><span class="fu">get_attr_list</span>(dat, needed_attributes), {</span>
 <span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex="-1"></a>    pop <span class="ot">&lt;-</span> active <span class="sc">==</span> <span class="dv">1</span>             <span class="co"># we only look at active nodes</span></span>
-<span id="cb8-8"><a href="#cb8-8" aria-hidden="true" tabindex="-1"></a>    cond <span class="ot">&lt;-</span> status <span class="sc">==</span> <span class="st">&quot;infected&quot;</span>   <span class="co"># which are infected </span></span>
+<span id="cb8-8"><a href="#cb8-8" aria-hidden="true" tabindex="-1"></a>    cond <span class="ot">&lt;-</span> status <span class="sc">==</span> <span class="st">&quot;infected&quot;</span>   <span class="co"># which are infected</span></span>
 <span id="cb8-9"><a href="#cb8-9" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb8-10"><a href="#cb8-10" aria-hidden="true" tabindex="-1"></a>    <span class="co"># how many are `infected` among the `active`</span></span>
 <span id="cb8-11"><a href="#cb8-11" aria-hidden="true" tabindex="-1"></a>    out <span class="ot">&lt;-</span> <span class="fu">sum</span>(cond <span class="sc">&amp;</span> pop, <span class="at">na.rm =</span> <span class="cn">TRUE</span>) <span class="sc">/</span> <span class="fu">sum</span>(pop, <span class="at">na.rm =</span> <span class="cn">TRUE</span>)</span>
@@ -471,30 +471,30 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <td align="left">38</td>
 <td align="right">1</td>
 <td align="right">38</td>
-<td align="right">30</td>
-<td align="right">20</td>
+<td align="right">29</td>
+<td align="right">21</td>
 <td align="right">50</td>
 <td align="right">0</td>
 <td align="right">0</td>
-<td align="right">0</td>
+<td align="right">1</td>
 </tr>
 <tr class="even">
 <td align="left">39</td>
 <td align="right">1</td>
 <td align="right">39</td>
-<td align="right">30</td>
-<td align="right">20</td>
+<td align="right">28</td>
+<td align="right">22</td>
 <td align="right">50</td>
 <td align="right">0</td>
 <td align="right">0</td>
-<td align="right">0</td>
+<td align="right">1</td>
 </tr>
 <tr class="odd">
 <td align="left">40</td>
 <td align="right">1</td>
 <td align="right">40</td>
-<td align="right">30</td>
-<td align="right">20</td>
+<td align="right">28</td>
+<td align="right">22</td>
 <td align="right">50</td>
 <td align="right">0</td>
 <td align="right">0</td>
@@ -504,30 +504,30 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <td align="left">41</td>
 <td align="right">1</td>
 <td align="right">41</td>
-<td align="right">30</td>
-<td align="right">20</td>
+<td align="right">27</td>
+<td align="right">23</td>
 <td align="right">50</td>
 <td align="right">0</td>
 <td align="right">0</td>
-<td align="right">0</td>
+<td align="right">1</td>
 </tr>
 <tr class="odd">
 <td align="left">42</td>
 <td align="right">1</td>
 <td align="right">42</td>
-<td align="right">30</td>
-<td align="right">20</td>
+<td align="right">26</td>
+<td align="right">24</td>
 <td align="right">50</td>
 <td align="right">0</td>
 <td align="right">0</td>
-<td align="right">0</td>
+<td align="right">1</td>
 </tr>
 <tr class="even">
 <td align="left">43</td>
 <td align="right">1</td>
 <td align="right">43</td>
-<td align="right">30</td>
-<td align="right">20</td>
+<td align="right">26</td>
+<td align="right">24</td>
 <td align="right">50</td>
 <td align="right">0</td>
 <td align="right">0</td>
@@ -537,8 +537,8 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <td align="left">44</td>
 <td align="right">1</td>
 <td align="right">44</td>
-<td align="right">30</td>
-<td align="right">20</td>
+<td align="right">26</td>
+<td align="right">24</td>
 <td align="right">50</td>
 <td align="right">0</td>
 <td align="right">0</td>
@@ -548,8 +548,8 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <td align="left">45</td>
 <td align="right">1</td>
 <td align="right">45</td>
-<td align="right">30</td>
-<td align="right">20</td>
+<td align="right">26</td>
+<td align="right">24</td>
 <td align="right">50</td>
 <td align="right">0</td>
 <td align="right">0</td>
@@ -559,52 +559,52 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <td align="left">46</td>
 <td align="right">1</td>
 <td align="right">46</td>
-<td align="right">30</td>
-<td align="right">20</td>
+<td align="right">25</td>
+<td align="right">25</td>
 <td align="right">50</td>
 <td align="right">0</td>
 <td align="right">0</td>
-<td align="right">0</td>
+<td align="right">1</td>
 </tr>
 <tr class="even">
 <td align="left">47</td>
 <td align="right">1</td>
 <td align="right">47</td>
-<td align="right">29</td>
-<td align="right">21</td>
+<td align="right">25</td>
+<td align="right">25</td>
 <td align="right">50</td>
 <td align="right">0</td>
 <td align="right">0</td>
-<td align="right">1</td>
+<td align="right">0</td>
 </tr>
 <tr class="odd">
 <td align="left">48</td>
 <td align="right">1</td>
 <td align="right">48</td>
-<td align="right">29</td>
-<td align="right">21</td>
+<td align="right">24</td>
+<td align="right">26</td>
 <td align="right">50</td>
 <td align="right">0</td>
 <td align="right">0</td>
-<td align="right">0</td>
+<td align="right">1</td>
 </tr>
 <tr class="even">
 <td align="left">49</td>
 <td align="right">1</td>
 <td align="right">49</td>
-<td align="right">29</td>
-<td align="right">21</td>
+<td align="right">23</td>
+<td align="right">27</td>
 <td align="right">50</td>
 <td align="right">0</td>
 <td align="right">0</td>
-<td align="right">0</td>
+<td align="right">1</td>
 </tr>
 <tr class="odd">
 <td align="left">50</td>
 <td align="right">1</td>
 <td align="right">50</td>
-<td align="right">29</td>
-<td align="right">21</td>
+<td align="right">23</td>
+<td align="right">27</td>
 <td align="right">50</td>
 <td align="right">0</td>
 <td align="right">0</td>
@@ -625,7 +625,7 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <div class="sourceCode" id="cb10"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a>introspect_module <span class="ot">&lt;-</span> <span class="cf">function</span>(dat, at) {</span>
 <span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Attributes</span></span>
 <span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a>  age <span class="ot">&lt;-</span> <span class="fu">get_attr</span>(dat, <span class="st">&quot;age&quot;</span>)</span>
-<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span> (<span class="fu">mean</span>(age, <span class="at">na.rm =</span> <span class="cn">TRUE</span>) <span class="sc">&gt;</span> <span class="dv">50</span>) {</span>
 <span id="cb10-6"><a href="#cb10-6" aria-hidden="true" tabindex="-1"></a>    obj <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(</span>
 <span id="cb10-7"><a href="#cb10-7" aria-hidden="true" tabindex="-1"></a>        <span class="at">age =</span> age,</span>

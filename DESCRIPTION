@@ -1,6 +1,6 @@
 Package: EpiModel
-Version: 2.2.0
-Date: 2021-11-09
+Version: 2.2.1
+Date: 2022-02-01
 Title: Mathematical Modeling of Infectious Disease Dynamics
 Description: Tools for simulating mathematical models of infectious disease dynamics.
     Epidemic model classes include deterministic compartmental models, stochastic
@@ -37,7 +37,7 @@ LinkingTo: Rcpp, ergm
 RoxygenNote: 7.1.2
 Encoding: UTF-8
 NeedsCompilation: yes
-Packaged: 2021-11-09 20:52:39 UTC; samuel
+Packaged: 2022-02-02 01:06:31 UTC; samuel
 Author: Samuel Jenness [cre, aut],
   Steven M. Goodreau [aut],
   Martina Morris [aut],
@@ -45,4 +45,4 @@ Author: Samuel Jenness [cre, aut],
   Skye Bender-deMoll [ctb],
   Chad Klumb [ctb]
 Repository: CRAN
-Date/Publication: 2021-11-09 21:20:02 UTC
+Date/Publication: 2022-02-02 08:50:08 UTC

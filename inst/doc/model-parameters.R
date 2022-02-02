@@ -53,7 +53,7 @@ mod <- netsim(est, param, init, control)
 mod
 
 ## ----generators_inspect-------------------------------------------------------
-str(mod$param$random.params.values)
+get_param_set(mod)
 
 ## ----set_df-------------------------------------------------------------------
 n <- 5
@@ -166,4 +166,35 @@ list(
     act.rate = 0.5
   )
 )
+
+## ----control-updater-example, echo = FALSE------------------------------------
+# Create a `list.of.updaters`
+list.of.updaters <- list(
+  # this is one updater
+  list(
+    at = 100,
+    control = list(
+      resimulate.network = FALSE
+    )
+  ),
+  # this is another updater
+  list(
+    at = 125,
+    control = list(
+      verbose = FALSE
+    )
+  )
+)
+
+ # The `list.of.updaters` goes into `control.net` under `control.updater.list`
+ control <- control.net(
+   type = NULL, # must be NULL as we use a custom module
+   nsims = 1,
+   nsteps = 200,
+   verbose = TRUE,
+   resimulate.network = TRUE,
+   updater.FUN = updater.net,
+   infection.FUN = infection.net,
+   control.updater.list = list.of.updaters
+ )
 

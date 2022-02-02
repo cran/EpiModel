@@ -1,3 +1,22 @@
+## EpiModel 2.2.1
+
+### NEW FEATURES
+
+-   Improved optional module `updater.net` allowing it to update the model controls as well as the parameters. See the vignette, "Working with model parameters."
+- General updates to the names and content of the included vignettes.
+
+### BUG FIXES
+
+-   Fix dissolution model statistics calculations for `netsim` in the case with a model with an "end horizon" (when the network is not resimulated at the end of the time series).
+- Fix duplicate printing issues across `print.netsim`, `print.param.net`, and `print.control.net`.
+- Fix use of `all.equal` in unit tests as requested by CRAN.
+- Change defaults of newly introduced cumulative edgelist functionality to not store it (improves speed).
+- Allow `set_attr` for `posit_ids` to return unchanged `dat` object.
+
+### OTHER
+
+-   We have changed the names of arguments from the function `get_partners` newly introduced in EpiModel v2.2.0: `max.age` is renamed to `truncate` for consistency with the other cumulative edgelist functions; `only.active` is renamed `only.active.nodes` to clarify that this argument subsets by *nodes* and not by *partnerships*.
+
 ## EpiModel 2.2.0
 
 ### NEW FEATURES
@@ -8,7 +27,7 @@
 -   Addition of the `get_param_set` function that extracts from a `netsim` object the set of parameters used by each simulation. See the help page: `help("get_param_set")`.
 -   Developed a mechanism to store nodal attribute history over the course of a `netsim` simulation. See the vignette, "Working with attributes and summary statistics."
 -   Developed an optional module to define prevalence statistics (also called "epi stats") as functions to be passed to the model as control settings before each `netsim` simulation. This allows users to avoid updating the `prevalence.net` module. See the vignette, "Working with attributes and summary statistics."
--   Developed an optional module allowing the update of the model parameters over timesteps within `netsim` simulations (i.e., time-varying parameters). See the vignette, "Working with model parameters."
+-   Developed an optional module allowing the update of the model controls and parameters over timesteps within `netsim` simulations (i.e., time-varying parameters). See the vignette, "Working with model parameters."
 -   Improved the random parameterization programming interface to allow correlation between parameters in each simulation (e.g., the ability to pass in a multivariate parameter set for each simulation). See the vignette, "Working with model parameters."
 
 ### BUG FIXES
@@ -23,7 +42,7 @@
 -   Fixed issue with `Error`, `Warning` or `Message` in `netsim` printing twice.
 -   Fixed problem with unique ID counter not saved by `saveout.net`, resulting in the unique ids to start a 1 again when restarting a model from a previous simulation.
 
-### Other
+### OTHER
 
 -   The new home for EpiModel on Github is: <https://github.com/EpiModel/EpiModel>. It was previously located on the `statnet` organization on Github.
 

@@ -68,16 +68,16 @@ library(EpiModel)
 #  # 8  2   20   viral_load    402    100
 #  # ...
 #  #
-#  # $switch_status
+#  # $status
 #  #    sim step attribute      uids     values
-#  # 1  1   22   switch_status  1001   infected
-#  # 2  1   64   switch_status  1002   infected
-#  # 3  1  110   switch_status  1001  recovered
-#  # 4  1  220   switch_status  1002  recovered
-#  # 5  2    7   switch_status   401   infected
-#  # 6  2   15   switch_status   402   infected
-#  # 7  2   20   switch_status   401  recovered
-#  # 8  2  120   switch_status   402  recovered
+#  # 1  1   22   status  1001   infected
+#  # 2  1   64   status  1002   infected
+#  # 3  1  110   status  1001  recovered
+#  # 4  1  220   status  1002  recovered
+#  # 5  2    7   status   401   infected
+#  # 6  2   15   status   402   infected
+#  # 7  2   20   status   401  recovered
+#  # 8  2  120   status   402  recovered
 #  # ...
 
 ## ----epi-in-modules, eval = FALSE---------------------------------------------
@@ -122,7 +122,7 @@ epi_prop_infected <- function(dat, at) {
   # we use `with` to simplify code
   output <- with(EpiModel::get_attr_list(dat, needed_attributes), {
     pop <- active == 1             # we only look at active nodes
-    cond <- status == "infected"   # which are infected 
+    cond <- status == "infected"   # which are infected
 
     # how many are `infected` among the `active`
     out <- sum(cond & pop, na.rm = TRUE) / sum(pop, na.rm = TRUE)

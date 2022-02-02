@@ -178,7 +178,7 @@ print.netsim <- function(x, nwstats = TRUE, digits = 3, network = 1, ...) {
   }
   cat("")
 
-  if (nwstats) {
+  if (nwstats && !is.null(x$stats$nwstats)) {
     stats <- x$stats$nwstats
     nsims <- x$control$nsims
 
@@ -484,17 +484,16 @@ print.control.net <- function(x, ...) {
     }
   }
 
-  funToPrint <- names(x)[grep(".FUN", names(x))]
-  funToPrint <- funToPrint[-which(funToPrint %in% c("initialize.FUN",
-                                                    "verbose.FUN"))]
-  if (is.null(x$module.order)) {
-    cat("Dynamic Modules:", funToPrint)
+  if (!is.null(x$module.order)) {
+    funToPrint <- x$module.order
   } else {
-    order <- unlist(lapply(funToPrint, function(y) which(y == x$module.order)))
-    funToPrint.mo <- funToPrint[order]
-    funtoPrint.nmo <- funToPrint[-which(funToPrint %in% x$module.order)]
-    cat("Dynamic Modules:", funToPrint)
+    funToPrint <- names(x)[grep(".FUN", names(x))]
+    funToPrint <- funToPrint[!funToPrint %in% c("initialize.FUN",
+                                                "verbose.FUN")]
   }
+
+  cat("Dynamic Modules:", funToPrint)
+  cat("\n")
 
   invisible()
 }
