@@ -10,8 +10,9 @@ netdx(
   dynamic = TRUE,
   nsteps,
   nwstats.formula = "formation",
-  set.control.ergm,
-  set.control.stergm,
+  set.control.ergm = control.simulate.formula(),
+  set.control.stergm = control.simulate.network(),
+  set.control.tergm = control.simulate.formula.tergm(),
   sequential = TRUE,
   keep.tedgelist = FALSE,
   keep.tnetwork = FALSE,
@@ -35,15 +36,19 @@ approximation method, simulates from the static ERGM fit.}
 statistics of interest. The default is the formation formula of the
 network model contained in \code{x}.}
 
-\item{set.control.ergm}{Control arguments passed to \code{simulate.ergm} (see
-details).}
+\item{set.control.ergm}{Control arguments passed to \code{ergm}'s
+\code{simulate_formula.network} (see details).}
 
-\item{set.control.stergm}{Control arguments passed to \code{simulate.stergm}
-(see details).}
+\item{set.control.stergm}{Deprecated control argument of class
+\code{control.simulate.network}; use \code{set.control.tergm}
+instead.}
+
+\item{set.control.tergm}{Control arguments passed to \code{tergm}'s
+\code{simulate_formula.network} (see details).}
 
 \item{sequential}{For static diagnostics (\code{dynamic=FALSE}): if
 \code{FALSE}, each of the \code{nsims} simulated Markov chains begins
-at the initial network; If \code{TRUE}, the end of one simulation is
+at the initial network; if \code{TRUE}, the end of one simulation is
 used as the start of the next.}
 
 \item{keep.tedgelist}{If \code{TRUE}, keep the timed edgelist generated from
@@ -54,50 +59,57 @@ with one entry per simulation. Accessible at \code{$edgelist}.}
 from the dynamic simulations. Returned in the form of a list of nD
 objects, with one entry per simulation. Accessible at \code{$network}.}
 
-\item{verbose}{Print progress to the console.}
+\item{verbose}{If \code{TRUE}, print progress to the console.}
 
 \item{ncores}{Number of processor cores to run multiple simulations
 on, using the \code{foreach} and \code{doParallel} implementations.}
 
 \item{skip.dissolution}{If \code{TRUE}, skip over the calculations of
-duration and dissolution stats in netdx.}
+duration and dissolution stats in \code{netdx}.}
+}
+\value{
+A list of class \code{netdx}.
 }
 \description{
 Runs dynamic diagnostics on an ERGM/STERGM estimated through
-             \code{netest}.
+             \code{\link{netest}}.
 }
 \details{
 The \code{netdx} function handles dynamic network diagnostics for network
-models fit with the \code{netest} function. Given the fitted model,
+models fit with the \code{\link{netest}} function. Given the fitted model,
 \code{netdx} simulates a specified number of dynamic networks for a specified
 number of time steps per simulation. The network statistics in
 \code{nwstats.formula} are saved for each time step. Summary statistics for
 the formation model terms, as well as dissolution model and relational
 duration statistics, are then calculated and can be accessed when printing or
-plotting the \code{netdx} object.
+plotting the \code{netdx} object.  See \code{\link{print.netdx}} and
+\code{\link{plot.netdx}} for details on printing and plotting.
 }
 \section{Control Arguments}{
 
-Models fit with the full STERGM method in \code{netest} (setting
+Models fit with the full STERGM method in \code{netest} (setting the
 \code{edapprox} argument to \code{FALSE}) require only a call to
-\code{simulate.stergm}. Control parameters for those simulations may be set
-using \code{set.control.stergm} in \code{netdx}. The parameters should be
-input through the \code{control.simulate.stergm()} function, with the
-available parameters listed in the \code{\link{control.simulate.stergm}} help
+\code{tergm}'s \code{simulate_formula.network}. Control parameters for those
+simulations may be set using \code{set.control.tergm} in \code{netdx}.
+The parameters should be input through the
+\code{control.simulate.formula.tergm} function, with the available
+parameters listed in the \code{\link{control.simulate.formula.tergm}} help
 page in the \code{tergm} package.
 
 Models fit with the ERGM method with the edges dissolution approximation
 (setting \code{edapprox} to \code{TRUE}) require a call first to
-\code{simulate.ergm} for simulating an initial network, and second to
-\code{simulate.network} for simulating that static network forward through
-time. Control parameters may be set for both processes in \code{netdx}.
-For the first, the parameters should be input through the
-\code{control.simulate.ergm()} function, with the available parameters listed
-in the \code{\link[ergm:control.simulate.ergm]{control.simulate.ergm}} help
+\code{ergm}'s \code{simulate_formula.network} for simulating an initial
+network, and second to \code{tergm}'s \code{simulate_formula.network} for
+simulating that static network forward through time. Control parameters may
+be set for both processes in \code{netdx}. For the first, the parameters
+should be input through the \code{control.simulate.formula()} function, with
+the available parameters listed in the
+\code{\link[ergm:control.simulate.formula]{control.simulate.formula}} help
 page in the \code{ergm} package. For the second, parameters should be input
-through the \code{control.simulate.network()} function, with the available
-parameters listed in the \code{\link{control.simulate.network}} help page in
-the \code{tergm} package. An example is shown below.
+through the \code{control.simulate.formula.tergm()} function, with the
+available parameters listed in the
+\code{\link{control.simulate.formula.tergm}} help page in the \code{tergm}
+package. An example is shown below.
 }
 
 \examples{
@@ -123,13 +135,27 @@ plot(dx1, method = "b", stats = c("edges", "concurrent"))
 dx2 <- netdx(est,
   nsims = 5, nsteps = 500,
   nwstats.formula = ~ edges + meandeg + concurrent,
-  set.control.ergm = control.simulate.ergm(MCMC.burnin = 1e6)
+  set.control.ergm = control.simulate.formula(MCMC.burnin = 1e6)
 )
 dx2
 plot(dx2, stats = c("edges", "meandeg"), plots.joined = FALSE)
 plot(dx2, type = "duration")
 plot(dx2, type = "dissolution", qnts.col = "orange2")
 plot(dx2, type = "dissolution", method = "b", col = "bisque")
+
+# Dynamic diagnostics on a more complex model
+nw <- network_initialize(n = 1000)
+nw <- set_vertex_attribute(nw, "neighborhood", rep(1:10, 100))
+formation <- ~edges + nodematch("neighborhood", diff = TRUE)
+target.stats <- c(800, 45, 81, 24, 16, 32, 19, 42, 21, 24, 31)
+coef.diss <- dissolution_coefs(dissolution = ~offset(edges) +
+                    offset(nodematch("neighborhood", diff = TRUE)),
+                    duration = c(52, 58, 61, 55, 81, 62, 52, 64, 52, 68, 58))
+est <- netest(nw, formation, target.stats, coef.diss, verbose = FALSE)
+dx11 <- netdx(est, nsims = 5, nsteps = 100)
+plot(dx11)
+plot(dx11, type = "duration", plots.joined = TRUE, qnts = 0.2)
+plot(dx11, type = "dissolution", mean.smooth = FALSE, mean.col = "red")
 }
 
 }

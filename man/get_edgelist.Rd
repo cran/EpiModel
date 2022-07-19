@@ -7,14 +7,16 @@
 get_edgelist(dat, network)
 }
 \arguments{
-\item{dat}{Master list object of network models.}
+\item{dat}{Main list object containing a \code{networkDynamic} object and
+other initialization information passed from \code{\link{netsim}}.}
 
 \item{network}{Numerical index of the network from which the edgelist should
-be extracted.}
+be extracted. (May be > 1 for models with multiple overlapping
+networks.)}
 }
 \value{
-An edgelist in matrix form with the two columns. Each column contains the
-posit_ids (see \code{get_posit_ids})of the nodes in each edge.
+An edgelist in matrix form with two columns. Each column contains the
+posit_ids (see \code{get_posit_ids}) of the nodes in each edge.
 }
 \description{
 This function outputs an edgelist from the specified network,

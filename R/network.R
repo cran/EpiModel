@@ -5,21 +5,11 @@
 #'              workflows.
 #'
 #' @param n Network size.
-#' @param directed logical; should edges be interpreted as directed?
-#' @param hyper logical; are hyperedges allowed?
-#' @param loops logical; should loops be allowed?
-#' @param multiple logical; are multiplex edges allowed?
-#' @param bipartite count; should the network be interpreted as bipartite? If
-#'        present (i.e., non-NULL) it is the count of the number of actors in
-#'        the first mode of the bipartite network. In this case, the overall
-#'        number of vertices is equal to the number of 'actors' (first mode)
-#'        plus the number of ‘events’ (second mode), with the vertex.ids of all
-#'        actors preceeding all events. The edges are then interpreted as
-#'        nondirected.
 #'
 #' @details
 #' This function is used in \code{EpiModel} workflows to initialize an empty
-#' network object with the directed network attribute hard set to \code{FALSE}.
+#' network object.  The network attributes \code{directed}, \code{bipartite},
+#' \code{hyper}, \code{loops}, and \code{multiple} are set to \code{FALSE}.
 #'
 #' @return
 #' Returns an object of class \code{network}.
@@ -30,18 +20,17 @@
 #' nw <- network_initialize(100)
 #' nw
 #'
-network_initialize <- function(n, directed = FALSE,
-                               hyper = FALSE, loops = FALSE,
-                               multiple = FALSE, bipartite = FALSE) {
-  nw <- network.initialize(n, directed = directed, hyper = hyper, loops = loops,
-                           multiple = multiple, bipartite = bipartite)
+network_initialize <- function(n) {
+  nw <- network.initialize(n, directed = FALSE, hyper = FALSE, loops = FALSE,
+                           multiple = FALSE, bipartite = FALSE)
   return(nw)
 }
 
 #' @title Set Vertex Attribute on Network Object
 #'
-#' @description Set a vertex attribute on an object of class \code{network},
-#'              wrapping the related function in the \code{network} package.
+#' @description Sets a vertex attribute on an object of class \code{network}.
+#'              This function simplifies the related function in the
+#'              \code{network} package.
 #'
 #' @param x An object of class network.
 #' @param attrname The name of the attribute to set.
@@ -72,15 +61,17 @@ set_vertex_attribute <- function(x, attrname, value, v) {
 
 #' @title Get Vertex Attribute on Network Object
 #'
-#' @description Gets a vertex attribute from an object of class \code{network},
-#'              wrapping the related function in the \code{network} package.
+#' @description Gets a vertex attribute from an object of class \code{network}.
+#'              This functions simplifies the related function in the
+#'              \code{network} package.
 #'
 #' @param x An object of class network.
 #' @param attrname The name of the attribute to get.
 #'
 #' @details
-#' This function is used in \code{EpiModel} workflow to query vertex attributes
-#' on an initialized empty network object (see \code{\link{network_initialize}}.
+#' This function is used in \code{EpiModel} workflows to query vertex
+#' attributes on an initialized empty network object (see
+#' \code{\link{network_initialize}}).
 #'
 #' @return
 #' Returns an object of class \code{network}.

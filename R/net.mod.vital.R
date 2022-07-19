@@ -3,9 +3,9 @@
 #' @description This function simulates departure for use in \link{netsim}
 #'        simulations.
 #'
-#' @param dat Master list object containing a \code{networkDynamic} object and
-#'        other initialization information passed from \code{\link{netsim}}.
-#' @param at Current time step.
+#' @inheritParams recovery.net
+#'
+#' @inherit recovery.net return
 #'
 #' @seealso \code{\link{netsim}}
 #'
@@ -95,9 +95,9 @@ departures.net <- function(dat, at) {
 #' @description This function simulates new arrivals into the network
 #'   for use in \code{\link{netsim}} simulations.
 #'
-#' @param dat Master list object containing a \code{networkDynamic} object and
-#'   other initialization information passed from \code{\link{netsim}}.
-#' @param at Current time step.
+#' @inheritParams recovery.net
+#'
+#' @inherit recovery.net return
 #'
 #' @seealso \code{\link{netsim}}
 #'
@@ -140,9 +140,9 @@ arrivals.net <- function(dat, at) {
 #' @description This function simulates departure for use in \link{netsim}
 #'        simulations.
 #'
-#' @param dat Master list object containing a \code{networkDynamic} object and
-#'        other initialization information passed from \code{\link{netsim}}.
-#' @param at Current time step.
+#' @inheritParams recovery.net
+#'
+#' @inherit recovery.net return
 #'
 #' @seealso \code{\link{netsim}}
 #'
@@ -249,9 +249,9 @@ departures.2g.net <- function(dat, at) {
 #' @description This function simulates new arrivals into the network
 #'   for use in \code{\link{netsim}} simulations.
 #'
-#' @param dat Master list object containing a \code{networkDynamic} object and
-#'   other initialization information passed from \code{\link{netsim}}.
-#' @param at Current time step.
+#' @inheritParams recovery.net
+#'
+#' @inherit recovery.net return
 #'
 #' @seealso \code{\link{netsim}}
 #'

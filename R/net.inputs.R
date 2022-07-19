@@ -1,3 +1,4 @@
+
 #' @title Epidemic Parameters for Stochastic Network Models
 #'
 #' @description Sets the epidemic parameters for stochastic network models
@@ -15,30 +16,30 @@
 #'        exposure.
 #' @param inter.start Time step at which the intervention starts, between 1 and
 #'        the number of time steps specified in the model. This will default to
-#'        1 if the \code{inter.eff} is defined but this parameter is not.
+#'        1 if \code{inter.eff} is defined but this parameter is not.
 #' @param act.rate Average number of transmissible acts \emph{per partnership}
 #'        per unit time (see \code{act.rate} Parameter below). This may also be
-#'        a vector of rates, with each element corresponding to the rate in in
+#'        a vector of rates, with each element corresponding to the rate in
 #'        that time step of infection (see Time-Varying Parameters below).
 #' @param rec.rate Average rate of recovery with immunity (in \code{SIR} models)
 #'        or re-susceptibility (in \code{SIS} models). The recovery rate is the
 #'        reciprocal of the disease duration. For two-group models, this is the
-#'        recovery rate for mode 1 persons only. This parameter is only used for
-#'        \code{SIR} and \code{SIS} models. This may also be a vector
+#'        recovery rate for group 1 persons only. This parameter is only used
+#'        for \code{SIR} and \code{SIS} models. This may also be a vector
 #'        of rates, with each element corresponding to the rate in that time
 #'        step of infection (see Time-Varying Parameters below).
-#' @param a.rate Arrival or entry rate. For one-mode models, the arrival rate is
-#'        the rate of new arrivals per person per unit time. For two-group
-#'        models, the arrival rate may be parameterized as a rate per mode 1
-#'        person time (with group 1 persons representing females), and with the
-#'        \code{a.rate.g2} rate set as described below.
-#' @param ds.rate Departure or exit rate for susceptible. For two-group models,
-#'        it is the rate for the group 1 susceptible only.
-#' @param di.rate Departure or exit rate for infected. For two-group models, it
-#'        is the rate for the group 1 infected only.
-#' @param dr.rate Departure or exit rate for recovered. For two-group models, it
-#'        is the rate for the group 1 recovered only. This parameter is only
-#'        used for \code{SIR} models.
+#' @param a.rate Arrival or entry rate. For one-group models, the arrival rate
+#'        is the rate of new arrivals per person per unit time. For two-group
+#'        models, the arrival rate is parameterized as a rate per group 1
+#'        person per unit time, with the \code{a.rate.g2} rate set as described
+#'        below.
+#' @param ds.rate Departure or exit rate for susceptible persons. For two-group
+#'        models, it is the rate for group 1 susceptible persons only.
+#' @param di.rate Departure or exit rate for infected persons. For two-group
+#'        models, it is the rate for group 1 infected persons only.
+#' @param dr.rate Departure or exit rate for recovered persons. For two-group
+#'        models, it is the rate for group 1 recovered persons only. This
+#'        parameter is only used for \code{SIR} models.
 #' @param inf.prob.g2 Probability of transmission given a transmissible act
 #'        between a susceptible group 2 person and an infected group 1 person.
 #'        It is the probability of transmission to group 2 members.
@@ -47,15 +48,15 @@
 #'        persons. This parameter is only used for two-group \code{SIR} and
 #'        \code{SIS} models.
 #' @param a.rate.g2 Arrival or entry rate for group 2. This may either be
-#'        specified numerically as the rate of new arrivals per group 2 persons
-#'        per unit time, or as \code{NA} in which case the mode 1 rate,
+#'        specified numerically as the rate of new arrivals per group 2 person
+#'        per unit time, or as \code{NA}, in which case the group 1 rate,
 #'        \code{a.rate}, governs the group 2 rate. The latter is used when, for
 #'        example, the first group is conceptualized as female, and the female
-#'        population size determines the arrival rate. Such arrivalss are evenly
+#'        population size determines the arrival rate. Such arrivals are evenly
 #'        allocated between the two groups.
-#' @param ds.rate.g2 Departure or exit rate for group 2 susceptible.
-#' @param di.rate.g2 Departure or exit rate for group 2 infected.
-#' @param dr.rate.g2 Departure or exit rate for group 2 recovered. This
+#' @param ds.rate.g2 Departure or exit rate for group 2 susceptible persons.
+#' @param di.rate.g2 Departure or exit rate for group 2 infected persons.
+#' @param dr.rate.g2 Departure or exit rate for group 2 recovered persons. This
 #'        parameter is only used for \code{SIR} model types.
 #'
 #' @param ... Additional arguments passed to model.
@@ -114,7 +115,31 @@
 #' for sampling is provided with \code{\link{param_random}} but any function
 #' will do.
 #'
-#' @section New Modules:
+#' @section Using a Parameter data.frame:
+#' It is possible to set input parameters using a specifically formatted
+#' \code{data.frame} object. The first 3 columns of this \code{data.frame} must
+#' be:
+#' \itemize{
+#'  \item \code{param}: The name of the parameter. If this is a non-scalar
+#'    parameter (a vector of length > 1), end the parameter name with the
+#'    position on the vector (e.g., \code{"p_1"}, \code{"p_2"}, ...).
+#'  \item \code{value}: the value for the parameter (or the value of the
+#'    parameter in the Nth position if non-scalar).
+#'  \item \code{type}: a character string containing either \code{"numeric"},
+#'    \code{"logical"}, or \code{"character"} to define the parameter object
+#'    class.
+#' }
+#'
+#' In addition to these 3 columns, the \code{data.frame} can contain any number
+#' of other columns, such as \code{details} or \code{source} columns to document
+#' parameter meta-data. However, these extra columns will not be used by
+#' EpiModel.
+#'
+#' This data.frame is then passed in to \code{param.net} under a
+#' \code{data.frame.parameters} argument. Further details and examples are
+#' provided in the "Working with Model Parameters in EpiModel" vignette.
+#'
+#' @section Parameters with New Modules:
 #' To build original models outside of the base models, new process modules
 #' may be constructed to replace the existing modules or to supplement the
 #' existing set. These are passed into the control settings in
@@ -122,8 +147,10 @@
 #' parameters named here, an original set of parameters, or a combination of
 #' both. The \code{...} allows the user to pass an arbitrary set of original
 #' model parameters into \code{param.net}. Whereas there are strict checks with
-#' default modules for parameter validity, these checks are the user's
-#' responsibility with new modules.
+#' default modules for parameter validity, this becomes a user
+#' responsibility when using new modules.
+#'
+#' @return An \code{EpiModel} object of class \code{param.net}.
 #'
 #' @seealso Use \code{\link{init.net}} to specify the initial conditions and
 #'          \code{\link{control.net}} to specify the control settings. Run the
@@ -174,8 +201,20 @@ param.net <- function(inf.prob, inter.eff, inter.start, act.rate, rec.rate,
                       rec.rate.g2, a.rate.g2, ds.rate.g2, di.rate.g2,
                       dr.rate.g2, ...) {
 
+
   # Get arguments
-  p <- list()
+  dot.args <- list(...)
+  names.dot.args <- names(dot.args)
+
+  # Use "data.frame.params" as default if available
+  if ("data.frame.params" %in% names.dot.args) {
+    p <- param.net_from_table(dot.args[["data.frame.params"]])
+    dot.args[["data.frame.params"]] <- NULL
+    names.dot.args <- names(dot.args)
+  } else {
+    p <- list()
+  }
+
   formal.args <- formals(sys.function())
   formal.args[["..."]] <- NULL
   for (arg in names(formal.args)) {
@@ -183,15 +222,13 @@ param.net <- function(inf.prob, inter.eff, inter.start, act.rate, rec.rate,
       p[arg] <- list(get(arg))
     }
   }
-  dot.args <- list(...)
-  names.dot.args <- names(dot.args)
   if (length(dot.args) > 0) {
     for (i in seq_along(dot.args)) {
       p[[names.dot.args[i]]] <- dot.args[[i]]
     }
   }
 
-  ## random_params checks
+  ## random.params checks
    if ("random.params" %in% names.dot.args) {
      for (nm in names(p[["random.params"]])) {
        if (nm %in% names(p)) {
@@ -250,25 +287,26 @@ param.net <- function(inf.prob, inter.eff, inter.start, act.rate, rec.rate,
 #' @description Updates epidemic model parameters originally set with
 #'              \code{\link{param.net}} and adds new parameters.
 #'
-#' @param x Object of class \code{param.net}, output from function of same name.
+#' @param param Object of class \code{param.net}, output from function of same
+#'              name.
 #' @param new.param.list Named list of new parameters to add to original
 #'        parameters.
 #'
 #' @details
-#' This function allows for updating any original parameters specified with
-#' \code{\link{param.net}} and adding new parameters. This function would be
-#' used when the inputs to \code{\link{param.net}} may be a long list of
-#' fixed model parameters that may need supplemental replacements or additions
-#' for particular model runs (e.g., changing an intervention efficacy parameter
-#' but leaving all other parameters fixed).
+#' This function can update any original parameters specified with
+#' \code{\link{param.net}} and add new parameters. This function would be used
+#' if the inputs to \code{\link{param.net}} were a long list of fixed model
+#' parameters that needed supplemental replacements or additions for particular
+#' model runs (e.g., changing an intervention efficacy parameter but leaving all
+#' other parameters fixed).
 #'
-#' The \code{new.param.list} object should be a named list object that may
+#' The \code{new.param.list} object should be a named list object containing
 #' named parameters matching those already in \code{x} (in which case those
 #' original parameter values will be replaced) or not matching (in which case
-#' new parameters will be added to \code{x}).
+#' new parameters will be added to \code{param}).
 #'
 #' @return
-#' An updated list object of class \code{param.net}, which can be passed to
+#' An updated list object of class \code{param.net}, which can be passed to the
 #' EpiModel function \code{\link{netsim}}.
 #'
 #' @examples
@@ -279,35 +317,36 @@ param.net <- function(inf.prob, inter.eff, inter.start, act.rate, rec.rate,
 #'
 #' @export
 #'
-update_params <- function(x, new.param.list) {
+update_params <- function(param, new.param.list) {
 
-  if (!inherits(x, "param.net")) {
+  if (!inherits(param, "param.net")) {
     stop("x should be object of class param.net")
   }
-  if (class(new.param.list) != "list") {
+  if (!inherits(new.param.list, "list")) {
     stop("new.param.list should be object of class list")
   }
 
   for (ii in seq_along(new.param.list)) {
-    x[[names(new.param.list)[ii]]] <- new.param.list[[ii]]
+    param[[names(new.param.list)[ii]]] <- new.param.list[[ii]]
   }
 
-  return(x)
+  return(param)
 }
 
 
 #' @title Create a Value Sampler for Random Parameters
 #'
 #' @description This function returns a 0 argument function that can be used as
-#'              a generator function in the \code{random_params} argument of the
-#'              \code{\link{param.net}} function.
+#'   a generator function in the \code{random.params} argument of the
+#'   \code{\link{param.net}} function.
 #'
-#' @param values a vector of values to sample from.
-#' @param prob a vector of weights to use during sampling, if \code{NULL},
+#' @param values A vector of values to sample from.
+#' @param prob A vector of weights to use during sampling. If \code{NULL},
 #'        all values have the same probability of being picked
 #'        (default = \code{NULL}).
-
-#' @return one of the values from the \code{values} vector.
+#'
+#' @return A 0 argument generator function to sample one of the values from the
+#' \code{values} vector.
 #'
 #' @seealso \code{\link{param.net}} and \code{\link{generate_random_params}}
 #' @export
@@ -346,30 +385,33 @@ param_random <- function(values, prob = NULL) {
 #'
 #' @return A fully instantiated \code{param} list.
 #'
-#' @section \code{random_params}:
-#' The \code{random_params} argument to the \code{param.net} function must be a
-#' named list of functions that return a values that can be used as the argument
-#' with the same name. In the example below, \code{param_random} is a function
-#' factory provided by EpiModel for \code{act.rate} and \code{tx.halt.part.prob}
-#' we provide bespoke functions.
+
+#' @section \code{random.params}:
+#' The \code{random.params} argument to the \code{\link{param.net}} function
+#' must be a named list of functions that each return a value that can be used
+#' as the argument with the same name. In the example below, \code{param_random}
+#' is a function factory provided by EpiModel for \code{act.rate} and
+#' for \code{tx.halt.part.prob} we provide bespoke functions. A function factory
+#' is a function that returns a new function
+#' (see https://adv-r.hadley.nz/function-factories.html).
 #'
 #' @section Generator Functions:
-#' The function used inside \code{random_params} must be 0 argument functions
+#' The functions used inside \code{random_params} must be 0 argument functions
 #' returning a valid value for the parameter with the same name.
 #'
 #' @section \code{param_random_set}:
-#' The \code{random_params} list can optionnally contain a
+#' The \code{random_params} list can optionally contain a
 #' \code{param_random_set} element. It must be a \code{data.frame} of possible
 #' values to be used as parameters.
 #'
 #' The column names must correspond either to:
-#' the name of one parameter if this parameter is of size 1 or the name of the
-#' parameter with "_1", "_2", "_N" with the second part being the position of
-#' the value for a parameter of size > 1. This means that the parameter names
-#' cannot contain any underscore "_" if you intend to use
+#' the name of one parameter, if this parameter is of size 1; or the name of one
+#' parameter with "_1", "_2", etc. appended, with the number representing the
+#' position of the value, if this parameter is of size > 1. This means that the
+#' parameter names cannot contain any underscores "_" if you intend to use
 #' \code{param_random_set}.
 #'
-#' The point of the \code{param_random_set} \code{data.frame} is to allow the
+#' The point of the \code{param.random.set} \code{data.frame} is to allow the
 #' random parameters to be correlated. To achieve this, a whole row of the
 #' \code{data.frame} is selected for each simulation.
 #'
@@ -407,7 +449,7 @@ param_random <- function(values, prob = NULL) {
 #' paramDraw
 #'
 #'
-#' ## Addition of the `param_random_set` `data.frame`
+#' ## Addition of the `param.random.set` `data.frame`
 #'
 #' # This function will generate sets of correlated parameters
 #'  generate_correlated_params <- function() {
@@ -427,10 +469,10 @@ param_random <- function(values, prob = NULL) {
 #'    "param.set.2_1", "param.set.2_2", "param.set.2_3"
 #'  )
 #'
-#' # Define random parameter list with the `param_random_set` element
+#' # Define random parameter list with the `param.random.set` element
 #' my_randoms <- list(
 #'   act.rate = param_random(c(0.25, 0.5, 0.75)),
-#'   param_random_set = correlated_params
+#'   param.random.set = correlated_params
 #' )
 #'
 #' # Parameter model with fixed and random parameters
@@ -462,21 +504,21 @@ generate_random_params <- function(param, verbose = FALSE) {
 
   rng_values <- list()
 
-  if ("param_random_set" %in% rng_names) {
-    # Take `param_random_set` out of the `random.params` list
-    param_random_set <- random.params[["param_random_set"]]
-    random.params[["param_random_set"]] <- NULL
+  if ("param.random.set" %in% rng_names) {
+    # Take `param.random.set` out of the `random.params` list
+    param.random.set <- random.params[["param.random.set"]]
+    random.params[["param.random.set"]] <- NULL
     rng_names <- names(random.params)
 
-    if (!is.data.frame(param_random_set)) {
-      stop("`param_random_set` must be a data.frame")
+    if (!is.data.frame(param.random.set)) {
+      stop("`param.random.set` must be a data.frame")
     }
 
     # Check the format of the names
-    set.elements <- names(param_random_set)
+    set.elements <- names(param.random.set)
     correct_format <- grepl("^[a-zA-Z0-9.]*(_[0-9]+)?$", set.elements)
     if (!all(correct_format)) {
-      stop("The following column names in `param_random_set` are malformed: \n",
+      stop("The following column names in `param.random.set` are malformed: \n",
         paste0(set.elements[!correct_format], collapse = ", "), "\n\n",
         "you can check the names with ",
         '`grepl("^[a-zA-Z0-9.]*(_[0-9]+)?$", your.names)` \n',
@@ -485,7 +527,7 @@ generate_random_params <- function(param, verbose = FALSE) {
     }
 
     # Construct a `data.frame` matching the names with the parameters
-    set.elements <- names(param_random_set)
+    set.elements <- names(param.random.set)
     set.elements.split <- data.frame(do.call(
       rbind,
       strsplit(set.elements, "_")
@@ -500,12 +542,12 @@ generate_random_params <- function(param, verbose = FALSE) {
     colnames(set.elements) <- c("name", "param", "position")
 
     # Pick one row of the `data.frame`
-    sampled.row <- sample.int(nrow(param_random_set), 1)
-    param_random_set <- param_random_set[sampled.row, ]
+    sampled.row <- sample.int(nrow(param.random.set), 1)
+    param.random.set <- param.random.set[sampled.row, ]
 
     # Set the new values in `rng_values`
     for (i in seq_len(nrow(set.elements))) {
-      value <- param_random_set[1, set.elements[i, "name"][[1]]]
+      value <- param.random.set[1, set.elements[i, "name"][[1]]]
       parameter <- set.elements[i, "param"][[1]]
       position <- set.elements[i, "position"][[1]]
 
@@ -515,7 +557,7 @@ generate_random_params <- function(param, verbose = FALSE) {
 
   if (!all(vapply(random.params, is.function, TRUE))) {
     stop("all elements of `random.params` must be functions \n",
-         "(Except 'param_random_set')")
+         "(Except 'param.random.set')")
   }
 
   duplicated.rng <- names(rng_values) %in% rng_names
@@ -548,15 +590,15 @@ generate_random_params <- function(param, verbose = FALSE) {
 #' @description Sets the initial conditions for stochastic network models
 #'              simulated with \code{netsim}.
 #'
-#' @param i.num Number of initial infected. For two-group models, this is the
-#'        number of initial group 1 infected.
-#' @param r.num Number of initial recovered. For two-group models, this is the
-#'        number of initial group 1 recovered. This parameter is only used for
-#'        the \code{SIR} model type.
-#' @param i.num.g2 Number of initial infected in group 2. This parameter is only
-#'        used for two-group models.
-#' @param r.num.g2 Number of initial recovered in group 2. This parameter is
-#'        only used for two-group \code{SIR} models.
+#' @param i.num Number of initial infected persons. For two-group models, this
+#'        is the number of initial group 1 infected persons.
+#' @param r.num Number of initial recovered persons. For two-group models, this
+#'        is the number of initial group 1 recovered persons. This parameter is
+#'        only used for the \code{SIR} model type.
+#' @param i.num.g2 Number of initial infected persons in group 2. This parameter
+#'        is only used for two-group models.
+#' @param r.num.g2 Number of initial recovered persons in group 2. This
+#'        parameter is only used for two-group \code{SIR} models.
 #' @param status.vector A vector of length equal to the size of the input
 #'        network, containing the status of each node. Setting status here
 #'        overrides any inputs passed in the \code{.num} arguments.
@@ -574,6 +616,8 @@ generate_random_params <- function(param, verbose = FALSE) {
 #' specifying initial conditions across a variety of base network models,
 #' consult the \href{http://www.epimodel.org/tut.html}{Basic Network Models}
 #' tutorials.
+#'
+#' @return An \code{EpiModel} object of class \code{init.net}.
 #'
 #' @seealso Use \code{\link{param.net}} to specify model parameters and
 #'          \code{\link{control.net}} to specify the control settings. Run the
@@ -621,13 +665,13 @@ init.net <- function(i.num, r.num, i.num.g2, r.num.g2,
     warning("EpiModel 2.0+ updated initial condition suffixes. ",
             "All .m2 initial conditions changed to .g2. See documentation.")
   }
-  if (!is.null(p[["i.num"]]) & !is.null(p[["status.vector"]])) {
+  if (!is.null(p[["i.num"]]) && !is.null(p[["status.vector"]])) {
     stop("Use i.num OR status.vector to set initial infected")
   }
-  if (!is.null(p[["infTime.vector"]]) & is.null(p[["status.vector"]])) {
+  if (!is.null(p[["infTime.vector"]]) && is.null(p[["status.vector"]])) {
     stop("infTime.vector may only be used if status.vector is used")
   }
-  if (!is.null(p[["infTime.vector"]]) &
+  if (!is.null(p[["infTime.vector"]]) &&
       length(p[["infTime.vector"]]) != length(p[["status.vector"]])) {
     stop("Length of infTime.vector must match length of status.vector")
   }
@@ -655,7 +699,7 @@ init.net <- function(i.num, r.num, i.num.g2, r.num.g2,
 #' @param nsims The total number of disease simulations.
 #' @param ncores Number of processor cores to run multiple simulations
 #'        on, using the \code{foreach} and \code{doParallel} implementations.
-#' @param start For models with network resimulation , time point to start up
+#' @param start For models with network resimulation, time point to start up
 #'        simulation. For restarted simulations, this must be one greater than
 #'        the final time step in the prior simulation and must be less than the
 #'        value in \code{nsteps}.
@@ -697,13 +741,13 @@ init.net <- function(i.num, r.num, i.num.g2, r.num.g2,
 #'        step, with the default function of \code{\link{prevalence.net}}.
 #' @param verbose.FUN Module to print simulation progress to screen, with the
 #'        default function of \code{\link{verbose.net}}.
-#' @param module.order A character vector of module names that lists modules the
-#'        order in which they should be evaluated within each time step. If
+#' @param module.order A character vector of module names that lists modules in
+#'        the order in which they should be evaluated within each time step. If
 #'        \code{NULL}, the modules will be evaluated as follows: first any
 #'        new modules supplied through \code{...} in the order in which they are
-#'        listed, then the built-in modules in their order of the function
-#'        listing. The \code{initialize.FUN} will always be run first and the
-#'        \code{verbose.FUN} always last.
+#'        listed, then the built-in modules in the order in which they are
+#'        listed as arguments above. \code{initialize.FUN} will
+#'        always be run first and \code{verbose.FUN} will always be run last.
 #' @param save.nwstats If \code{TRUE}, save network statistics in a data frame.
 #'        The statistics to be saved are specified in the \code{nwstats.formula}
 #'        argument.
@@ -712,36 +756,42 @@ init.net <- function(i.num, r.num, i.num.g2, r.num.g2,
 #'        terms.
 #' @param save.network If \code{TRUE}, networkDynamic/network object is
 #'        saved at simulation end. Implicit reset to \code{FALSE} if
-#'        \code{tergmLite = TRUE} (because network history not saved with tL).
+#'        \code{tergmLite = TRUE} (because network history is not saved with
+#'        tergmLite).
 #' @param save.transmat If \code{TRUE}, complete transmission matrix is saved at
 #'        simulation end. Default of \code{TRUE}.
-#' @param save.other A vector of elements on the \code{dat} master data list
-#'        to save out after each simulation. One example for base models is
-#'        the attribute list, "attr", at the final time step.
+#' @param save.other A character vector of elements on the \code{dat} main data
+#'        list to save out after each simulation. One example for base models is
+#'        the attribute list, \code{"attr"}, at the final time step.
 #' @param verbose If \code{TRUE}, print model progress to the console.
 #' @param verbose.int Time step interval for printing progress to console, where
 #'        0 prints completion status of entire simulation and positive integer
-#'        \code{x} prints progress after each \code{x} time steps. The default
+#'        \code{x} prints progress after every \code{x} time steps. The default
 #'        is to print progress after each time step.
 #' @param skip.check If \code{TRUE}, skips the default error checking for the
 #'        structure and consistency of the parameter values, initial conditions,
 #'        and control settings before running base epidemic models. Setting
 #'        this to \code{FALSE} is recommended when running models with new
 #'        modules specified.
-#' @param raw.output If \code{TRUE}, \code{netsim} will output a list of nestsim
+#' @param raw.output If \code{TRUE}, \code{netsim} will output a list of netsim
 #'        data (one per simulation) instead of a formatted \code{netsim} object.
-#' @param tergmLite.track.duration logical; to track duration information
-#'        (\code{time} and \code{lasttoggle}) for \code{tergm} models in
-#'        \code{tergmLite} simulations. If \code{TRUE}, the \code{time} and
-#'        \code{lasttoggle} values are initialized from the network attributes
-#'        of the networks passed to \code{init_tergmLite}, with \code{time}
-#'        defaulting to \code{0} and \code{lasttoggle} defaulting to all
-#'        \code{lasttoggle} times unspecified (effectively \code{-INT_MAX/2}).
+#' @param tergmLite.track.duration If \code{TRUE}, track duration information
+#'        for models in \code{tergmLite} simulations.
 #' @param set.control.ergm Control arguments passed to \code{ergm}'s
-#'        \code{.simulate_formula.network}.
-#' @param set.control.stergm Control arguments passed to \code{tergm}'s
-#'        \code{simulate.network}. See the help file for \code{\link{netdx}}
-#'        for details and examples on specifying this parameter.
+#'        \code{simulate_formula.network}.  In \code{netsim}, this is only used
+#'        when initializing the network with \code{edapprox = TRUE}; all other
+#'        simulations in \code{netsim} use \code{tergm}.
+#' @param set.control.tergm Control arguments passed to \code{tergm}'s
+#'        \code{simulate_formula.network}. See the help file for
+#'        \code{\link{netdx}} for details and examples on specifying this
+#'        parameter.
+#' @param set.control.stergm Deprecated control argument of class
+#'        \code{control.simulate.network}; use \code{set.control.tergm}
+#'        instead.
+#' @param save.diss.stats If \code{TRUE}, \code{netsim} will compute and save
+#'        duration/dissolution statistics for plotting and printing, provided
+#'        \code{save.network} is \code{TRUE}, \code{tergmLite} is \code{FALSE},
+#'        and the dissolution model is homogeneous.
 #' @param ... Additional control settings passed to model.
 #'
 #' @details
@@ -753,11 +803,11 @@ init.net <- function(i.num, r.num, i.num.g2, r.num.g2,
 #' For all base models, the \code{type} argument is a necessary parameter
 #' and it has no default.
 #'
-#' @section The attr.rules Argument:
+#' @section The \code{attr.rules} Argument:
 #' The \code{attr.rules} parameter is used to specify the rules for how nodal
 #' attribute values for incoming nodes should be set. These rules are only
-#' necessary for models in which there are incoming nodes (i.e., arrivals) There
-#' are three rules available for each attribute value:
+#' necessary for models in which there are incoming nodes (i.e., arrivals).
+#' There are three rules available for each attribute value:
 #' \itemize{
 #'  \item \strong{"current":} new nodes will be assigned this attribute in
 #'        proportion to the distribution of that attribute among existing nodes
@@ -774,6 +824,38 @@ init.net <- function(i.num, r.num, i.num.g2, r.num.g2,
 #' nodes. By default, the rule is "current" for all attributes except status,
 #' in which case it is "s" (that is, all incoming nodes are susceptible).
 #'
+#' @section Checkpointing Simulations:
+#' \code{netsim} has a built-in checkpoint system to prevent losing computation
+#' work if the function is interrupted (SIGINT, power loss, time limit exceeded
+#' on a computation cluster). When enabled, each simulation will be saved every
+#' \code{.checkpoint.steps} time steps. Then, if a checkpoint enabled simulation
+#' is launched again with \code{netsim}, it will restart at the last checkpoint
+#' available in the saved data.
+#'
+#' To enable the checkpoint capabilities of \code{netsim}, two control arguments
+#' have to be set: \code{.checkpoint.steps}, which is a positive number of time
+#' steps to be run between each file save; and \code{.checkpoint.dir}, which is
+#' the path to a directory to save the checkpointed data. If
+#' \code{.checkpoint.dir} directory does not exist, \code{netsim} will attempt
+#' to create it on the first checkpoint save. With these two controls defined,
+#' one can simply re-run \code{netsim} with the same arguments to restart a set
+#' of simulations that were interrupted.
+#'
+#' Simulations are checkpointed individually: for example, if 3 simulations are
+#' run on a single core, the first 2 are finished, then the interruption occurs
+#' during the third, \code{netsim} will only restart the third one from the last
+#' checkpoint.
+#'
+#' A \code{.checkpoint.compress} argument can be set to overwrite the
+#' \code{compress} argument in \code{saveRDS} used to save the checkpointed
+#' data. The current default for \code{saveRDS} is \code{gunzip (gz)}, which
+#' provides fast compression that usually works well on \code{netsim} objects.
+#'
+#' By default, if \code{netsim} reaches the end of all simulations, the
+#' checkpoint data directory and its content are removed before returning the
+#' \code{netsim} object. The \code{.checkpoint.keep} argument can be set to TRUE
+#' to prevent this removal to inspect the raw simulation objects.
+#'
 #' @section New Modules:
 #' Base network models use a set of module functions that specify how the
 #' individual nodes in the network are subjected to infection, recovery,
@@ -788,6 +870,8 @@ init.net <- function(i.num, r.num, i.num.g2, r.num.g2,
 #' the \href{http://www.epimodel.org/tut.html}{New Network Models} tutorials.
 #' One may remove existing modules, such as \code{arrivals.FUN}, from the
 #' workflow by setting the parameter value for that argument to \code{NULL}.
+#'
+#' @return An \code{EpiModel} object of class \code{control.net}.
 #'
 #' @seealso Use \code{\link{param.net}} to specify model parameters and
 #'          \code{\link{init.net}} to specify the initial conditions. Run the
@@ -830,8 +914,14 @@ control.net <- function(type,
                         tergmLite.track.duration = FALSE,
                         set.control.ergm = control.simulate.formula(
                           MCMC.burnin = 2e5),
-                        set.control.stergm = control.simulate.network(),
+                        set.control.stergm = NULL,
+                        set.control.tergm = control.simulate.formula.tergm(),
+                        save.diss.stats = TRUE,
                         ...) {
+  if (!missing(set.control.stergm)) {
+    warning("set.control.stergm is deprecated and will be removed in a future
+             version; use set.control.tergm instead.")
+  }
 
   # Get arguments
   p <- list()
@@ -882,7 +972,7 @@ control.net <- function(type,
         index <- index + 1
       }
     }
-  } else{
+  } else {
     p[["bi.mods"]] <- bi.mods
   }
   p[["user.mods"]] <- grep(".FUN", names(dot.args), value = TRUE)
@@ -938,7 +1028,7 @@ control.net <- function(type,
   if (p[["tergmLite"]] == TRUE) {
     p[["save.network"]] <- FALSE
   }
-  if (p[["tergmLite"]] == TRUE & p[["resimulate.network"]] == FALSE) {
+  if (p[["tergmLite"]] == TRUE && p[["resimulate.network"]] == FALSE) {
     message("Because tergmLite = TRUE, resetting resimulate.network = TRUE",
             call. = FALSE)
     p[["resimulate.network"]] <- TRUE
@@ -976,7 +1066,7 @@ crosscheck.net <- function(x, param, init, control) {
     if (control[["start"]] == 1 && control[["skip.check"]] == FALSE) {
 
       # Main class check ----------------------------------------------------
-      if (class(x) != "netest" && class(x) != "netsim") {
+      if (!inherits(x, c("netest", "netsim"))) {
         stop("x must be either an object of class netest or class netsim",
              call. = FALSE)
       }
@@ -991,7 +1081,7 @@ crosscheck.net <- function(x, param, init, control) {
       }
 
       # Pull network object from netest object
-      nw <- x[["fit"]][["network"]]
+      nw <- x$newnetwork
 
       # Defaults ------------------------------------------------------------
 
@@ -1002,7 +1092,7 @@ crosscheck.net <- function(x, param, init, control) {
       nGroups <- length(unique(get_vertex_attribute(nw, "group")))
       nGroups <- ifelse(nGroups == 2, 2, 1)
 
-      if (nGroups == 2 & is.null(control[["pid.prefix"]])) {
+      if (nGroups == 2 && is.null(control[["pid.prefix"]])) {
         control[["pid.prefix"]] <- c("g1.", "g2.")
       }
 
@@ -1045,8 +1135,8 @@ crosscheck.net <- function(x, param, init, control) {
       }
 
       # Two-group model checks for inital conditions
-      if (nGroups == 2 & is.null(init[["i.num.g2"]]) &
-          is.null(init[["status.vector"]]) & statOnNw == FALSE) {
+      if (nGroups == 2 && is.null(init[["i.num.g2"]]) &&
+          is.null(init[["status.vector"]]) && statOnNw == FALSE) {
         stop("Specify i.num.g2 for two-group model simulations", call. = FALSE)
       }
 
@@ -1055,23 +1145,22 @@ crosscheck.net <- function(x, param, init, control) {
         if (is.null(param[["rec.rate"]])) {
           stop("Specify rec.rate in param.net", call. = FALSE)
         }
-        if (nGroups == 2 & is.null(param[["rec.rate.g2"]])) {
+        if (nGroups == 2 && is.null(param[["rec.rate.g2"]])) {
           stop("Specify rec.rate.g2 in param.net", call. = FALSE)
         }
       }
       if (control[["type"]] == "SIR") {
-        if (is.null(init[["r.num"]]) & is.null(init[["status.vector"]]) &
-            statOnNw == FALSE) {
+        if (is.null(init[["r.num"]]) && is.null(init[["status.vector"]]) && statOnNw == FALSE) {
           stop("Specify r.num in init.net", call. = FALSE)
         }
-        if (nGroups == 2 & is.null(init[["r.num.g2"]]) &
-            is.null(init[["status.vector"]]) & statOnNw == FALSE) {
+        if (nGroups == 2 && is.null(init[["r.num.g2"]]) &&
+            is.null(init[["status.vector"]]) && statOnNw == FALSE) {
           stop("Specify r.num.g2 in init.net", call. = FALSE)
         }
       }
 
       # Check demographic parameters for two-group models
-      if (nGroups == 2 & param[["vital"]] == TRUE) {
+      if (nGroups == 2 && param[["vital"]] == TRUE) {
         if (is.null(param[["a.rate.g2"]])) {
           stop("Specify a.rate.g2 in param.net", call. = FALSE)
         }
@@ -1095,7 +1184,7 @@ crosscheck.net <- function(x, param, init, control) {
       control[["resimulate.network"]] <- TRUE
 
       if (control[["skip.check"]] == FALSE) {
-        if (class(x) != "netsim") {
+        if (!inherits(x, "netsim")) {
           stop("x must be a netsim object if control setting start > 1",
                call. = FALSE)
         }
@@ -1136,8 +1225,7 @@ crosscheck.net <- function(x, param, init, control) {
             control[["f.args"]][i] <- gsub(".FUN", ".net", args[i])
           }
         }
-      }
-      else {
+      } else {
         for (i in seq_along(args)) {
           if (is.null(control[[args[i]]])) {
             temp <- get(gsub(".FUN", ".2g.net", args[i]))
@@ -1157,4 +1245,73 @@ crosscheck.net <- function(x, param, init, control) {
   ## In-place assignment to update param and control
   assign("param", param, pos = parent.frame())
   assign("control", control, pos = parent.frame())
+}
+
+#' @title Parameters List for Stochastic Network Models from a Formatted
+#'        Data Frame
+#'
+#' @description Sets the epidemic parameters for stochastic network models with
+#'              \code{\link{netsim}} using a specially formatted data frame of
+#'              parameters.
+#'
+#' @param long.param.df A \code{data.frame} of parameters. See details for the
+#'                      expected format.
+#'
+#' @return A list object of class \code{param.net}, which can be passed to
+#'         \code{\link{netsim}}.
+#'
+#' @details
+#' It is possible to set input parameters using a specifically formatted
+#' \code{data.frame} object. The first 3 columns of this \code{data.frame} must
+#' be:
+#' \itemize{
+#'  \item \code{param}: The name of the parameter. If this is a non-scalar
+#'    parameter (a vector of length > 1), end the parameter name with the
+#'    position on the vector (e.g., \code{"p_1"}, \code{"p_2"}, ...).
+#'  \item \code{value}: the value for the parameter (or the value of the
+#'    parameter in the Nth position if non-scalar).
+#'  \item \code{type}: a character string containing either \code{"numeric"},
+#'    \code{"logical"}, or \code{"character"} to define the parameter object
+#'    class.
+#' }
+#'
+#' In addition to these 3 columns, the \code{data.frame} can contain any number
+#' of other columns, such as \code{details} or \code{source} columns to document
+#' parameter meta-data. However, these extra columns will not be used by
+#' EpiModel.
+#'
+param.net_from_table <- function(long.param.df) {
+  # Checks
+  if (!all(c("param", "value", "type") %in% names(long.param.df))) {
+    stop(
+      "The `data.frame` must contain the following 3 columns:\n",
+      "'param', 'value'", " and 'type"
+    )
+  }
+  if (!all(long.param.df[["type"]] %in% c("numeric", "logical", "character"))) {
+    stop("The `type` column must contain only 'numeric', 'logical' or",
+         " 'character'")
+  }
+  check_params_names(long.param.df[["param"]])
+
+  duplicated_params <- duplicated(long.param.df[["param"]])
+  duplicated_params <- long.param.df[["param"]][duplicated_params]
+  if (length(duplicated_params) > 0) {
+    stop("The following parameters are duplicated: `",
+         paste0(duplicated_params, collapse = "`, `"), "`")
+  }
+
+  # To flat params
+  flat.params <- Map(
+    function(g, x) g(x),
+    g = lapply(paste0("as.", long.param.df[["type"]]), get),
+    x = long.param.df[["value"]]
+  )
+  names(flat.params) <- long.param.df[["param"]]
+
+  # To param.list
+  param <- unflatten_params(flat.params)
+  class(param) <- c("param.net", "list")
+
+  return(param)
 }

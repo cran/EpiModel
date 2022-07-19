@@ -11,7 +11,7 @@
   sims,
   stats,
   duration.imputed = TRUE,
-  sim.lines,
+  sim.lines = FALSE,
   sim.col,
   sim.lwd,
   mean.line = TRUE,
@@ -21,7 +21,7 @@
   mean.lty = 1,
   qnts = 0.5,
   qnts.col,
-  qnts.alpha,
+  qnts.alpha = 0.5,
   qnts.smooth = TRUE,
   targ.line = TRUE,
   targ.col,
@@ -45,21 +45,17 @@ step.}
 \item{method}{Plot method, with options of \code{"l"} for line plots and
 \code{"b"} for boxplots.}
 
-\item{sims}{If \code{type="epi"} or \code{"formation"}, a vector of
-simulation numbers to plot. If \code{type="network"}, a single
-simulation number for network plot, or else \code{"min"} to plot the
-simulation number with the lowest disease prevalence, \code{"max"} for
-the simulation with the highest disease prevalence, or \code{"mean"}
-for the simulation with the prevalence closest to the mean across
-simulations at the specified time step.}
+\item{sims}{A vector of simulation numbers to plot.}
 
-\item{stats}{Network statistics to plot, among those specified in the call
-to \code{\link{netdx}}, with the default to plot all statistics
-contained in the object.}
+\item{stats}{Statistics to plot.  For \code{type = "formation"},
+\code{stats} are among those specified in the call to
+\code{\link{netdx}}; for \code{type = "duration","dissolution"},
+\code{stats} are among those of the dissolution model (without
+\code{offset()}).  The default is to plot all statistics.}
 
 \item{duration.imputed}{If \code{type="duration"}, a logical indicating
 whether or not to impute starting times for relationships extant at
-the start of the simulation. Defaults to TRUE when
+the start of the simulation. Defaults to \code{TRUE} when
 \code{type="duration"}.}
 
 \item{sim.lines}{If \code{TRUE}, plot individual simulation lines. Default is
@@ -100,20 +96,19 @@ default colors based on \code{RColorBrewer} color palettes.}
 
 \item{targ.lty}{Line type for the line showing the target statistic values.}
 
-\item{plots.joined}{If \code{TRUE} and \code{type="formation"}, combine all
-target statistics in one plot, versus one plot per target statistic if
-\code{FALSE}.}
+\item{plots.joined}{If \code{TRUE}, combine all statistics in one
+plot, versus one plot per statistic if \code{FALSE}.}
 
 \item{legend}{If \code{TRUE}, plot default legend.}
 
 \item{grid}{If \code{TRUE}, a grid is added to the background of plot
 (see \code{\link{grid}} for details), with default of nx by ny.}
 
-\item{...}{additional arguments to pass.}
+\item{...}{Additional arguments to pass.}
 }
 \description{
 Plots dynamic network model diagnostics calculated in
-             \code{netdx}.
+             \code{\link{netdx}}.
 }
 \details{
 The plot function for \code{netdx} objects will generate plots of two types
@@ -124,14 +119,14 @@ statistics in the network model formation formula specified in the original
 call to \code{\link{netest}}.
 
 The \code{duration} plot shows the average age of existing edges at each time
-step, up until the maximum time step requested. This is calculated with the
-\code{\link{edgelist_meanage}} function. The age is used as an estimator of
-the average duration of edges in the equilibrium state. When
+step, up until the maximum time step requested. The age is used as an
+estimator of the average duration of edges in the equilibrium state. When
 \code{duration.imputed = FALSE}, edges that exist at the beginning of the
-simulation are assumed to have an age of 0, yielding a burn-in period before
-the observed mean approaches its target. When \code{duration.imputed = TRUE},
-expected ages prior to the start of the simulation are calculated from the
-dissolution model, typically eliminating the need for a burn-in period.
+simulation are assumed to start with an age of 1, yielding a burn-in period
+before the observed mean approaches its target.  When
+\code{duration.imputed = TRUE}, expected ages prior to the start of the
+simulation are calculated from the dissolution model, typically eliminating
+the need for a burn-in period.
 
 The \code{dissolution} plot shows the proportion of the extant ties that are
 dissolved at each time step, up until the maximum time step requested.
@@ -141,19 +136,20 @@ in the duration plot, but should reach its expected value more quickly, since
 it is not subject to censoring.
 
 The \code{plots.joined} argument will control whether the statistics
-in the \code{formation} plot are joined in one plot or plotted separately.
-The default is based on the number of network statistics requested. The
-layout of the separate plots within the larger plot window is also based on
-the number of statistics.
+are joined in one plot or plotted separately, assuming there are multiple
+statistics in the model. The default is based on the number of network
+statistics requested. The layout of the separate plots within the larger plot
+window is also based on the number of statistics.
 }
 \examples{
 \dontrun{
 # Network initialization and model parameterization
-nw <- network_initialize(n = 100)
-nw <- set_vertex_attribute(nw, "sex", rbinom(100, 1, 0.5))
+nw <- network_initialize(n = 500)
+nw <- set_vertex_attribute(nw, "sex", rbinom(500, 1, 0.5))
 formation <- ~edges + nodematch("sex")
-target.stats <- c(50, 40)
-coef.diss <- dissolution_coefs(dissolution = ~offset(edges), duration = 50)
+target.stats <- c(500, 300)
+coef.diss <- dissolution_coefs(dissolution = ~offset(edges) +
+                  offset(nodematch("sex")), duration = c(50, 40))
 
 # Estimate the model
 est <- netest(nw, formation, target.stats, coef.diss, verbose = FALSE)
@@ -194,14 +190,13 @@ plot(dx2, method = "b", stats = "meandeg", col = "dodgerblue")
 par(mfrow = c(1, 2))
 # With duration imputed
 plot(dx2, type = "duration", sim.line = TRUE, sim.lwd = 0.3,
-     sim.col = "steelblue", targ.lty = 1, targ.lwd = 0.5)
+     targ.lty = 1, targ.lwd = 0.5)
 # Without duration imputed
 plot(dx2, type = "duration", sim.line = TRUE, sim.lwd = 0.3,
-     sim.col = "steelblue", targ.lty = 1, targ.lwd = 0.5,
-     duration.imputed = FALSE)
+     targ.lty = 1, targ.lwd = 0.5, duration.imputed = FALSE)
 
 # Dissolution statistics plot
-plot(dx2, type = "dissolution", mean.col = "black", grid = TRUE)
+plot(dx2, type = "dissolution", qnts = 0.25, grid = TRUE)
 plot(dx2, type = "dissolution", method = "b", col = "pink1")
 }
 

@@ -4,14 +4,12 @@
 #' @description This function simulates the main infection process given the
 #'              current state of the partnerships and disease in the system.
 #'
-#' @param dat A list object containing a \code{networkDynamic} object and other
-#'        initialization information passed from \code{\link{netsim}}.
-#' @param at Current time step.
+#' @inheritParams recovery.net
 #'
 #' @details
 #' The main steps in this infection module are as follows:
 #' \enumerate{
-#'  \item Get IDs for current infected and susceptibles given the current
+#'  \item Get IDs for current infected and susceptible nodes given the current
 #'        disease status.
 #'  \item Call \code{\link{discord_edgelist}} to get the current discordant
 #'        edgelist given step 1.
@@ -25,9 +23,7 @@
 #'        and calculate disease incidence.
 #' }
 #'
-#' @return
-#' The main \code{dat} object is returned with updated disease status and
-#' summary incidence measures.
+#' @inherit recovery.net return
 #'
 #' @export
 #' @keywords netMod internal
@@ -125,9 +121,7 @@ infection.net <- function(dat, at) {
 #' @description This function simulates the main infection process given the
 #'              current state of the partnerships and disease in the system.
 #'
-#' @param dat A list object containing a \code{networkDynamic} object and other
-#'        initialization information passed from \code{\link{netsim}}.
-#' @param at Current time step.
+#' @inheritParams recovery.net
 #'
 #' @details
 #' The main steps in this infection module are as follows:
@@ -146,9 +140,7 @@ infection.net <- function(dat, at) {
 #'        and calculate disease incidence.
 #' }
 #'
-#' @return
-#' The main \code{dat} object is returned with updated disease status and
-#' summary incidence measures.
+#' @inherit recovery.net return
 #'
 #' @export
 #' @keywords netMod internal
@@ -264,10 +256,7 @@ infection.2g.net <- function(dat, at) {
 #'              edgelist, defined as the set of edges in which the status of the
 #'              two partners is one susceptible and one infected.
 #'
-#' @param dat Master list object containing a \code{networkDynamic} object or
-#'        edgelist (if tergmLite is used) and other initialization information
-#'        passed from \code{\link{netsim}}.
-#' @param at Current time step.
+#' @inheritParams recovery.net
 #' @param network In case of models with multiple networks, the network to pull
 #'        the current edgelist from. Default of \code{network = 1}.
 #' @param infstat Character vector of disease status values that are considered
@@ -287,9 +276,9 @@ infection.2g.net <- function(dat, at) {
 #' @return
 #' This function returns a \code{data.frame} with the following columns:
 #' \itemize{
-#'  \item \strong{time:} time step queried
-#'  \item \strong{sus:} ID number for the susceptible partner
-#'  \item \strong{inf:} ID number for the infectious partner
+#'  \item \strong{time:} time step queried.
+#'  \item \strong{sus:} ID number for the susceptible partner.
+#'  \item \strong{inf:} ID number for the infectious partner.
 #' }
 #' The output from this function is added to the transmission \code{data.frame}
 #' object that is requested as output in \code{netsim} simulations with
@@ -309,7 +298,7 @@ discord_edgelist <- function(dat, at, network = 1, infstat = "i") {
 
   del <- NULL
   if (nrow(el) > 0) {
-    el <- el[sample(1:nrow(el)), , drop = FALSE]
+    el <- el[sample(seq_len(nrow(el))), , drop = FALSE]
     stat <- matrix(status[el], ncol = 2)
     isInf <- matrix(stat %in% infstat, ncol = 2)
     isSus <- matrix(stat %in% "s", ncol = 2)
@@ -339,17 +328,16 @@ discord_edgelist <- function(dat, at, network = 1, infstat = "i") {
 #' @description This function appends the transmission matrix created during
 #'              \code{infection.net} and \code{infection.2g.net}.
 #'
-#' @param dat Master list object containing a \code{networkDynamic} object or
-#'        edgelist (if tergmLite is used) and other initialization information
-#'        passed from \code{\link{netsim}}.
-#' @param at Current time step.
-#' @param del Discordant edgelist created within \code{infection.net} and
-#'        \code{infection.2g.net}.
+#' @inheritParams recovery.net
+#' @param del Discordant edgelist created within \code{\link{infection.net}} and
+#'        \code{\link{infection.2g.net}}.
 #'
 #' @details
 #' This internal function works within the parent \code{\link{infection.net}}
 #' functions to save the transmission matrix created at time step \code{at} to
-#' the master list object \code{dat}.
+#' the main list object \code{dat}.
+#'
+#' @inherit recovery.net return
 #'
 #' @export
 #'

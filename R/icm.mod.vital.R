@@ -4,8 +4,9 @@
 #' @description This function simulates departure for use in \code{\link{icm}}
 #'              simulations.
 #'
-#' @param dat Master data list object.
-#' @param at Current time step.
+#' @inheritParams prevalence.icm
+#'
+#' @inherit recovery.net return
 #'
 #' @seealso \code{\link{icm}}
 #'
@@ -96,8 +97,9 @@ departures.icm <- function(dat, at) {
 #' @description This function simulates arrival for use in \code{\link{icm}}
 #'              simulations.
 #'
-#' @param dat Master data list object.
-#' @param at Current time step.
+#' @inheritParams prevalence.icm
+#'
+#' @inherit recovery.net return
 #'
 #' @seealso \code{\link{icm}}
 #'
@@ -139,13 +141,14 @@ arrivals.icm <- function(dat, at) {
 }
 
 
-#' @title Departure: bipartite icm Module
+#' @title Departure: Bipartite icm Module
 #'
 #' @description This function simulates departure for use in \code{\link{icm}}
 #'              simulations.
 #'
-#' @param dat Master data list object.
-#' @param at Current time step.
+#' @inheritParams prevalence.icm
+#'
+#' @inherit recovery.net return
 #'
 #' @seealso \code{\link{icm}}
 #'
@@ -250,13 +253,14 @@ departures.icm.bip <- function(dat, at) {
   return(dat)
 }
 
-#' @title Arrivals: bipartite icm Module
+#' @title Arrivals: Bipartite icm Module
 #'
 #' @description This function simulates arrival for use in \code{\link{icm}}
 #'              simulations.
 #'
-#' @param dat Master data list object.
-#' @param at Current time step.
+#' @inheritParams prevalence.icm
+#'
+#' @inherit recovery.net return
 #'
 #' @seealso \code{\link{icm}}
 #'

@@ -14,7 +14,7 @@ dissolution models.}
 \item{duration}{A vector of mean edge durations in arbitrary time units.}
 
 \item{d.rate}{Departure or exit rate from the population, as a single
-homogenous rate that applies to the entire population.}
+homogeneous rate that applies to the entire population.}
 }
 \value{
 A list of class \code{disscoef} with the following elements:
@@ -30,24 +30,26 @@ A list of class \code{disscoef} with the following elements:
  \item \strong{coef.form.corr:} corrections to be subtracted from formation
        coefficients.
  \item \strong{d.rate:} the departure rate.
+ \item \strong{diss.model.type:} the form of the dissolution model; options
+       include \code{edgesonly}, \code{nodematch}, \code{nodemix}, and
+       \code{nodefactor}.
 }
 }
 \description{
 Calculates dissolution coefficients, given a dissolution model
-             and average edge duration, to pass as offsets to an ERGM/STERGM
+             and average edge duration, to pass as offsets to an ERGM/TERGM
              model fit in \code{netest}.
 }
 \details{
 This function performs two calculations for dissolution coefficients
 used in a network model estimated with \code{\link{netest}}:
 \enumerate{
- \item \strong{Transformation:} the mean duration of edges in a network are
+ \item \strong{Transformation:} the mean durations of edges in a network are
        mathematically transformed to logit coefficients.
  \item \strong{Adjustment:} in a dynamic network simulation in an open
        population (in which there are departures), it is further necessary to
-       adjust these coefficients for dynamic simulations; this upward
-       adjustment accounts for departure as a competing risk to edge
-       dissolution.
+       adjust these coefficients; this upward adjustment accounts for
+       departure as a competing risk to edge dissolution.
 }
 
 The current dissolution models supported by this function and in network
@@ -70,7 +72,8 @@ model estimation in \code{\link{netest}} are as follows:
  \item \code{~offset(edges) + offset(nodefactor("<attr>"))}: a heterogeneous
         model in which the edge duration varies by a specified attribute. The
         duration vector should first contain the base value, then the values
-        for every other value of that attribute in the term.
+        for every other value of that attribute in the term. This option is
+        deprecated.
 }
 }
 \examples{

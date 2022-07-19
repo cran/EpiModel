@@ -2,22 +2,26 @@
 % Please edit documentation in R/net.utils.R
 \name{auto_update_attr}
 \alias{auto_update_attr}
-\title{Updates Vertex Attributes for Incoming Vertices}
+\title{Update Vertex Attributes for Incoming Vertices}
 \usage{
 auto_update_attr(dat, newNodes, curr.tab)
 }
 \arguments{
-\item{dat}{Master object in \code{netsim} simulations.}
+\item{dat}{Main list object containing a \code{networkDynamic} object and
+other initialization information passed from \code{\link{netsim}}.}
 
 \item{newNodes}{Vector of nodal IDs for incoming nodes at the current time
 step.}
 
 \item{curr.tab}{Current proportional distribution of all vertex attributes.}
 }
+\value{
+The updated \code{dat} main list object.
+}
 \description{
 Updates the vertex attributes on a network for new nodes
              incoming into that network, based on a set of rules for each
-             attribute that the user specifies in \code{control.net}.
+             attribute that the user specifies in \code{\link{control.net}}.
 }
 \seealso{
 \code{\link{copy_nwattr_to_datattr}}, \code{\link{get_attr_prop}},

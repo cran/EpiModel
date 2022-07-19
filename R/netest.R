@@ -21,18 +21,16 @@
 #' @param edapprox If \code{TRUE}, use the indirect edges dissolution
 #'        approximation  method for the dynamic model fit, otherwise use the
 #'        more time-intensive full STERGM estimation (see details).
-#' @param set.control.ergm Control arguments passed to \code{simulate.ergm} (see
+#' @param set.control.ergm Control arguments passed to \code{ergm} (see
 #'        details).
-#' @param set.control.stergm Control arguments passed to \code{simulate.stergm}
+#' @param set.control.stergm Deprecated control argument of class
+#'        \code{control.stergm}; use \code{set.control.tergm} instead.
+#' @param set.control.tergm Control arguments passed to \code{tergm}
 #'        (see details).
-#' @param verbose Print model fitting progress to console.
-#' @param nested.edapprox Logical. If \code{edapprox} is \code{TRUE}, is the
-#'        dissolution model an initial segment of the formation model? This
-#'        determines whether \code{edapprox} is implemented by subtracting the
-#'        relevant values from the initial formation model coefficients, or by
-#'        appending the dissolution terms to the formation model and appending
-#'        the relevant values to the vector of formation model coefficients.
-#' @param ... additional arguments passed to other functions
+#' @param verbose If \code{TRUE}, print model fitting progress to console.
+#' @param nested.edapprox Logical. If \code{edapprox = TRUE} the dissolution
+#'        model is an initial segment of the formation model (see details).
+#' @param ... Additional arguments passed to other functions.
 #'
 #' @details
 #' \code{netest} is a wrapper function for the \code{ergm} and \code{stergm}
@@ -75,18 +73,23 @@
 #' It has recently been found that subtracting a modified version of the
 #' dissolution coefficients from the formation coefficients provides a more
 #' principled approximation, and this is now the form of the approximation
-#' applied by \code{netest}.  (The modified values subtracted from the formation
+#' applied by \code{netest}. The modified values subtracted from the formation
 #' coefficients are equivalent to the (crude) dissolution coefficients with
-#' their target durations increased by 1.)
+#' their target durations increased by 1. The \code{nested.edapprox} argument
+#' toggles whether to implement this modified version by appending the
+#' dissolution terms to the formation model and appending the relevant values to
+#' the vector of formation model coefficients (value = \code{FALSE}), whereas
+#' the standard version subtracts the relevant values from the initial formation
+#' model coefficients (value = \code{TRUE}).
 #'
 #' @section Control Arguments:
-#' The \code{ergm} and \code{stergm} functions allow control settings for the
+#' The \code{ergm} and \code{tergm} functions allow control settings for the
 #' model fitting process. When fitting a STERGM directly (setting
 #' \code{edapprox} to \code{FALSE}), control parameters may be passed to the
-#' \code{stergm} function with the \code{set.control.stergm} argument in
+#' \code{tergm} function with the \code{set.control.tergm} argument in
 #' \code{netest}. The controls should be input through the
-#' \code{control.stergm()} function, with the available parameters listed in the
-#' \code{\link{control.stergm}} help page in the \code{tergm} package.
+#' \code{control.tergm()} function, with the available parameters listed in the
+#' \code{\link{control.tergm}} help page in the \code{tergm} package.
 #'
 #' When fitting a STERGM indirectly (setting \code{edapprox} to \code{TRUE}),
 #' control settings may be passed to the \code{ergm} function using
@@ -94,6 +97,8 @@
 #' through the \code{control.ergm()} function, with the available parameters
 #' listed in the \code{\link[ergm:control.ergm]{control.ergm}} help page in the
 #' \code{ergm} package. An example is below.
+#'
+#' @return A fitted network model object of class \code{netest}.
 #'
 #' @references
 #' Krivitsky PN, Handcock MS. "A separable model for dynamic networks." JRSS(B).
@@ -138,14 +143,21 @@
 #'
 netest <- function(nw, formation, target.stats, coef.diss, constraints,
                    coef.form = NULL, edapprox = TRUE,
-                   set.control.ergm, set.control.stergm,
+                   set.control.ergm = control.ergm(),
+                   set.control.stergm = control.stergm(),
+                   set.control.tergm = control.tergm(),
                    verbose = FALSE, nested.edapprox = TRUE, ...) {
+
+  if (!missing(set.control.stergm)) {
+    warning("set.control.stergm is deprecated and will be removed in a future
+             version; use set.control.tergm instead.")
+  }
 
   if (missing(constraints)) {
     constraints	<- trim_env(~.)
   }
 
-  if (class(coef.diss) != "disscoef") {
+  if (!inherits(coef.diss, "disscoef")) {
     stop("dissolution must be of input through dissolution_coefs function",
          call. = FALSE)
   }
@@ -162,22 +174,30 @@ netest <- function(nw, formation, target.stats, coef.diss, constraints,
 
   if (edapprox == FALSE) {
 
-    if (missing(set.control.stergm)) {
-      set.control.stergm <- control.stergm()
+    if (!missing(set.control.stergm)) {
+      fit <- stergm(nw,
+                    formation = formation,
+                    dissolution = dissolution,
+                    targets = "formation",
+                    target.stats = target.stats,
+                    offset.coef.form = coef.form,
+                    offset.coef.diss = coef.diss$coef.crude,
+                    constraints = constraints,
+                    estimate = "EGMME",
+                    eval.loglik = FALSE,
+                    control = set.control.stergm,
+                    verbose = verbose)
+    } else {
+      fit <- tergm(nw ~ Form(formation) + Persist(dissolution),
+                   targets = "formation",
+                   target.stats = target.stats,
+                   offset.coef = c(coef.form, coef.diss$coef.crude),
+                   constraints = constraints,
+                   estimate = "EGMME",
+                   eval.loglik = FALSE,
+                   control = set.control.tergm,
+                   verbose = verbose)
     }
-
-    fit <- stergm(nw,
-                  formation = formation,
-                  dissolution = dissolution,
-                  targets = "formation",
-                  target.stats = target.stats,
-                  offset.coef.form = coef.form,
-                  offset.coef.diss = coef.diss$coef.crude,
-                  constraints = constraints,
-                  estimate = "EGMME",
-                  eval.loglik = FALSE,
-                  control = set.control.stergm,
-                  verbose = verbose)
 
     coef.form <- fit # there is no longer a separate formation fit
     which_form <- which(grepl("^Form~", names(coef(fit))) |
@@ -185,7 +205,6 @@ netest <- function(nw, formation, target.stats, coef.diss, constraints,
     form_names <- names(coef(fit)[which_form])[!fit$offset[which_form]]
 
     out <- list()
-    out$fit <- fit
     out$formation <- formation
     out$target.stats <- target.stats
     out$target.stats.names <-
@@ -195,12 +214,13 @@ netest <- function(nw, formation, target.stats, coef.diss, constraints,
     out$coef.diss <- coef.diss
     out$constraints <- constraints
     out$edapprox <- edapprox
+    # convert ergm_state to network
+    out$newnetwork <- as.network(fit$newnetwork)
+    delete.network.attribute(out$newnetwork, "time")
+    delete.network.attribute(out$newnetwork, "lasttoggle")
+    out$formula <- fit$formula
 
   } else {
-
-    if (missing(set.control.ergm)) {
-      set.control.ergm <- control.ergm()
-    }
 
     formation.nw <- nonsimp_update.formula(formation, nw ~ ., from.new = "nw")
 
@@ -232,14 +252,7 @@ netest <- function(nw, formation, target.stats, coef.diss, constraints,
       }
     }
 
-    # Reduce size of output object
-    fit$initialfit <- NULL
-    fit$constrained <- NULL
-    environment(fit$sample.obs) <- NULL
-    environment(fit$reference) <- NULL
-
     out <- list()
-    out$fit <- fit
     out$formation <- formation
     out$target.stats <- target.stats
     if (length(names(coef(fit))) == length(target.stats)) {
@@ -253,7 +266,12 @@ netest <- function(nw, formation, target.stats, coef.diss, constraints,
     out$constraints <- constraints
     out$edapprox <- edapprox
     out$nested.edapprox <- nested.edapprox
+    out$newnetwork <- fit$newnetwork
+    out$formula <- fit$formula
   }
+
+  out$summary <- summary(fit, ...)
+  out$fit <- fit
 
   class(out) <- "netest"
   return(out)
@@ -302,7 +320,6 @@ diss_check <- function(formation, dissolution) {
                        },
                        c(term = "", args = ""))
 
-
   matchpos <- match(diss.terms[1, ], form.terms[1, ])
 
   if (any(is.na(matchpos))) {
@@ -313,11 +330,16 @@ diss_check <- function(formation, dissolution) {
     stop("The only allowed dissolution terms are edges, nodemix,
          nodematch and ", "nodefactor", call. = FALSE)
   }
-  if (any(matchpos != 1:ncol(diss.terms))) {
+  if (any(diss.terms[1, ] %in% c("nodefactor"))) {
+    warning("Support for dissolution models containing a nodefactor term is
+            deprecated, and will be removed in a future release.")
+    # TODO: remove functionality and deprecation message in future release
+  }
+  if (any(matchpos != seq_len(ncol(diss.terms)))) {
     stop("Order of terms in the dissolution model does not correspond to the ",
          "formation model.", call. = FALSE)
   }
-  if (any(diss.terms[2, ] != form.terms[2, 1:ncol(diss.terms)])) {
+  if (any(diss.terms[2, ] != form.terms[2, seq_len(ncol(diss.terms))])) {
     stop("Term options for one or more terms in dissolution model do not ",
          "match the options in the formation model.", call. = FALSE)
   }
@@ -327,27 +349,22 @@ diss_check <- function(formation, dissolution) {
 
 #' @title Adjust Dissolution Component of Network Model Fit
 #'
-#' @description Adjusts the dissolution component of an dynamic ERGM fit using
-#'              the \code{netest} function with the edges dissolution
+#' @description Adjusts the dissolution component of a dynamic ERGM fit using
+#'              the \code{\link{netest}} function with the edges dissolution
 #'              approximation method.
 #'
 #' @param old.netest An object of class \code{netest}, from the
 #'        \code{\link{netest}} function.
 #' @param new.coef.diss An object of class \code{disscoef}, from the
 #'        \code{\link{dissolution_coefs}} function.
-#' @param nested.edapprox Is the new dissolution model an initial segment of
-#'        the formation model in \code{old.netest} (not including the appended
-#'        old dissolution model if \code{old.netest} was fit with
-#'        \code{nested.edapprox = TRUE})? This determines whether the new
-#'        edapprox is implemented by subtracting the relevant values from the
-#'        initial formation model coefficients, or by appending the new
-#'        dissolution terms to the formation model and appending the relevant
-#'        values to the vector of formation model coefficients.
-#' @param ... additional arguments passed to other functions
+#' @param nested.edapprox Logical. If \code{edapprox = TRUE} the dissolution
+#'        model is an initial segment of the formation model (see details in
+#'        \code{\link{netest}}).
+#' @param ... Additional arguments passed to other functions.
 #'
 #' @details
 #' Fitting an ERGM is a computationally intensive process when the model
-#' includes dyadic dependent terms. With the edges dissolution approximation
+#' includes dyad dependent terms. With the edges dissolution approximation
 #' method of Carnegie et al, the coefficients for a temporal ERGM are
 #' approximated by fitting a static ERGM and adjusting the formation
 #' coefficients to account for edge dissolution. This function provides a very
@@ -355,6 +372,8 @@ diss_check <- function(formation, dissolution) {
 #' use a different dissolution model; a typical use case may be to fit several
 #' different models with different average edge durations as targets. The
 #' example below exhibits that case.
+#'
+#' @return An updated network model object of class \code{netest}.
 #'
 #' @export
 #'
@@ -386,10 +405,10 @@ diss_check <- function(formation, dissolution) {
 update_dissolution <- function(old.netest, new.coef.diss,
                                nested.edapprox = TRUE, ...) {
 
-  if (class(old.netest) != "netest") {
+  if (!inherits(old.netest, "netest")) {
     stop("old.netest must be an object of class netest", call. = FALSE)
   }
-  if (class(new.coef.diss) != "disscoef") {
+  if (!inherits(new.coef.diss, "disscoef")) {
     stop("new.coef.diss must be an object of class disscoef", call. = FALSE)
   }
   if (old.netest$edapprox != TRUE) {
@@ -399,54 +418,59 @@ update_dissolution <- function(old.netest, new.coef.diss,
 
   out <- old.netest
 
-  ## remove the old correction
-  if (out$nested.edapprox == TRUE) {
-    ## adjust the formation model coefficients to remove the old edapprox
-    l.cd.o <- length(out$coef.diss$coef.form.corr)
-    out$coef.form[1:l.cd.o] <- out$coef.form[1:l.cd.o] +
-      out$coef.diss$coef.form.corr
-  } else {
-    ## remove the part of the formation model and coefficient vector
-    ## corresponding to the old edapprox
-    old_diss_list <- list_rhs.formula(out$coef.diss$dissolution)
+  ## if an old correction was applied...
+  if (old.netest$coef.diss$coef.crude[1] != -Inf) {
+    ## remove the old correction
+    if (out$nested.edapprox == TRUE) {
+      ## adjust the formation model coefficients to remove the old edapprox
+      l.cd.o <- length(out$coef.diss$coef.form.corr)
+      out$coef.form[1:l.cd.o] <- out$coef.form[1:l.cd.o] +
+        out$coef.diss$coef.form.corr
+    } else {
+      ## remove the part of the formation model and coefficient vector
+      ## corresponding to the old edapprox
+      old_diss_list <- list_rhs.formula(out$coef.diss$dissolution)
 
-    formation_list <- list_rhs.formula(out$formation)
-    formation_list <- formation_list[seq_len(length(formation_list) -
-                                               length(old_diss_list))]
+      formation_list <- list_rhs.formula(out$formation)
+      formation_list <- formation_list[seq_len(length(formation_list) -
+                                                 length(old_diss_list))]
 
-    formation <- append_rhs.formula(~., formation_list)
-    environment(formation) <- environment(out$formation)
-    formation[[2]] <- NULL # remove the . on the LHS
+      formation <- append_rhs.formula(~., formation_list)
+      environment(formation) <- environment(out$formation)
+      formation[[2]] <- NULL # remove the . on the LHS
 
-    out$formation <- formation
-    out$coef.form <-
-      out$coef.form[seq_len(length(out$coef.form) -
-                              length(out$coef.diss$coef.form.corr))]
+      out$formation <- formation
+      out$coef.form <-
+        out$coef.form[seq_len(length(out$coef.form) -
+                                length(out$coef.diss$coef.form.corr))]
+    }
   }
 
-  ## apply the new correction
-  if (nested.edapprox == TRUE) {
-    ## check that the new dissolution model is an initial segment of the
-    ## formation model
-    diss_check(out$formation, new.coef.diss$dissolution)
+  ## if a new correction should be applied...
+  if (new.coef.diss$coef.crude[1] != -Inf) {
+    ## apply the new correction
+    if (nested.edapprox == TRUE) {
+      ## check that the new dissolution model is an initial segment of the
+      ## formation model
+      diss_check(out$formation, new.coef.diss$dissolution)
 
-    ## implement the new edapprox by adjusting the formation model coefficients
-    l.cd.n <- length(new.coef.diss$coef.form.corr)
-    out$coef.form[1:l.cd.n] <- out$coef.form[1:l.cd.n] -
-      new.coef.diss$coef.form.corr
-  } else {
-    ## implement the new edapprox by appending the new dissolution model to the
-    ## formation model and appending the relevant values to the vector of
-    ## formation model coefficients
-    formula_addition <- append_rhs.formula(~., new.coef.diss$dissolution,
-                                           keep.onesided = TRUE)
-    environment(formula_addition) <- environment(new.coef.diss$dissolution)
-    # the ... allows for copying via from.new
-    out$formation <- nonsimp_update.formula(out$formation,
-                                            formula_addition, ...)
-    out$coef.form <- c(out$coef.form, -new.coef.diss$coef.form.corr)
+      ## implement new edapprox by adjusting the formation model coefficients
+      l.cd.n <- length(new.coef.diss$coef.form.corr)
+      out$coef.form[1:l.cd.n] <- out$coef.form[1:l.cd.n] -
+        new.coef.diss$coef.form.corr
+    } else {
+      ## implement new edapprox by appending the new dissolution model to the
+      ## formation model and appending the relevant values to the vector of
+      ## formation model coefficients
+      formula_addition <- append_rhs.formula(~., new.coef.diss$dissolution,
+                                             keep.onesided = TRUE)
+      environment(formula_addition) <- environment(new.coef.diss$dissolution)
+      # the ... allows for copying via from.new
+      out$formation <- nonsimp_update.formula(out$formation,
+                                              formula_addition, ...)
+      out$coef.form <- c(out$coef.form, -new.coef.diss$coef.form.corr)
+    }
   }
-
 
   out$coef.diss <- new.coef.diss
   out$nested.edapprox <- nested.edapprox

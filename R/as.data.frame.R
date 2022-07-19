@@ -13,7 +13,7 @@
 #' @param ...  See \code{\link{as.data.frame.default}}.
 #'
 #' @details
-#' Model output from \code{dcm} simulations are available as a data
+#' Model output from \code{\link{dcm}} simulations are available as a data
 #' frame with this helper function. The output data frame will include
 #' columns for time, the size of each compartment, the overall population
 #' size (the sum of compartment sizes), and the size of each flow.
@@ -21,6 +21,8 @@
 #' For models with multiple runs (i.e., varying parameters - see example below),
 #' the default with the \code{run} parameter not specified will output all runs
 #' in a single stacked data frame.
+#'
+#' @return A data frame containing the data from \code{x}.
 #'
 #' @method as.data.frame dcm
 #' @keywords extract
@@ -128,6 +130,8 @@ as.data.frame.dcm <- function(x, row.names = NULL, optional = FALSE, run,
 #' stochastic model classes. Means, standard deviations, and quantiles are
 #' calculated by taking the row summary (i.e., each row of data is corresponds
 #' to a time step) across all simulations in the model output.
+#'
+#' @return A data frame containing the data from \code{x}.
 #'
 #' @method as.data.frame icm
 #' @keywords extract
@@ -248,7 +252,7 @@ as.data.frame.icm <- function(x, row.names = NULL, optional = FALSE,
   }
 
   if (out == "qnt") {
-    if (missing(qval) || length(qval) > 1 || (qval > 1 | qval < 0)) {
+    if (missing(qval) || length(qval) > 1 || (qval > 1 || qval < 0)) {
       stop("Must specify qval as single value between 0 and 1", call. = FALSE)
     }
     for (i in seq_along(x$epi)) {
@@ -281,7 +285,7 @@ as.data.frame.netsim <- function(x, row.names = NULL, optional = FALSE,
 
 }
 
-#' @title Extract Timed Edgelists netdx Objects
+#' @title Extract Timed Edgelists for netdx Objects
 #'
 #' @description This function extracts timed edgelists for objects of class
 #'              \code{netdx} into a data frame using the generic
@@ -293,6 +297,8 @@ as.data.frame.netsim <- function(x, row.names = NULL, optional = FALSE,
 #' @param row.names See \code{\link{as.data.frame.default}}.
 #' @param optional See \code{\link{as.data.frame.default}}.
 #' @param ...  See \code{\link{as.data.frame.default}}.
+#'
+#' @return A data frame containing the data from \code{x}.
 #'
 #' @method as.data.frame netdx
 #' @keywords extract

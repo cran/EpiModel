@@ -4,29 +4,26 @@
 #' @description This function outputs an edgelist from the specified network,
 #'              selecting the method depending on the stored network type.
 
-#' @param dat Master list object of network models.
+#' @inheritParams recovery.net
 #' @param network Numerical index of the network from which the edgelist should
-#'                be extracted.
+#'                be extracted. (May be > 1 for models with multiple overlapping
+#'                networks.)
 #'
 #' @return
-#' An edgelist in matrix form with the two columns. Each column contains the
-#' posit_ids (see \code{get_posit_ids})of the nodes in each edge.
+#' An edgelist in matrix form with two columns. Each column contains the
+#' posit_ids (see \code{get_posit_ids}) of the nodes in each edge.
 #'
 #' @export
 get_edgelist <- function(dat, network) {
+  if (!network %in% seq_along(dat[["nwparam"]])) {
+    stop("There is no network '", network, "' to get the edgelist from")
+  }
+
   if (get_control(dat, "tergmLite")) {
     el <- dat[["el"]][[network]]
   } else {
     at <- get_current_timestep(dat)
-    if (!is.null(dat[["temp"]][["nw_list"]])) {
-      if (!get_control(dat, "resimulate.network")) {
-        el <- network::as.edgelist(dat[["temp"]][["nw_list"]][[at]])
-      } else {
-        el <- network::as.edgelist(dat[["nw"]][[network]])
-      }
-    } else {
-      el <- networkDynamic::get.dyads.active(dat[["nw"]][[network]], at = at)
-    }
+    el <- networkDynamic::get.dyads.active(dat[["nw"]][[network]], at = at)
   }
 
   return(el)
@@ -34,16 +31,17 @@ get_edgelist <- function(dat, network) {
 
 #' @title Get a Cumulative Edgelist From a Specified Network
 #'
-#' @param dat a Master list object for \code{netsim}.
+#' @inheritParams recovery.net
 #' @param network Numerical index of the network from which the cumulative
-#'                edgelist should be extracted.
+#'                edgelist should be extracted. (May be > 1 for models with
+#'                multiple overlapping networks.)
 #'
 #' @return
 #' A cumulative edgelist in \code{data.frame} form with 4 columns:
 #' \itemize{
-#'   \item \code{head}: the unique ID see \code{get_unique_ids}) of the
+#'   \item \code{head}: the unique ID (see \code{get_unique_ids}) of the
 #'         head node on the edge.
-#'   \item \code{tail}: the unique ID see \code{get_unique_ids}) of the
+#'   \item \code{tail}: the unique ID (see \code{get_unique_ids}) of the
 #'         tail node on the edge.
 #'   \item \code{start}: the time step in which the edge started.
 #'   \item \code{stop}: the time step in which the edge stopped; if ongoing,
@@ -52,6 +50,11 @@ get_edgelist <- function(dat, network) {
 #'
 #' @export
 get_cumulative_edgelist <- function(dat, network) {
+  if (!network %in% seq_along(dat[["nwparam"]])) {
+    stop("There is no network '", network,
+         "' to get the cumulative edgelist from")
+  }
+
   if (length(dat[["el.cuml"]]) < network) {
     el_cuml <- NULL
   } else {
@@ -72,23 +75,22 @@ get_cumulative_edgelist <- function(dat, network) {
 
 #' @title Update a Cumulative Edgelist of the Specified Network
 #'
-#' @param dat Master list object of network models.
+#' @inheritParams recovery.net
 #' @param network Numerical index of the network for which the cumulative
-#'                edgelist will be updated.
+#'                edgelist will be updated. (May be > 1 for models with
+#'                multiple overlapping networks.)
 #' @param truncate After how many time steps a partnership that is no longer
-#'                 active should be removed from the output (default = Inf means
-#'                 no subsetting of output).
+#'                 active should be removed from the output.
 #'
 #' @section Truncation:
-#' To avoid storing a cumulative edgelist too long, the `truncate` parameter
-#' defines a number of steps after which an edge that is no longer active is
-#' truncated out of the cumulative edgelist. When `truncate == Inf` (default),
-#' no edges are ever removed. When `truncate == 0`, only the active edges are
-#' kept. You may want this behavior to keep track of the active edges start
-#' step.
+#' To avoid storing a cumulative edgelist too long, the \code{truncate}
+#' parameter defines a number of steps after which an edge that is no longer
+#' active is truncated out of the cumulative edgelist.
+#' When \code{truncate = Inf}, no edges are ever removed. When
+#' \code{truncate = 0}, only the active edges are kept. You may want this
+#' behavior to keep track of the active edges' start step.
 #'
-#' @return
-#' An updated Master list object of network models
+#' @inherit recovery.net return
 #'
 #' @export
 update_cumulative_edgelist <- function(dat, network, truncate = 0) {
@@ -128,16 +130,17 @@ update_cumulative_edgelist <- function(dat, network, truncate = 0) {
 
 #' @title Get the Cumulative Edgelists of a Model
 #'
-#' @param dat Master list object for \code{netsim}.
+#' @inheritParams recovery.net
 #' @param networks Numerical indexes of the networks to extract the partnerships
-#'                 from. If \code{NULL}, extract from all networks.
+#'                 from. (May be > 1 for models with multiple overlapping
+#'                 networks.) If \code{NULL}, extract from all networks.
 #'
 #' @return
 #' A \code{data.frame} with 5 columns:
 #' \itemize{
-#'   \item \code{index}: the unique ID see \code{get_unique_ids}) of the
+#'   \item \code{index}: the unique ID (see \code{get_unique_ids}) of the
 #'         indexes.
-#'   \item \code{partner}: the unique ID see \code{get_unique_ids}) of the
+#'   \item \code{partner}: the unique ID (see \code{get_unique_ids}) of the
 #'         partners/contacts.
 #'   \item \code{start}: the time step in which the edge started.
 #'   \item \code{stop}: the time step in which the edge stopped; if ongoing,
@@ -163,7 +166,8 @@ get_cumulative_edgelists_df <- function(dat, networks = NULL) {
 #'
 #' @param index_posit_ids The positional IDs of the indexes of interest.
 #' @param networks Numerical indexes of the networks to extract the partnerships
-#'                 from. If \code{NULL}, extract from all networks.
+#'                 from. (May be > 1 for models with multiple overlapping
+#'                 networks.) If \code{NULL}, extract from all networks.
 #' @param only.active.nodes If \code{TRUE}, then inactive (e.g., deceased)
 #'                          partners will be removed from the output.
 #'
@@ -172,9 +176,9 @@ get_cumulative_edgelists_df <- function(dat, networks = NULL) {
 #' @return
 #' A \code{data.frame} with 5 columns:
 #' \itemize{
-#'   \item \code{index}: the unique ID see \code{get_unique_ids}) of the
+#'   \item \code{index}: the unique ID (see \code{get_unique_ids}) of the
 #'         indexes.
-#'   \item \code{partner}: the unique ID see \code{get_unique_ids}) of the
+#'   \item \code{partner}: the unique ID (see \code{get_unique_ids}) of the
 #'         partners/contacts.
 #'   \item \code{start}: the time step in which the edge started.
 #'   \item \code{stop}: the time step in which the edge stopped; if ongoing,

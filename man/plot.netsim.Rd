@@ -21,7 +21,7 @@
   mean.lty = 1,
   qnts = 0.5,
   qnts.col,
-  qnts.alpha,
+  qnts.alpha = 0.5,
   qnts.smooth = TRUE,
   legend,
   leg.cex = 0.8,
@@ -39,6 +39,8 @@
   targ.lwd = 2,
   targ.lty = 2,
   plots.joined,
+  duration.imputed = TRUE,
+  method = "l",
   ...
 )
 }
@@ -47,7 +49,8 @@
 
 \item{type}{Type of plot: \code{"epi"} for epidemic model results,
 \code{"network"} for a static network plot (\code{plot.network}),
-or \code{"formation"} for network formation statistics.}
+or \code{"formation"}, \code{"duration"}, or \code{"dissolution"} for
+network formation, duration, or dissolution statistics.}
 
 \item{y}{Output compartments or flows from \code{netsim} object to plot.}
 
@@ -59,11 +62,11 @@ to plot lines for one-group models but not for two-group models.}
 
 \item{sims}{If \code{type="epi"} or \code{"formation"}, a vector of
 simulation numbers to plot. If \code{type="network"}, a single
-simulation number for network plot, or else \code{"min"} to plot the
-simulation number with the lowest disease prevalence, \code{"max"} for
-the simulation with the highest disease prevalence, or \code{"mean"}
-for the simulation with the prevalence closest to the mean across
-simulations at the specified time step.}
+simulation number for which to plot the network, or else \code{"min"}
+to plot the simulation number with the lowest disease prevalence,
+\code{"max"} for the simulation with the highest disease prevalence,
+or \code{"mean"} for the simulation with the prevalence closest to the
+mean across simulations at the specified time step.}
 
 \item{sim.col}{Vector of any standard R color format for simulation lines.}
 
@@ -98,7 +101,7 @@ transparent and 1 = opaque (see \code{adjustcolor} function).}
 \item{leg.cex}{Legend scale size.}
 
 \item{axs}{Plot axis type (see \code{\link{par}} for details), with default
-to \code{"r"}.}
+of \code{"r"}.}
 
 \item{grid}{If \code{TRUE}, a grid is added to the background of plot
 (see \code{\link{grid}} for details), with default of nx by ny.}
@@ -114,16 +117,19 @@ representing the population.}
 \item{col.status}{If \code{TRUE} and \code{type="network"}, automatic disease
 status colors (blue = susceptible, red = infected, green = recovered).}
 
-\item{shp.g2}{If \code{type="network"} and a two-group simulation, shapes
-for the Group 2 vertices, with acceptable inputs of "triangle" and
-"square". Group 1 vertices will remain circles.}
+\item{shp.g2}{If \code{type="network"} and \code{x} is for a two-group model,
+shapes for the Group 2 vertices, with acceptable inputs of "triangle"
+and "square". Group 1 vertices will remain circles.}
 
 \item{vertex.cex}{Relative size of plotted vertices if \code{type="network"},
 with implicit default of 1.}
 
-\item{stats}{If \code{type="formation"}, network statistics to plot, among
-those specified in \code{nwstats.formula} of
-\code{\link{control.net}}, with the default to plot all statistics.}
+\item{stats}{If \code{type="formation","duration","dissolution"}, statistics
+to plot.  For \code{type = "formation"}, \code{stats} are among those
+specified in \code{nwstats.formula} of \code{\link{control.net}}; for
+\code{type = "duration","dissolution"}, \code{stats} are among those
+of the dissolution model (without \code{offset()}).  The default is
+to plot all statistics.}
 
 \item{targ.line}{If \code{TRUE}, plot target or expected value line for
 the statistic of interest.}
@@ -135,15 +141,25 @@ default colors based on \code{RColorBrewer} color palettes.}
 
 \item{targ.lty}{Line type for the line showing the target statistic values.}
 
-\item{plots.joined}{If \code{TRUE} and \code{type="formation"}, combine all
-target statistics in one plot, versus one plot per target statistic if
+\item{plots.joined}{If \code{TRUE} and
+\code{type="formation","duration","dissolution"}, combine all
+statistics in one plot, versus one plot per statistic if
 \code{FALSE}.}
 
-\item{...}{additional arguments to pass.}
+\item{duration.imputed}{If \code{type="duration"}, a logical indicating
+whether or not to impute starting times for relationships extant at
+the start of the simulation. Defaults to \code{TRUE} when
+\code{type="duration"}.}
+
+\item{method}{Plot method for
+\code{type="formation","duration","dissolution"}, with options of
+\code{"l"} for line plots and \code{"b"} for boxplots.}
+
+\item{...}{Additional arguments to pass.}
 }
 \description{
 Plots epidemiological and network data from a stochastic network
-             model simulated with \code{netsim}.
+             model simulated with \code{\link{netsim}}.
 }
 \details{
 This plot function can produce three types of plots with a stochastic network
@@ -175,7 +191,7 @@ the time series data of disease prevalence and other results. The summary
 statistics that the function calculates and plots are individual simulation
 lines, means of the individual simulation lines, and quantiles of those
 individual simulation lines. The mean line, toggled on with
-\code{mean.line=TRUE} is calculated as the row mean across simulations at
+\code{mean.line=TRUE}, is calculated as the row mean across simulations at
 each time step.
 
 Compartment prevalences are the size of a compartment over some denominator.
@@ -186,8 +202,8 @@ these rules: 1) for one-group models, the prevalence of any compartment is
 the compartment size divided by the total population size; 2) for two-group
 models, the prevalence of any compartment is the compartment size divided by
 the group population size. For any prevalences that are not automatically
-calculated, the \code{\link{mutate_epi}} may be used to add new variables to
-the \code{netsim} object to plot or analyze.
+calculated, the \code{\link{mutate_epi}} function may be used to add new
+variables to the \code{netsim} object to plot or analyze.
 
 The quantiles show the range of outcome values within a certain specified
 quantile range. By default, the interquartile range is shown: that is the
@@ -198,7 +214,7 @@ where they are plotted by default, specify \code{qnts=FALSE}.
 When \code{type="network"}, this function will plot cross sections of the
 simulated networks at specified time steps. Because it is only possible to
 plot one time step from one simulation at a time, it is necessary to enter
-these in the \code{at} and \code{sims} parameters. To aide in visualizing
+these in the \code{at} and \code{sims} parameters. To aid in visualizing
 representative and extreme simulations at specific time steps, the
 \code{sims} parameter may be set to \code{"mean"} to plot the simulation in
 which the disease prevalence is closest to the average across all

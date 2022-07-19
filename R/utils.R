@@ -1,13 +1,13 @@
 
 #' @title RColorBrewer Color Ramp for EpiModel Plots
 #'
-#' @description Returns vector of colors consistent with a high-brightness set
+#' @description Returns a vector of colors consistent with a high-brightness set
 #'              of colors from an \code{RColorBrewer} palette.
 #'
-#' @param plt \code{RColorBrewer} palette from \code{\link{brewer.pal}}
-#' @param n Number of colors to return
-#' @param delete.lights Delete the lightest colors from the color palette,
-#'        helps with plotting in many high-contrast palettes
+#' @param plt \code{RColorBrewer} palette from \code{\link{brewer.pal}}.
+#' @param n Number of colors to return.
+#' @param delete.lights If TRUE, delete the lightest colors from the color
+#'        palette; this helps with plotting in many high-contrast palettes.
 #'
 #' @details
 #' \code{RColorBrewer} provides easy access to helpful color palettes, but the
@@ -79,16 +79,18 @@ brewer_ramp <- function(n, plt, delete.lights = TRUE) {
 
 #' @title Delete Elements from Attribute List
 #'
-#' @description Deletes elements from the master attribute list.
+#' @description Deletes elements from the main attribute list.
 #'
 #' @param attrList Attribute list.
 #' @param ids ID numbers to delete from the list.
+#'
+#' @return The updated attribute list.
 #'
 #' @export
 #' @keywords internal
 deleteAttr <- function(attrList, ids) {
 
-  if (class(attrList) != "list") {
+  if (!inherits(attrList, "list")) {
     stop("attrList must be a list", call. = FALSE)
   }
 
@@ -112,17 +114,20 @@ deleteAttr <- function(attrList, ids) {
 
 #' @title Delete Elements from Attribute List
 #'
-#' @description Deletes elements from the master attribute list.
+#' @description Deletes elements from the main attribute list.
 #'
-#' @param dat Master list object containing a sublist of attributes.
+#' @param dat Main data object passed through \code{netsim} or \code{icm}
+#'            simulations.
 #' @param ids ID numbers to delete from the list.
+#'
+#' @inherit recovery.net return
 #'
 #' @export
 #' @keywords internal
 delete_attr <- function(dat, ids) {
   attrList <- dat$attr
 
-  if (class(attrList) != "list") {
+  if (!inherits(attrList, "list")) {
     stop("dat object does not contain a valid attribute list", call. = FALSE)
   }
   if (length(unique(sapply(attrList, length))) != 1) {
@@ -150,6 +155,8 @@ delete_attr <- function(dat, ids) {
 #' @param replace Should sampling be with replacement?
 #' @param prob Vector of probability weights for obtaining the elements of the
 #'        vector being sampled.
+#'
+#' @return A vector containing the sampled value(s).
 #'
 #' @export
 #' @keywords internal
@@ -179,6 +186,9 @@ ssample <- function(x, size, replace = FALSE, prob = NULL) {
 #' @param x An \code{EpiModel} object of class \code{dcm}, \code{icm}, or
 #'        \code{netsim}.
 #' @param ... Name-value pairs of expressions (see examples below).
+#'
+#' @return The updated \code{EpiModel} object of class \code{dcm}, \code{icm},
+#'         or \code{netsim}.
 #'
 #' @export
 #'
@@ -236,7 +246,7 @@ mutate_epi <- function(x, ...) {
 
 }
 
-#' @title Apportion Least-Remainder Method
+#' @title Apportion Using the Largest Remainder Method
 #'
 #' @description Apportions a vector of values given a specified frequency
 #'              distribution of those values such that the length of the output
@@ -248,7 +258,21 @@ mutate_epi <- function(x, ...) {
 #'        This must sum to 1.
 #' @param shuffled If \code{TRUE}, randomly shuffle the order of the vector.
 #'
+#' @return A vector of length \code{vector.length} containing the apportioned
+#'         values from \code{values}.
+#'
 #' @export
+#'
+#' @examples
+#' \dontrun{
+#' ## Example 1: Without rounding
+#' apportioned_vec_1 <- apportion_lr(4, c(1, 2, 3, 4, 5),
+#'                                      c(0.25, 0, 0.25, 0.25, 0.25))
+#'
+#' ## Example 2: With rounding
+#' apportioned_vec_2 <- apportion_lr(5, c(1, 2, 3, 4, 5),
+#'                                      c(0.21, 0, 0.29, 0.25, 0.25))
+#' }
 #'
 apportion_lr <- function(vector.length, values,
                          proportions, shuffled = FALSE) {
@@ -291,20 +315,113 @@ apportion_lr <- function(vector.length, values,
 }
 
 
-#' @title Message to find in which module a `condition` occured
+#' @title Message to Find in Which Module a \code{condition} Occurred
 #'
-#' @description Returns vector of colors consistent with a high-brightness set
-#'              of colors from an \code{RColorBrewer} palette.
+#' @description This function returns a formatted string describing when, where,
+#'              and why an error, message, or warning occurred.
 #'
-#' @param cond The type of `condition` handled (message, warning, error)
-#' @param module The name of the module where the `condition` occured
-#' @param at The time step the `condition` occured
-#' @param msg The `condition`'s message
+#' @param cond The type of \code{condition} handled (message, warning, error).
+#' @param module The name of the module where the \code{condition} occurred.
+#' @param at The time step the \code{condition} occurred.
+#' @param msg The \code{condition}'s message.
 #'
-#' @return A formatted string describing where and whe the `condition` occured
-#'         as well as the `condition`'s message.
+#' @return A formatted string describing where and when the \code{condition}
+#'         occurred as well as the \code{condition}'s message.
 #'
 #' @keywords internal
 netsim_cond_msg <- function(cond, module, at, msg) {
   paste0("\n\tA ", cond, " occured in module '", module, "' at step ", at)
+}
+
+#' @title Function to Reduce the Size of a \code{netest} Object
+#'
+#' @description Trims formula environments from the \code{netest} object.
+#'              Optionally converts the \code{newnetwork} element of the
+#'              \code{netest} object to a \code{networkLite} class, and removes
+#'              the \code{fit} element (if present) from the \code{netest}
+#'              object.
+#'
+#' @param object A \code{netest} class object.
+#' @param as.networkLite If \code{TRUE}, converts \code{object$newnetwork}
+#'        to a \code{networkLite}.
+#' @param keep.fit If \code{FALSE}, removes the \code{object$fit} (if present)
+#'        on the \code{netest} object.
+#'
+#' @details
+#' With larger, more complex network structures with epidemic models, it is
+#' generally useful to reduce the memory footprint of the fitted TERGM model
+#' object (estimated with \code{\link{netest}}). This utility function removes
+#' all but the bare essentials needed for simulating a network model with
+#' \code{\link{netsim}}.
+#'
+#' Specifically, the function removes:
+#' \itemize{
+#'  \item \code{environment(object$constraints)}
+#'  \item \code{environment(object$coef.diss$dissolution)}
+#'  \item \code{environment(object$formation)}
+#' }
+#'
+#' When \code{edapprox = TRUE} in the \code{netest} call, also
+#' removes \code{environment(object$formula)}.
+#'
+#' When \code{edapprox = FALSE}, also removes all but \code{formation} and
+#' \code{dissolution} from \code{environment(object$formula)}, as well as
+#' \code{environment(environment(object$formula)$formation)} and
+#' \code{environment(environment(object$formula)$dissolution)}.
+#'
+#' If \code{as.networkLite = TRUE}, converts \code{object$newnetwork} to a
+#' \code{networkLite} object. If \code{keep.fit = FALSE}, removes \code{fit} (if
+#' present) from \code{object}.
+#'
+#' For the output to be usable in \code{\link{netsim}} simulation, there should
+#' not be substitutions in the formulas, other than \code{formation} and
+#' \code{dissolution} in \code{object$formula} when \code{edapprox = FALSE}.
+#'
+#' @return
+#' A \code{netest} object with formula environments removed, optionally with the
+#' \code{newnetwork} element converted to a \code{networkLite} and the
+#' \code{fit} element removed.
+#'
+#' @export
+#'
+#' @examples
+#' nw <- network_initialize(n = 100)
+#' formation <- ~edges + concurrent
+#' target.stats <- c(50, 25)
+#' coef.diss <- dissolution_coefs(dissolution = ~offset(edges), duration = 10)
+#' est <- netest(nw, formation, target.stats, coef.diss,
+#'               set.control.ergm = control.ergm(MCMC.burnin = 1e5,
+#'                                               MCMC.interval = 1000))
+#' print(object.size(est), units = "KB")
+#'
+#' est.small <- trim_netest(est)
+#' print(object.size(est.small), units = "KB")
+#'
+trim_netest <- function(object, as.networkLite = TRUE, keep.fit = FALSE) {
+  if (object$edapprox == TRUE) {
+    object$formula <- trim_env(object$formula)
+  } else {
+    # keep formation and dissolution in environment so formula can be evaluated
+    object$formula <- trim_env(object$formula,
+                               keep = c("formation", "dissolution"))
+    # but trim environments for formation and dissolution
+    environment(object$formula)$formation <-
+      trim_env(environment(object$formula)$formation)
+    environment(object$formula)$dissolution <-
+      trim_env(environment(object$formula)$dissolution)
+  }
+
+  object$coef.diss$dissolution <- trim_env(object$coef.diss$dissolution)
+  object$formation <- trim_env(object$formation)
+  object$constraints <- trim_env(object$constraints)
+
+  if (keep.fit == FALSE) {
+    object$fit <- NULL
+  }
+
+  if (as.networkLite == TRUE) {
+    object$newnetwork <- as.networkLite(object$newnetwork)
+  }
+
+  return(object)
 }

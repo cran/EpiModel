@@ -7,9 +7,8 @@
 discord_edgelist(dat, at, network = 1, infstat = "i")
 }
 \arguments{
-\item{dat}{Master list object containing a \code{networkDynamic} object or
-edgelist (if tergmLite is used) and other initialization information
-passed from \code{\link{netsim}}.}
+\item{dat}{Main list object containing a \code{networkDynamic} object and
+other initialization information passed from \code{\link{netsim}}.}
 
 \item{at}{Current time step.}
 
@@ -22,9 +21,9 @@ infectious, defining the SI pairs.}
 \value{
 This function returns a \code{data.frame} with the following columns:
 \itemize{
- \item \strong{time:} time step queried
- \item \strong{sus:} ID number for the susceptible partner
- \item \strong{inf:} ID number for the infectious partner
+ \item \strong{time:} time step queried.
+ \item \strong{sus:} ID number for the susceptible partner.
+ \item \strong{inf:} ID number for the infectious partner.
 }
 The output from this function is added to the transmission \code{data.frame}
 object that is requested as output in \code{netsim} simulations with

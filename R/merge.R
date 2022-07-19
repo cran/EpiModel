@@ -2,7 +2,7 @@
 #' @title Merge Data across Stochastic Individual Contact Model Simulations
 #'
 #' @description Merges epidemiological data from two independent simulations of
-#'              stochastic individual contact models from \code{icm}.
+#'              stochastic individual contact models from \code{\link{icm}}.
 #'
 #' @param x An \code{EpiModel} object of class \code{\link{icm}}.
 #' @param y Another \code{EpiModel} object of class \code{\link{icm}}, with the
@@ -21,6 +21,9 @@
 #' Instead, the function checks that objects are identical in model
 #' parameterization in every respect (except number of simulations) and binds
 #' the results.
+#'
+#' @return An \code{EpiModel} object of class \code{\link{icm}} containing the
+#'         data from both \code{x} and \code{y}.
 #'
 #' @method merge icm
 #' @keywords extract
@@ -50,7 +53,7 @@ merge.icm <- function(x, y, ...) {
   if (length(x) != length(y) || !identical(names(x), names(y))) {
     stop("x and y have different structure")
   }
-  if (x$control$nsims > 1 & y$control$nsims > 1 &
+  if (x$control$nsims > 1 && y$control$nsims > 1 &&
       !identical(sapply(x, class), sapply(y, class))) {
     stop("x and y have different structure")
   }
@@ -89,7 +92,7 @@ merge.icm <- function(x, y, ...) {
 }
 
 
-#' @title Merge Model Simulations Across netsim Objects
+#' @title Merge Model Simulations across netsim Objects
 #'
 #' @description Merges epidemiological data from two independent simulations of
 #'              stochastic network models from \code{netsim}.
@@ -106,15 +109,15 @@ merge.icm <- function(x, y, ...) {
 #' @param keep.nwstats If \code{TRUE}, keep the network statistics (as set by
 #'        the \code{nwstats.formula} parameter in \code{control.netsim}) from
 #'        the original \code{x} and \code{y} elements.
-#' @param keep.summary.stats If \code{TRUE}, keep the summary statistics from
-#'        the original \code{x} and \code{y} elements.
 #' @param keep.other If \code{TRUE}, keep the other simulation elements (as set
 #'        by the \code{save.other} parameter in \code{control.netsim}) from the
 #'        original \code{x} and \code{y} elements.
 #' @param param.error If \code{TRUE}, if \code{x} and \code{y} have different
-#'        params (in \code{param.net}) or controls (passed in
-#'        \code{control.net}) an error will prevent the merge. Use \code{FALSE}
-#'        to override that check.
+#'        params (in \code{\link{param.net}}) or controls (passed in
+#'        \code{\link{control.net}}) an error will prevent the merge. Use
+#'        \code{FALSE} to override that check.
+#' @param keep.diss.stats If \code{TRUE}, keep \code{diss.stats} from the
+#'        original \code{x} and \code{y} objects.
 #' @param ...  Additional merge arguments (not currently used).
 #'
 #' @details
@@ -129,6 +132,9 @@ merge.icm <- function(x, y, ...) {
 #' Instead, the function checks that objects are identical in model
 #' parameterization in every respect (except number of simulations) and binds
 #' the results.
+#'
+#' @return An \code{EpiModel} object of class \code{\link{netsim}} containing
+#'         the data from both \code{x} and \code{y}.
 #'
 #' @method merge netsim
 #' @keywords extract
@@ -160,8 +166,8 @@ merge.icm <- function(x, y, ...) {
 #' as.data.frame(z)
 #'
 merge.netsim <- function(x, y, keep.transmat = TRUE, keep.network = TRUE,
-                         keep.nwstats = TRUE, keep.summary.stats = TRUE,
-                         keep.other = TRUE, param.error = TRUE, ...) {
+                         keep.nwstats = TRUE, keep.other = TRUE,
+                         param.error = TRUE, keep.diss.stats = TRUE, ...) {
 
   ## Check structure
   if (length(x) != length(y) || !identical(names(x), names(y))) {
@@ -169,7 +175,7 @@ merge.netsim <- function(x, y, keep.transmat = TRUE, keep.network = TRUE,
   }
   x$control$nsims <- as.integer(x$control$nsims)
   y$control$nsims <- as.integer(y$control$nsims)
-  if (x$control$nsims > 1 & y$control$nsims > 1 &
+  if (x$control$nsims > 1 && y$control$nsims > 1 &&
       !all(sapply(x, function(i) class(i)[1]) ==
            sapply(y, function(i) class(i)[1]))) {
     stop("x and y have different structure")
@@ -196,80 +202,71 @@ merge.netsim <- function(x, y, keep.transmat = TRUE, keep.network = TRUE,
     stop("x and y have different controls")
   }
 
-
   z <- x
-  new.range <- (x$control$nsims + 1):(x$control$nsims + y$control$nsims)
+  z$control$nsims <- x$control$nsims + y$control$nsims
+  newnames <- paste0("sim", seq_len(z$control$nsims))
 
   # Merge epi data
-  for (i in 1:length(x$epi)) {
+  for (i in seq_along(x$epi)) {
     z$epi[[i]] <- cbind(x$epi[[i]], y$epi[[i]])
-    names(z$epi[[i]])[new.range] <- paste0("sim", new.range)
+    names(z$epi[[i]]) <- newnames
   }
 
-  z$control$nsims <- max(new.range)
-
-
   ## Transmission matrix
-  if (keep.transmat == TRUE) {
-    for (i in new.range) {
-      if (!is.null(x$stats$transmat) & !is.null(y$stats$transmat)) {
-        z$stats$transmat[[i]] <- y$stats$transmat[[i - x$control$nsims]]
-        if (!is.null(z$stats$transmat)) {
-          names(z$stats$transmat)[i] <- paste0("sim", i)
-        }
-      }
-    }
+  if (keep.transmat == TRUE && !is.null(x$stats$transmat) &&
+      !is.null(y$stats$transmat)) {
+    z$stats$transmat <- c(x$stats$transmat, y$stats$transmat)
+    names(z$stats$transmat) <- newnames
   } else {
     z$stats$transmat <- NULL
   }
 
-
   ## Network objects
-  if (keep.network == TRUE & !is.null(x$network) & !is.null(y$network)) {
-    for (i in new.range) {
-      z$network[[i]] <- y$network[[i - x$control$nsims]]
-      if (!is.null(z$network)) {
-        names(z$network)[i] <- paste0("sim", i)
-      }
-    }
+  if (keep.network == TRUE && !is.null(x$network) && !is.null(y$network)) {
+    z$network <- c(x$network, y$network)
+    names(z$network) <- newnames
+
   } else {
     z$network <- NULL
   }
 
-
   ## Network statistics
-  if (keep.nwstats == TRUE & !is.null(x$stats$nwstats) &
-      !is.null(y$stats$nwstats)) {
-    for (i in new.range) {
-      z$stats$nwstats[[i]] <- y$stats$nwstats[[i - x$control$nsims]]
-      if (!is.null(z$stats$nwstats)) {
-        names(z$stats$nwstats)[i] <- paste0("sim", i)
-      }
-    }
+  if (keep.nwstats == TRUE && !is.null(x$stats$nwstats) && !is.null(y$stats$nwstats)) {
+    z$stats$nwstats <- c(x$stats$nwstats, y$stats$nwstats)
+    names(z$stats$nwstats) <- newnames
   } else {
     z$stats$nwstats <- NULL
   }
 
   ## Other
-  if (!is.null(x$control$save.other) & !is.null(y$control$save.other)) {
+  if (!is.null(x$control$save.other) && !is.null(y$control$save.other)) {
     other.x <- x$control$save.other
     other.y <- y$control$save.other
     if (keep.other == TRUE) {
       if (!identical(other.x, other.y)) {
         stop("Elements in save.other differ between x and y", call. = FALSE)
       }
-      for (j in 1:length(other.x)) {
+      new.range <- (x$control$nsims + 1):(x$control$nsims + y$control$nsims)
+      for (j in seq_along(other.x)) {
         for (i in new.range) {
           z[[other.x[j]]][[i]] <- y[[other.x[j]]][[i - x$control$nsims]]
         }
+        names(z[[other.x[j]]]) <- newnames
       }
     } else {
-      for (j in 1:length(other.x)) {
+      for (j in seq_along(other.x)) {
         z[[other.x[j]]] <- NULL
       }
     }
   }
 
+  if (keep.diss.stats == TRUE && !is.null(x$diss.stats) &&
+      !is.null(y$diss.stats)) {
+    z$diss.stats <- c(x$diss.stats, y$diss.stats)
+    names(z$diss.stats) <- newnames
+  } else {
+    z$diss.stats <- NULL
+  }
 
   return(z)
 }

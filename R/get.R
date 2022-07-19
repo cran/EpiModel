@@ -1,7 +1,7 @@
 
 #' @title Extract networkDynamic and network Objects from Network Simulations
 #'
-#' @description Extracts the \code{networkDynamic} object from a either a
+#' @description Extracts the \code{networkDynamic} object from either a
 #'              network epidemic model object generated with \code{netsim} or a
 #'              network diagnostic simulation generated with \code{netdx}, with
 #'              the option to collapse the extracted \code{networkDynamic}
@@ -24,18 +24,21 @@
 #'        directly.
 #'
 #' @details
-#' This function requires that the \code{networkDynamic} is saved during the
-#' network simulation while running either \code{\link{netsim}} or
-#' \code{\link{netdx}}. For the former, that is specified with the
-#' \code{tergmLite} parameter in \code{\link{control.net}} set to \code{FALSE}.
+#' This function requires that the \code{networkDynamic} object is saved during
+#' the network simulation while running either \code{\link{netsim}} or
+#' \code{\link{netdx}}. For the former, that is specified by setting the
+#' \code{tergmLite} parameter in \code{\link{control.net}} to \code{FALSE}.
 #' For the latter, that is specified with the \code{keep.tedgelist} parameter
 #' directly in \code{\link{netdx}}.
+#'
+#' @return A \code{networkDynamic} object (if \code{collapse = FALSE}) or a
+#'         static \code{network} object (if \code{collapse = TRUE}).
 #'
 #' @keywords extract
 #' @export
 #'
 #' @examples
-#' # Set up network and TERGM formiula
+#' # Set up network and TERGM formula
 #' nw <- network_initialize(n = 100)
 #' nw <- set_vertex_attribute(nw, "group", rep(1:2, each = 50))
 #' formation <- ~edges
@@ -80,7 +83,7 @@ get_network <- function(x, sim = 1, network = 1, collapse = FALSE, at,
     stop("Specify a single sim between 1 and ", nsims, call. = FALSE)
   }
 
-  if (class(x) == "netsim") {
+  if (inherits(x, "netsim")) {
     if (x$control$tergmLite == TRUE) {
       stop("Network object not saved in netsim object when 'tergmLite = TRUE'.
            Check control.net settings.",
@@ -90,40 +93,28 @@ get_network <- function(x, sim = 1, network = 1, collapse = FALSE, at,
       stop("Network object not saved in netsim object.
             Check control.net settings.", call. = FALSE)
     }
-  } else if (class(x) == "netdx") {
+  } else if (inherits(x, "netdx")) {
     if (is.null(x$network)) {
       stop("Network object not saved in netdx object.
             Check keep.tnetwork parameter", call. = FALSE)
     }
   }
 
-  if (class(x) == "netsim") {
+  if (inherits(x, "netsim")) {
     if (network > x$control$num.nw) {
       stop("Specify network between 1 and ", x$control$num.nw, call. = FALSE)
     }
   }
 
-  nsteps <- ifelse(class(x) == "netsim", x$control$nsteps, x$nsteps)
-  if (collapse == TRUE && (missing(at) || at > nsteps)) {
-    stop("Specify collapse time step between 1 and ", nsteps,
+  nsteps <- ifelse(inherits(x, "netsim"), x$control$nsteps, x$nsteps)
+  if (collapse == TRUE && (missing(at) || at > nsteps || at < 0)) {
+    stop("Specify collapse time step between 0 and ", nsteps,
          call. = FALSE)
   }
   ## Extraction ##
-  if (class(x) == "netsim") {
-    if (x$control$isTERGM == TRUE) {
-      out <- x$network[[sim]][[network]]
-    } else if (x$control$isTERGM == FALSE) {
-      if (ergm.create.nd == TRUE) {
-        out <- suppressMessages(
-            networkDynamic(network.list = x$network[[sim]],
-                           start = 1,
-                           base.net = x$network[[sim]][[1]],
-                           create.TEAs = TRUE))
-      } else {
-        out <- x$network[[sim]]
-      }
-    }
-  } else if (class(x) == "netdx") {
+  if (inherits(x, "netsim")) {
+    out <- x$network[[sim]][[network]]
+  } else if (inherits(x, "netdx")) {
     out <- x$network[[sim]]
   }
 
@@ -180,7 +171,7 @@ get_network <- function(x, sim = 1, network = 1, collapse = FALSE, at,
 get_transmat <- function(x, sim = 1) {
 
   ## Warnings and checks
-  if (class(x) != "netsim") {
+  if (!inherits(x, "netsim")) {
     stop("x must be of class netsim", call. = FALSE)
   }
 
@@ -209,10 +200,12 @@ get_transmat <- function(x, sim = 1) {
 #'
 #' @param x An \code{EpiModel} object of class \code{\link{netsim}} or
 #'        \code{\link{netdx}}.
-#' @param sim A vector of simulation numbers from the extracted object
+#' @param sim A vector of simulation numbers from the extracted object.
 #' @param network Network number, for \code{netsim} objects with multiple
 #'        overlapping networks (advanced use, and not applicable to \code{netdx}
 #'        objects).
+#'
+#' @return A data frame of network statistics.
 #'
 #' @keywords extract
 #' @export
@@ -255,7 +248,7 @@ get_nwstats <- function(x, sim, network = 1) {
     stop("x must be of class netsim or netdx", call. = FALSE)
   }
 
-  if (class(x) == "netsim") {
+  if (inherits(x, "netsim")) {
     nsims <- x$control$nsims
     nsteps <- x$control$nsteps
   } else {
@@ -275,7 +268,7 @@ get_nwstats <- function(x, sim, network = 1) {
     stop("Specify sims less than or equal to ", nsims, call. = FALSE)
   }
 
-  if (class(x) == "netsim") {
+  if (inherits(x, "netsim")) {
     if (x$control$save.nwstats == FALSE || is.null(x$stats$nwstats)) {
       stop("Network statistics not saved in netsim object, check control.net
            settings", call. = FALSE)
@@ -286,20 +279,20 @@ get_nwstats <- function(x, sim, network = 1) {
   }
 
   ## Extraction
-  if (class(x) == "netsim") {
+  if (inherits(x, "netsim")) {
     out <- lapply(x$stats$nwstats, function(n) n[[network]])
     out <- out[sim]
-  } else if (class(x) == "netdx") {
+  } else if (inherits(x, "netdx")) {
     out <- x$stats[sim]
   }
 
   out <- as.data.frame(do.call("rbind", out))
-  out$time <- rep(1:min(nsteps, nrow(out)), length(sim))
+  out$time <- rep(seq_len(min(nsteps, nrow(out))), length(sim))
   out$sim <- rep(sim, each = min(nsteps, nrow(out)))
   row.names(out) <- seq_len(nrow((out)))
   out <- out[, c((ncol(out) - 1):ncol(out), 1:(ncol(out) - 2))]
 
-  if (class(x) == "netdx" && x$dynamic == FALSE) {
+  if (inherits(x, "netdx") && x$dynamic == FALSE) {
     out <- out[, -2]
     names(out)[1] <- "sim"
   }
@@ -313,7 +306,7 @@ get_nwstats <- function(x, sim, network = 1) {
 #' @description Extracts a list of network model parameters saved in the
 #'              initialization module.
 #'
-#' @param x Master data object used in \code{netsim} simulations.
+#' @param x Main data object used in \code{netsim} simulations.
 #' @param network Network number, for simulations with multiple networks
 #'        representing the population.
 #'
@@ -332,13 +325,17 @@ get_nwparam <- function(x, network = 1) {
 #'              \code{merge}.
 #'
 #' @param x An object of class \code{netsim}.
-#' @param sims A numeric vector of simulation numbers to retain in the output
-#'        object, or \code{"mean"} which selects the one simulation with the
-#'        value of the variable specified in \code{var} closest to the mean of
-#'        \code{var} across all simulations.
+#' @param sims Either a numeric vector of simulation numbers to retain in the
+#'        output object, or \code{"mean"}, which selects the one simulation with
+#'        the value of the variable specified in \code{var} closest to the mean
+#'        of \code{var} across all simulations.
 #' @param var A character vector of variables to retain from \code{x} if
 #'        \code{sims} is a numeric vector, or a single variable name for
 #'        selecting the average simulation from the set if \code{sims = "mean"}.
+#'
+#' @return An updated object of class \code{netsim} containing only the
+#'         simulations specified in \code{sims} and the variables specified in
+#'         \code{var}.
 #'
 #' @keywords extract
 #' @export
@@ -368,7 +365,7 @@ get_nwparam <- function(x, network = 1) {
 #'
 get_sims <- function(x, sims, var) {
 
-  if (class(x) != "netsim") {
+  if (!inherits(x, "netsim")) {
     stop("x must be of class netsim", call. = FALSE)
   }
 
@@ -393,29 +390,39 @@ get_sims <- function(x, sims, var) {
     stop("Maximum sims value for this object is ", nsims, call. = FALSE)
   }
 
-  delsim <- setdiff(1:nsims, sims)
   out <- x
+  out$control$nsims <- length(sims)
+  newnames <- paste0("sim", seq_len(out$control$nsims))
+
+  delsim <- setdiff(1:nsims, sims)
   if (length(delsim) > 0) {
     for (i in seq_along(out$epi)) {
       out$epi[[i]] <- out$epi[[i]][, -delsim, drop = FALSE]
     }
     if (!is.null(out$network)) {
       out$network[delsim] <- NULL
+      names(out$network) <- newnames
     }
     if (!is.null(out$stats$nwstats)) {
       out$stats$nwstats[delsim] <- NULL
+      names(out$stats$nwstats) <- newnames
     }
     if (!is.null(out$stats$transmat)) {
       out$stats$transmat[delsim] <- NULL
+      names(out$stats$transmat) <- newnames
+    }
+    if (!is.null(out$diss.stats)) {
+      out$diss.stats[delsim] <- NULL
+      names(out$diss.stats) <- newnames
     }
     if (!is.null(out$control$save.other)) {
       oname <- out$control$save.other
       for (i in seq_along(oname)) {
         out[[oname[i]]][delsim] <- NULL
+        names(out[[oname[i]]]) <- newnames
       }
     }
   }
-  out$control$nsims <- length(sims)
 
   if (!missing(var)) {
     match.vars <- which(var %in% names(x$epi))
@@ -434,7 +441,10 @@ get_sims <- function(x, sims, var) {
 #' @param formal.args The output of \code{formals(sys.function())}.
 #' @param dot.args The output of \code{list(...)}.
 #'
+#' @return A list of argument names and values.
+#'
 #' @export
+#' @keywords internal
 #'
 get_args <- function(formal.args, dot.args) {
   p <- list()
@@ -460,7 +470,7 @@ get_args <- function(formal.args, dot.args) {
 #'   parameter or parameter element where the parameters are of size > 1.
 #'
 #' @section Output Format:
-#' The outputed \code{data.frame} has one row per simulation and the columns
+#' The outputted \code{data.frame} has one row per simulation and the columns
 #' correspond to the parameters used in this simulation.
 #'
 #' The column name will match the parameter name if it is a size 1 parameter or
@@ -561,7 +571,7 @@ get_param_set <- function(sims) {
 #' @param sims An \code{EpiModel} object of class \code{netsim}.
 #'
 #' @return A list of \code{data.frame}s, one for each "measure" recorded in the
-#' simulation by the `record_attr_history` function.
+#' simulation by the \code{record_attr_history} function.
 #'
 #' @examples
 #' \dontrun{

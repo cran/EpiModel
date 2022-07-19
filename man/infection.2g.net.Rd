@@ -7,14 +7,13 @@
 infection.2g.net(dat, at)
 }
 \arguments{
-\item{dat}{A list object containing a \code{networkDynamic} object and other
-initialization information passed from \code{\link{netsim}}.}
+\item{dat}{Main list object containing a \code{networkDynamic} object and
+other initialization information passed from \code{\link{netsim}}.}
 
 \item{at}{Current time step.}
 }
 \value{
-The main \code{dat} object is returned with updated disease status and
-summary incidence measures.
+The updated \code{dat} main list object.
 }
 \description{
 This function simulates the main infection process given the

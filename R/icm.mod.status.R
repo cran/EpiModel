@@ -4,8 +4,9 @@
 #' @description This function simulates the main infection process given the
 #'              current state of the actors in the system.
 #'
-#' @param dat Master data list object.
-#' @param at Current time step.
+#' @inheritParams prevalence.icm
+#'
+#' @inherit recovery.net return
 #'
 #' @export
 #' @keywords internal
@@ -21,7 +22,7 @@ infection.icm <- function(dat, at) {
 
 
   del <- NULL
-  if (length(p1) > 0 & length(p2) > 0) {
+  if (length(p1) > 0 && length(p2) > 0) {
     del <- data.frame(p1, p2)
       while (any(del$p1 == del$p2)) {
         del$p2 <- ifelse(del$p1 == del$p2,
@@ -79,12 +80,13 @@ infection.icm <- function(dat, at) {
 #' @title Recovery: icm Module
 #'
 #' @description This function simulates recovery from the infected state
-#'              either to an distinct recovered state (SIR model type) or back
+#'              either to a distinct recovered state (SIR model type) or back
 #'              to a susceptible state (SIS model type), for use in
 #'              \code{\link{icm}}.
 #'
-#' @param dat Master data list object.
-#' @param at Current time step.
+#' @inheritParams prevalence.icm
+#'
+#' @inherit recovery.net return
 #'
 #' @export
 #' @keywords internal
@@ -140,8 +142,9 @@ recovery.icm <- function(dat, at) {
 #' @description This function simulates the main infection process given the
 #'              current state of the actors in the system.
 #'
-#' @param dat Master data list object.
-#' @param at Current time step.
+#' @inheritParams prevalence.icm
+#'
+#' @inherit recovery.net return
 #'
 #' @export
 #' @keywords internal
@@ -166,7 +169,7 @@ infection.icm.bip <- function(dat, at) {
                   acts, replace = TRUE)
 
   del <- NULL
-  if (length(p1) > 0 & length(p2) > 0) {
+  if (length(p1) > 0 && length(p2) > 0) {
     del <- data.frame(p1, p2)
 
     ## Discordant edgelist
@@ -222,12 +225,13 @@ infection.icm.bip <- function(dat, at) {
 #' @title Recovery: icm Module
 #'
 #' @description This function simulates recovery from the infected state
-#'              either to an distinct recovered state (SIR model type) or back
+#'              either to a distinct recovered state (SIR model type) or back
 #'              to a susceptible state (SIS model type), for use in
 #'              \code{\link{icm}}.
 #'
-#' @param dat Master data list object.
-#' @param at Current time step.
+#' @inheritParams prevalence.icm
+#'
+#' @inherit recovery.net return
 #'
 #' @export
 #' @keywords internal

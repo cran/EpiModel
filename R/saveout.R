@@ -1,15 +1,27 @@
 
 #' @title Save dcm Data to Output List Format
 #'
-#' @description This function transfers the data from the master \code{df}
+#' @description This function transfers the data from the main \code{df}
 #'              object to the output \code{out} object at the end of each
-#'              simulation in \code{\link{dcm}}.
+#'              run in \code{\link{dcm}}.
 #'
-#' @param df Master object in \code{\link{dcm}} simulations.
+#' @param df Main object in \code{\link{dcm}} simulations.
 #' @param s Current run number.
-#' @param param Param list set in \code{\link{param.dcm}}
+#' @param param Param list set in \code{\link{param.dcm}}.
 #' @param control Control list set in \code{\link{control.dcm}}.
 #' @param out Out list passed back in for updating at runs 2+.
+#'
+#' @return A list with the following elements:
+#' \itemize{
+#'  \item \strong{param:} the epidemic parameters passed into the model through
+#'        \code{\link{param.dcm}}, with additional parameters added as
+#'        necessary.
+#'  \item \strong{control:} the control settings passed into the model through
+#'        \code{\link{control.dcm}}, with additional controls added as
+#'        necessary.
+#'  \item \strong{epi:} a list of data frames, one for each epidemiological
+#'        output from the model.
+#' }
 #'
 #' @keywords internal
 #' @export
@@ -63,13 +75,26 @@ saveout.dcm <- function(df, s, param, control, out = NULL) {
 
 #' @title Save icm Data to Output List Format
 #'
-#' @description This function transfers the data from the master \code{all}
+#' @description This function transfers the data from the main \code{dat}
 #'              object to the output \code{out} object at the end of each
 #'              simulation in \code{\link{icm}}.
 #'
-#' @param dat Master object in \code{icm} simulations.
-#' @param s Current run number.
-#' @param out Out list passed back in for updating at runs 2+.
+#' @inheritParams prevalence.icm
+#' @param s Current simulation number.
+#' @param out Out list passed back in for updating at simulations 2+.
+#'
+#' @return
+#' A list with the following elements:
+#' \itemize{
+#'  \item \strong{param:} the epidemic parameters passed into the model through
+#'        \code{\link{param.icm}}, with additional parameters added as
+#'        necessary.
+#'  \item \strong{control:} the control settings passed into the model through
+#'        \code{\link{control.icm}}, with additional controls added as
+#'        necessary.
+#'  \item \strong{epi:} a list of data frames, one for each epidemiological
+#'        output from the model.
+#' }
 #'
 #' @keywords internal
 #' @export
@@ -81,11 +106,11 @@ saveout.icm <- function(dat, s, out = NULL) {
     out$param <- dat$param
     out$control <- dat$control
     out$epi <- list()
-    for (j in 1:length(dat$epi)) {
+    for (j in seq_along(dat$epi)) {
       out$epi[[names(dat$epi)[j]]] <- data.frame(dat$epi[j])
     }
   } else {
-    for (j in 1:length(dat$epi)) {
+    for (j in seq_along(dat$epi)) {
       out$epi[[names(dat$epi)[j]]][, s] <- data.frame(dat$epi[j])
     }
   }
@@ -110,13 +135,31 @@ saveout.icm <- function(dat, s, out = NULL) {
 
 #' @title Save netsim Data to Output List Format
 #'
-#' @description This function transfers the data from the master \code{dat}
+#' @description This function transfers the data from the main \code{dat}
 #'              object to the output \code{out} object at the end of each
 #'              simulation in \code{\link{netsim}}.
 #'
-#' @param dat Master object in \code{netsim} simulations.
+#' @inheritParams recovery.net
 #' @param s Current simulation number.
 #' @param out Out list passed back in for updating at simulations 2+.
+#'
+#' @return
+#' A list with the following elements:
+#' \itemize{
+#'  \item \strong{param:} the epidemic parameters passed into the model through
+#'        \code{\link{param.net}}, with additional parameters added as
+#'        necessary.
+#'  \item \strong{control:} the control settings passed into the model through
+#'        \code{\link{control.net}}, with additional controls added as
+#'        necessary.
+#'  \item \strong{epi:} a list of data frames, one for each epidemiological
+#'        output from the model.
+#'  \item \strong{stats:} a list containing two sublists, \code{nwstats} for any
+#'        network statistics saved in the simulation, and \code{transmat} for
+#'        the transmission matrix saved in the simulation.
+#'  \item \strong{network:} a list of \code{networkDynamic} objects,
+#'         one for each model simulation.
+#' }
 #'
 #' @keywords internal
 #' @export
@@ -162,7 +205,7 @@ saveout.net <- function(dat, s, out = NULL) {
 
     if (dat$control$save.transmat == TRUE) {
       if (!is.null(dat$stats$transmat)) {
-        row.names(dat$stats$transmat) <- 1:nrow(dat$stats$transmat)
+        row.names(dat$stats$transmat) <- seq_len(nrow(dat$stats$transmat))
         out$stats$transmat <- list(dat$stats$transmat)
       } else {
         out$stats$transmat <- list(data.frame())
@@ -172,19 +215,32 @@ saveout.net <- function(dat, s, out = NULL) {
 
     if (dat$control$tergmLite == FALSE) {
       if (dat$control$save.network == TRUE) {
-        if (!is.null(dat$temp$nw_list)) {
-          out$network <- list(dat$temp$nw_list)
-        } else {
-          out$network <- list(dat$nw)
-        }
+        out$network <- list(dat$nw)
       }
     }
 
     if (!is.null(dat$control$save.other)) {
-      for (i in 1:length(dat$control$save.other)) {
+      for (i in seq_along(dat$control$save.other)) {
         el.name <- dat$control$save.other[i]
         out[[el.name]] <- list(dat[[el.name]])
       }
+    }
+
+    if (dat$control$save.diss.stats == TRUE &&
+        dat$control$save.network == TRUE &&
+        dat$control$tergmLite == FALSE) {
+
+      ## for each simulated network, if dissolution model is edges-only, compute diss stats
+      out$diss.stats <- list(lapply(seq_len(num.nw), function(network) {
+        if (dat$nwparam[[network]]$coef.diss$diss.model.type == "edgesonly") {
+          toggles_to_diss_stats(tedgelist_to_toggles(as.data.frame(dat$nw[[network]])),
+                                dat$nwparam[[network]]$coef.diss,
+                                dat$control$nsteps,
+                                dat$nw[[network]])
+        } else {
+          NULL
+        }
+      }))
     }
   }
 
@@ -229,7 +285,7 @@ saveout.net <- function(dat, s, out = NULL) {
 
     if (dat$control$save.transmat == TRUE) {
       if (!is.null(dat$stats$transmat)) {
-        row.names(dat$stats$transmat) <- 1:nrow(dat$stats$transmat)
+        row.names(dat$stats$transmat) <- seq_len(nrow(dat$stats$transmat))
         out$stats$transmat[[s]] <- dat$stats$transmat
       } else {
         out$stats$transmat[[s]] <- data.frame()
@@ -238,11 +294,7 @@ saveout.net <- function(dat, s, out = NULL) {
 
     if (dat$control$tergmLite == FALSE) {
       if (dat$control$save.network == TRUE) {
-        if (!is.null(dat$temp$nw_list)) {
-          out$network[[s]] <- dat$temp$nw_list
-        } else {
-          out$network[[s]] <- dat$nw
-        }
+        out$network[[s]] <- dat$nw
       }
     }
 
@@ -252,6 +304,24 @@ saveout.net <- function(dat, s, out = NULL) {
         out[[el.name]][[s]] <- dat[[el.name]]
       }
     }
+
+    if (dat$control$save.diss.stats == TRUE &&
+        dat$control$save.network == TRUE &&
+        dat$control$tergmLite == FALSE) {
+
+      ## for each simulated network, if dissolution model is edges-only, compute diss stats
+      out$diss.stats[[s]] <- lapply(seq_len(num.nw), function(network) {
+        if (dat$nwparam[[network]]$coef.diss$diss.model.type == "edgesonly") {
+          toggles_to_diss_stats(tedgelist_to_toggles(as.data.frame(dat$nw[[network]])),
+                                dat$nwparam[[network]]$coef.diss,
+                                dat$control$nsteps,
+                                dat$nw[[network]])
+        } else {
+          NULL
+        }
+      })
+    }
+
   }
 
   ## Final processing
@@ -280,12 +350,25 @@ saveout.net <- function(dat, s, out = NULL) {
     }
 
     if (dat$control$save.transmat == TRUE) {
-      names(out$stats$transmat) <- simnames[seq_along(out$stats$transmat)]
+      names(out$stats$transmat) <- simnames
     }
 
     if (dat$control$tergmLite == FALSE) {
       if (dat$control$save.network == TRUE) {
         names(out$network) <- simnames
+      }
+    }
+
+    if (dat$control$save.diss.stats == TRUE &&
+        dat$control$save.network == TRUE &&
+        dat$control$tergmLite == FALSE) {
+      names(out$diss.stats) <- simnames
+    }
+
+    if (!is.null(dat$control$save.other)) {
+      for (i in seq_along(dat$control$save.other)) {
+        el.name <- dat$control$save.other[i]
+        names(out[[el.name]]) <- simnames
       }
     }
 
@@ -305,13 +388,13 @@ saveout.net <- function(dat, s, out = NULL) {
 }
 
 
-#' @title Save a list of netsim Data to Output List Format
+#' @title Save a List of netsim Data to Output List Format
 #'
-#' @description This function transfers the data from a list of the master
+#' @description This function transfers the data from a list of the main
 #'              \code{dat} objects to the output \code{out} object at the end of
 #'              all simulations in \code{\link{netsim}}.
 #'
-#' @param dat_list A list of Master objects in \code{netsim} simulations.
+#' @param dat_list A list of main objects in \code{netsim} simulations.
 #'
 #' @return
 #' A list of class \code{netsim} with the following elements:
@@ -327,7 +410,9 @@ saveout.net <- function(dat, s, out = NULL) {
 #'  \item \strong{stats:} a list containing two sublists, \code{nwstats} for any
 #'        network statistics saved in the simulation, and \code{transmat} for
 #'        the transmission matrix saved in the simulation. See
-#'        \code{\link{control.net}} and the Tutorial for further details.
+#'        \code{\link{control.net}} and the
+#'        \href{http://www.epimodel.org/tut.html}{tutorials} for further
+#'        details.
 #'  \item \strong{network:} a list of \code{networkDynamic} objects,
 #'         one for each model simulation.
 #' }

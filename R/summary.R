@@ -11,11 +11,11 @@
 #' @param ... Additional summary function arguments (not used).
 #'
 #' @details
-#' Summary statistics for the main epidemiological outcomes (state and
-#' transition size and prevalence) from an \code{dcm} model. Time-specific
-#' summary measures are provided, so it is necessary to input a time of
-#' interest. Formultiple-run models (sensitivity analyses), input a model run
-#' number. See examples below.
+#' This function provides summary statistics for the main epidemiological
+#' outcomes (state and transition size and prevalence) from a \code{dcm} model.
+#' Time-specific summary measures are provided, so it is necessary to input a
+#' time of interest. For multiple-run models (sensitivity analyses), input a
+#' model run number. See examples below.
 #'
 #' @seealso \code{\link{dcm}}
 #'
@@ -49,7 +49,7 @@ summary.dcm <- function(object, at, run = 1, digits = 3, ...) {
 
   df <- as.data.frame(object, run = run)
 
-  if (missing(at) || (at > nsteps | at < 1)) {
+  if (missing(at) || (at > nsteps || at < 1)) {
     stop("Specify at between 1 and ", nsteps)
   }
   df <- df[df$time == at, ]
@@ -68,6 +68,7 @@ summary.dcm <- function(object, at, run = 1, digits = 3, ...) {
     }
   }
 
+  # nolint start
   if (type == "SI") {
     stats <- with(df, c(s.num, s.prev,
                         i.num, i.prev,
@@ -172,6 +173,7 @@ summary.dcm <- function(object, at, run = 1, digits = 3, ...) {
       mat <- cbind(mat, mat.g2)
     }
   }
+  # nolint end
 
   if (groups == 1) {
     colnames(mat) <- c("n", "pct")
@@ -222,10 +224,10 @@ summary.dcm <- function(object, at, run = 1, digits = 3, ...) {
 #' @param ... Additional summary function arguments.
 #'
 #' @details
-#' Summary statistics for the main epidemiological outcomes (state and
-#' transition size and prevalence) from an \code{icm} model. Time-specific
-#' summary measures are provided, so it is necessary to input a time of
-#' interest.
+#' This function provides summary statistics for the main epidemiological
+#' outcomes (state and transition size and prevalence) from an \code{icm} model.
+#' Time-specific summary measures are provided, so it is necessary to input a
+#' time of interest.
 #'
 #' @seealso \code{\link{icm}}
 #'
@@ -251,7 +253,7 @@ summary.icm <- function(object, at, digits = 3, ...) {
   vital <- object$param$vital
   nsteps <- object$control$nsteps
 
-  if (missing(at) || (at > nsteps | at < 1)) {
+  if (missing(at) || (at > nsteps || at < 1)) {
     stop("Specify a time step between 1 and ", nsteps)
   }
 
@@ -453,10 +455,10 @@ summary.icm <- function(object, at, digits = 3, ...) {
 #' @param ... Additional summary function arguments.
 #'
 #' @details
-#' Summary statistics for the main epidemiological outcomes (state and
-#' transition size and prevalence) from an \code{netsim} model. Time-specific
-#' summary measures are provided, so it is necessary to input a time of
-#' interest.
+#' This function provides summary statistics for the main epidemiological
+#' outcomes (state and transition size and prevalence) from a \code{netsim}
+#' model. Time-specific summary measures are provided, so it is necessary to
+#' input a time of interest.
 #'
 #' @seealso \code{\link{netsim}}
 #'
@@ -498,7 +500,7 @@ summary.netsim <- function(object, at, digits = 3, ...) {
   vital <- object$param$vital
   nsteps <- object$control$nsteps
 
-  if (missing(at) || (at > nsteps | at < 1)) {
+  if (missing(at) || (at > nsteps || at < 1)) {
     stop("Specify at between 1 and ", nsteps)
   }
 
@@ -698,7 +700,7 @@ summary.netsim <- function(object, at, digits = 3, ...) {
 #' @title Summary for Network Model Fit
 #'
 #' @description Prints the summary model fit statistics for an ERGM or STERGM
-#'fit.
+#' fit.
 #'
 #' @param object An \code{EpiModel} object of class \code{netest}.
 #' @param ... Additional summary function arguments.
@@ -708,14 +710,24 @@ summary.netsim <- function(object, at, digits = 3, ...) {
 #' @export
 #'
 #' @details
-#' This function is simply a wrapper function for \code{summary.ergm} and
-#' \code{summary.stergm}. Additionally, if the edges dissolution approximation
-#' was used to fit the temporal ERGM, then the dissolution coefficient
-#' information will be printed.
+#' This function is simply a wrapper function for \code{summary.ergm}.
+#' Additionally, if the edges dissolution approximation was used to fit the
+#' temporal ERGM, then the dissolution coefficient information will be printed.
+#'
+#' If the \code{fit} object is attached to the \code{netest} object, then
+#' \code{summary.netest} will call \code{summary} on \code{fit} using the
+#' \code{...} passed to \code{summary.netest}.  Otherwise,
+#' \code{summary.netest} will print the stored summary of the fit generated
+#' in the original \code{netest} call, using the \code{...} passed to
+#' \code{netest}.
 #'
 summary.netest <- function(object, ...) {
 
-  print(summary(object$fit, ...))
+  if (!is.null(object$fit)) {
+    print(summary(object$fit, ...))
+  } else {
+    print(object$summary)
+  }
 
   if (object$edapprox == TRUE) {
     cat("\n")

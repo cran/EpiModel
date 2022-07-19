@@ -13,16 +13,17 @@ get_partners(
 )
 }
 \arguments{
-\item{dat}{Master list object of network models.}
+\item{dat}{Main list object containing a \code{networkDynamic} object and
+other initialization information passed from \code{\link{netsim}}.}
 
 \item{index_posit_ids}{The positional IDs of the indexes of interest.}
 
 \item{networks}{Numerical indexes of the networks to extract the partnerships
-from. If \code{NULL}, extract from all networks.}
+from. (May be > 1 for models with multiple overlapping
+networks.) If \code{NULL}, extract from all networks.}
 
 \item{truncate}{After how many time steps a partnership that is no longer
-active should be removed from the output (default = Inf means
-no subsetting of output).}
+active should be removed from the output.}
 
 \item{only.active.nodes}{If \code{TRUE}, then inactive (e.g., deceased)
 partners will be removed from the output.}
@@ -30,9 +31,9 @@ partners will be removed from the output.}
 \value{
 A \code{data.frame} with 5 columns:
 \itemize{
-  \item \code{index}: the unique ID see \code{get_unique_ids}) of the
+  \item \code{index}: the unique ID (see \code{get_unique_ids}) of the
         indexes.
-  \item \code{partner}: the unique ID see \code{get_unique_ids}) of the
+  \item \code{partner}: the unique ID (see \code{get_unique_ids}) of the
         partners/contacts.
   \item \code{start}: the time step in which the edge started.
   \item \code{stop}: the time step in which the edge stopped; if ongoing,

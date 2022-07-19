@@ -1,4 +1,4 @@
-# Exported Functions ------------------------------------------------------
+# Network-related Utility Functions -----------------------------------------
 
 #' @title Check Degree Distribution for Balance in Target Statistics
 #'
@@ -51,12 +51,12 @@ check_degdist_bal <- function(num.g1, num.g2,
   cat("=============================================\n")
   reldiff <- (tot.deg.g1 - tot.deg.g2) / tot.deg.g2
   absdiff <- abs(tot.deg.g1 - tot.deg.g2)
-  if (sum(deg.dist.g1) <= 0.999 | sum(deg.dist.g1) >= 1.001 |
-      sum(deg.dist.g2) <= 0.999 | sum(deg.dist.g2) >= 1.001 | absdiff > 1) {
-    if (sum(deg.dist.g1) <= 0.999 | sum(deg.dist.g1) >= 1.001) {
+  if (sum(deg.dist.g1) <= 0.999 || sum(deg.dist.g1) >= 1.001 ||
+      sum(deg.dist.g2) <= 0.999 || sum(deg.dist.g2) >= 1.001 || absdiff > 1) {
+    if (sum(deg.dist.g1) <= 0.999 || sum(deg.dist.g1) >= 1.001) {
       cat("** deg.dist.g1 TOTAL != 1 \n")
     }
-    if (sum(deg.dist.g2) <= 0.999 | sum(deg.dist.g2) >= 1.001) {
+    if (sum(deg.dist.g2) <= 0.999 || sum(deg.dist.g2) >= 1.001) {
       cat("** deg.dist.g2 TOTAL != 1 \n")
     }
     if (absdiff > 1) {
@@ -74,7 +74,7 @@ check_degdist_bal <- function(num.g1, num.g2,
 }
 
 
-#' @title Creates a TEA Variable for Infection Status for \code{ndtv} Animations
+#' @title Create a TEA Variable for Infection Status for \code{ndtv} Animations
 #'
 #' @description Creates a new color-named temporally-extended attribute (TEA)
 #'              variable in a \code{networkDynamic} object containing a disease
@@ -90,7 +90,7 @@ check_degdist_bal <- function(num.g1, num.g2,
 #' @param new.sus Status value for susceptible in new TEA variable.
 #' @param new.inf Status value for infected in new TEA variable.
 #' @param new.rec Status value for recovered in new TEA variable.
-#' @param verbose Print progress to console.
+#' @param verbose If \code{TRUE}, print progress to console.
 #'
 #' @details
 #' The \code{ndtv} package (\url{https://cran.r-project.org/package=ndtv})
@@ -99,7 +99,7 @@ check_degdist_bal <- function(num.g1, num.g2,
 #' a temporally extended attribute (TEA) containing a standard R color for each
 #' node at each time step. By default, the \code{EpiModel} package uses TEAs to
 #' store disease status history in network model simulations run in
-#' \code{\link{netsim}}. But, that status TEA is in numeric format (0, 1, 2).
+#' \code{\link{netsim}}. But that status TEA is in numeric format (0, 1, 2).
 #' The \code{color_tea} function transforms those numeric values of that disease
 #' status TEA into a TEA with color values in order to visualize status changes
 #' in \code{ndtv}.
@@ -113,6 +113,8 @@ check_degdist_bal <- function(num.g1, num.g2,
 #' TEAs for disease status be used and that the \code{networkDynamic} object be
 #' saved in the output: \code{tergmListe} must be  set to \code{FALSE} in
 #' \code{\link{control.net}}.
+#'
+#' @return The updated object of class \code{networkDynamic}.
 #'
 #' @seealso \code{\link{netsim}} and the \code{ndtv} package documentation.
 #' @keywords colorUtils
@@ -150,12 +152,14 @@ color_tea <- function(nd, old.var = "testatus", old.sus = "s", old.inf = "i",
 }
 
 
-#' @title Copies Vertex Attributes From Network to dat List
+#' @title Copy Vertex Attributes From Network to \code{dat} List
 #'
 #' @description Copies the vertex attributes stored on the network object to the
-#'              master attr list in the dat data object.
+#'              main \code{attr} list in the \code{dat} data object.
 #'
-#' @param dat Master data object passed through \code{netsim} simulations.
+#' @inheritParams recovery.net
+#'
+#' @inherit recovery.net return
 #'
 #' @seealso \code{\link{get_formula_term_attr}}, \code{\link{get_attr_prop}},
 #'          \code{\link{auto_update_attr}}, and
@@ -164,7 +168,7 @@ color_tea <- function(nd, old.var = "testatus", old.sus = "s", old.inf = "i",
 #' @export
 #'
 copy_nwattr_to_datattr <- function(dat) {
-  otha <- names(dat$nw[[1]]$val[[1]])
+  otha <- list.vertex.attributes(dat$nw[[1]])
   otha <- setdiff(otha, c("na", "vertex.names", "active",
                           "testatus.active", "tergm_pid"))
   if (length(otha) > 0) {
@@ -180,12 +184,14 @@ copy_nwattr_to_datattr <- function(dat) {
 }
 
 
-#' @title Copies Vertex Attributes from the dat List to the Network Object
+#' @title Copy Vertex Attributes from the \code{dat} List to the Network Object
 #'
-#' @description Copies the vertex attributes stored on the master attr list on
-#'              dat to the network object on dat.
+#' @description Copies the vertex attributes stored on the main \code{attr} list
+#'              on \code{dat} to the network object on \code{dat}.
 #'
-#' @param dat Master data object passed through \code{netsim} simulations.
+#' @inheritParams recovery.net
+#'
+#' @inherit recovery.net return
 #'
 #' @seealso \code{\link{get_formula_term_attr}}, \code{\link{get_attr_prop}},
 #'          \code{\link{auto_update_attr}}, and
@@ -215,7 +221,7 @@ copy_datattr_to_nwattr <- function(dat) {
 #' @title Dissolution Coefficients for Stochastic Network Models
 #'
 #' @description Calculates dissolution coefficients, given a dissolution model
-#'              and average edge duration, to pass as offsets to an ERGM/STERGM
+#'              and average edge duration, to pass as offsets to an ERGM/TERGM
 #'              model fit in \code{netest}.
 #'
 #' @param dissolution Right-hand sided STERGM dissolution formula
@@ -223,19 +229,18 @@ copy_datattr_to_nwattr <- function(dat) {
 #'        dissolution models.
 #' @param duration A vector of mean edge durations in arbitrary time units.
 #' @param d.rate Departure or exit rate from the population, as a single
-#'        homogenous rate that applies to the entire population.
+#'        homogeneous rate that applies to the entire population.
 #'
 #' @details
 #' This function performs two calculations for dissolution coefficients
 #' used in a network model estimated with \code{\link{netest}}:
 #' \enumerate{
-#'  \item \strong{Transformation:} the mean duration of edges in a network are
+#'  \item \strong{Transformation:} the mean durations of edges in a network are
 #'        mathematically transformed to logit coefficients.
 #'  \item \strong{Adjustment:} in a dynamic network simulation in an open
 #'        population (in which there are departures), it is further necessary to
-#'        adjust these coefficients for dynamic simulations; this upward
-#'        adjustment accounts for departure as a competing risk to edge
-#'        dissolution.
+#'        adjust these coefficients; this upward adjustment accounts for
+#'        departure as a competing risk to edge dissolution.
 #' }
 #'
 #' The current dissolution models supported by this function and in network
@@ -258,7 +263,8 @@ copy_datattr_to_nwattr <- function(dat) {
 #'  \item \code{~offset(edges) + offset(nodefactor("<attr>"))}: a heterogeneous
 #'         model in which the edge duration varies by a specified attribute. The
 #'         duration vector should first contain the base value, then the values
-#'         for every other value of that attribute in the term.
+#'         for every other value of that attribute in the term. This option is
+#'         deprecated.
 #' }
 #'
 #' @return
@@ -275,6 +281,9 @@ copy_datattr_to_nwattr <- function(dat) {
 #'  \item \strong{coef.form.corr:} corrections to be subtracted from formation
 #'        coefficients.
 #'  \item \strong{d.rate:} the departure rate.
+#'  \item \strong{diss.model.type:} the form of the dissolution model; options
+#'        include \code{edgesonly}, \code{nodematch}, \code{nodemix}, and
+#'        \code{nodefactor}.
 #' }
 #'
 #' @export
@@ -359,29 +368,37 @@ dissolution_coefs <- function(dissolution, duration, d.rate = 0) {
     stop("All values in duration must be >= 1", call. = FALSE)
   }
   # Check form of dissolution formula
+  diss.model.type <- NA
   form.length <- length(strsplit(as.character(dissolution)[2], "[+]")[[1]])
   t1.edges <- grepl("offset[(]edges",
                     strsplit(as.character(dissolution)[2], "[+]")[[1]][1])
-  if (form.length == 2) {
-    t2 <- strsplit(as.character(dissolution)[2], "[+]")[[1]][2]
-    t2.term <- NULL
-    if (grepl("offset[(]nodematch", t2)) {
-      t2.term <- "nodematch"
-    } else if (grepl("offset[(]nodefactor", t2)) {
-      t2.term <- "nodefactor"
-    } else if (grepl("offset[(]nodemix", t2)) {
-      t2.term <- "nodemix"
+  if (form.length == 1 && t1.edges == TRUE) {
+    diss.model.type <- "edgesonly"
+  } else {
+    if (form.length == 2 && t1.edges == TRUE) {
+      t2 <- strsplit(as.character(dissolution)[2], "[+]")[[1]][2]
+      t2.term <- NULL
+      if (grepl("offset[(]nodematch", t2)) {
+        t2.term <- diss.model.type <- "nodematch"
+      } else {
+        if (grepl("offset[(]nodefactor", t2)) {
+          t2.term <- diss.model.type <- "nodefactor"
+          warning("Support for dissolution models containing a nodefactor term
+                  is deprecated, and will be removed in a future release.")
+          # TODO: remove functionality and deprecation message in future release
+        } else {
+          if (grepl("offset[(]nodemix", t2)) {
+            t2.term <- diss.model.type <- "nodemix"
+          } else {
+            stop("The form of the dissolution argument is invalid. Type
+                      help(\'dissolution_coefs\') to see the set of options
+                      allowed.")
+          }
+        }
+      }
     }
   }
-  model.type <- NA
-  if (form.length == 1 && t1.edges == TRUE) {
-    model.type <- "homog"
-  } else if (form.length == 2 && t1.edges == TRUE &&
-             t2.term %in% c("nodematch", "nodefactor", "nodemix")) {
-    model.type <- "hetero"
-  } else {
-    model.type <- "invalid"
-  }
+
   if (length(d.rate) > 1) {
     stop("Length of d.rate must be 1", call. = FALSE)
   }
@@ -411,7 +428,7 @@ dissolution_coefs <- function(dissolution, duration, d.rate = 0) {
   if (form.length == 2) {
     if (t2.term %in% c("nodematch", "nodefactor", "nodemix")) {
       coef.crude <- coef.adj <- coef.form.corr <- NA
-      for (i in 1:length(duration)) {
+      for (i in seq_along(duration)) {
         pg <- (duration[i] - 1) / duration[i]
         ps2 <- (1 - d.rate) ^ 2
 
@@ -443,7 +460,7 @@ dissolution_coefs <- function(dissolution, duration, d.rate = 0) {
   out$coef.adj <- coef.adj
   out$coef.form.corr <- coef.form.corr
   out$d.rate <- d.rate
-  out$model.type <- model.type
+  out$diss.model.type <- diss.model.type
   class(out) <- "disscoef"
   return(out)
 }
@@ -455,9 +472,12 @@ dissolution_coefs <- function(dissolution, duration, d.rate = 0) {
 #'              left-censored, right-censored, both-censored, or uncensored for
 #'              a \code{networkDynamic} object.
 #'
-#' @param el Timed edgelist with start and end times extracted from a
+#' @param el A timed edgelist with start and end times extracted from a
 #'        \code{networkDynamic} object using the
 #'        \code{as.data.frame.networkDynamic} function.
+#'
+#' @return A 4 x 2 table containing the number and percent of edges in \code{el}
+#'         that are left-censored, right-censored, both-censored, or uncensored.
 #'
 #' @export
 #' @keywords netUtils
@@ -514,83 +534,18 @@ edgelist_censor <- function(el) {
 }
 
 
-#' @title Mean Age of Partnerships over Time
-#'
-#' @description Outputs a vector of mean ages of edges at a series of timesteps
-#'
-#' @param x An \code{EpiModel} object of class \code{\link{netest}}.
-#' @param el If not passing \code{x}, a timed edgelist from a
-#'        \code{networkDynamic} object extracted with the
-#'        \code{as.data.frame.networkDynamic} function.
-#'
-#' @details
-#' This function calculates the mean partnership age at each time step over
-#' a dynamic network simulation from \code{\link{netest}}. These objects
-#' contain the network, edgelist, and dissolution objects needed for the
-#' calculation. Alternatively, one may pass in these objects separately if
-#' \code{netest} was not used, or statistics were not run requested after
-#' the estimation.
-#'
-#' Currently, the calculations are limited to those dissolution formulas with a
-#' single homogenous dissolution (\code{~offset(edges)}). This functionality
-#' will be expanded in future releases.
-#'
-#' @export
-#' @keywords netUtils internal
-#'
-#' @examples
-#' # Initialize and parameterize the network model
-#' nw <- network_initialize(n = 100)
-#' formation <- ~edges
-#' target.stats <- 50
-#' coef.diss <- dissolution_coefs(dissolution = ~offset(edges), duration = 20)
-#'
-#' # Model estimation
-#' est <- netest(nw, formation, target.stats, coef.diss, verbose = FALSE)
-#'
-#' # Simulate the network and extract a timed edgelist
-#' dx <- netdx(est, nsims = 1, nsteps = 100, keep.tedgelist = TRUE,
-#'       verbose = FALSE)
-#' el <- as.data.frame(dx)
-#'
-#' # Calculate ages directly from edgelist
-#' mean_ages <- edgelist_meanage(el = el)
-#' mean_ages
-#'
-#' # Alternatively, netdx calculates these
-#' dx$pages
-#' identical(dx$pages[[1]], mean_ages)
-#'
-edgelist_meanage <- function(x, el) {
-  # If passing a netest object directly
-  if (!(missing(x))) {
-    el <- x$edgelist
-  }
-  terminus <- el$terminus
-  onset <- el$onset
-  minterm <- 1
-  maxterm <- max(terminus)
-  meanpage <- rep(NA, maxterm)
-  for (at in minterm:maxterm) {
-    actp <- (onset <= at & terminus > at) |
-      (onset == at & terminus == at);
-    page <- at - onset[actp] + 1
-    meanpage[at] <- mean(page)
-  }
-  meanpage <- meanpage[1:(length(meanpage) - 1)]
-  return(meanpage)
-}
-
-
 #' @title Proportional Table of Vertex Attributes
 #'
 #' @description Calculates the proportional distribution of each vertex
-#'              attribute contained on the network
+#'              attribute contained in a network.
 #'
-#' @param nw The \code{networkDynamic} object contained in the \code{netsim}
-#'        simulation.
-#' @param nwterms Vector of attributes on network object, usually as
+#' @inheritParams recovery.net
+#' @param nwterms Vector of attributes on the network object, usually as
 #'        output of \code{\link{get_formula_term_attr}}.
+#'
+#' @return
+#' A table containing the proportional distribution of each attribute in
+#' \code{nwterms}.
 #'
 #' @seealso \code{\link{get_formula_term_attr}},
 #'          \code{\link{copy_nwattr_to_datattr}},
@@ -609,7 +564,7 @@ get_attr_prop <- function(dat, nwterms) {
                             "exitTime", "infTime", "group", "status"))
   out <- list()
   if (length(nwVal) > 0) {
-    for (i in 1:length(nwVal)) {
+    for (i in seq_along(nwVal)) {
       tab <- prop.table(table(dat$attr[[nwVal[i]]]))
       out[[i]] <- tab
     }
@@ -620,20 +575,22 @@ get_attr_prop <- function(dat, nwterms) {
 }
 
 
-#' @title Outputs ERGM Formula Attributes into a Character Vector
+#' @title Output ERGM Formula Attributes into a Character Vector
 #'
-#' @description Given a formation formula for a network model, outputs it into
-#'              a character vector of vertex attributes to be used in
-#'              \code{netsim} simulations.
+#' @description Given a formation formula for a network model, outputs a
+#'              character vector of vertex attributes to be used in
+#'              \code{\link{netsim}} simulations.
 #'
-#' @param form an ergm model formula
-#' @param nw a network object
+#' @param form An ERGM model formula.
+#' @param nw A network object.
+#'
+#' @return A character vector of vertex attributes.
 #'
 #' @export
 #'
 get_formula_term_attr <- function(form, nw) {
 
-  nw_attr <- names(nw$val[[1]])
+  nw_attr <- list.vertex.attributes(nw)
   nw_attr <- setdiff(nw_attr, c("active", "vertex.names", "na"))
 
   if (length(nw_attr) == 0) {
@@ -651,19 +608,20 @@ get_formula_term_attr <- function(form, nw) {
 
 }
 
-#' @title Outputs ERGM Formula Attributes into a Character Vector
+#' @title Output Network Attributes into a Character Vector
 #'
-#' @description Given a simulated network, outputs into
-#'              a character vector of vertex attributes to be used in
-#'              \code{netsim} simulations.
+#' @description Given a simulated network, outputs a character vector of vertex
+#'              attributes to be used in \code{\link{netsim}} simulations.
 #'
-#' @param nw a network object
+#' @param nw A network object.
+#'
+#' @return A character vector of vertex attributes.
 #'
 #' @export
 #'
 get_network_term_attr <- function(nw) {
 
-  nw_attr <- names(nw$val[[1]])
+  nw_attr <- list.vertex.attributes(nw)
   nw_attr <- setdiff(nw_attr, c("active", "vertex.names", "na",
                                 "testatus.active", "tergm_pid"))
 
@@ -680,13 +638,15 @@ get_network_term_attr <- function(nw) {
 
 }
 
-#' @title Mode Numbers for Two-Group Network
+#' @title Group Numbers for Two-Group Network
 #'
-#' @description Outputs group numbers give ID numbers for a two-group network.
+#' @description Outputs group numbers given ID numbers for a two-group network.
 #'
 #' @param nw Object of class \code{network} or \code{networkDynamic}.
 #' @param ids Vector of ID numbers for which the group number
 #'        should be returned.
+#'
+#' @return A vector containing the group number for each of the specified nodes.
 #'
 #' @export
 #' @keywords netUtils internal
@@ -706,7 +666,7 @@ idgroup <- function(nw, ids) {
     stop("Specify ids between 1 and ", n)
   }
 
-  flag <- "group" %in% names(nw$val[[1]])
+  flag <- "group" %in% list.vertex.attributes(nw)
   if (!flag) {
     out <- rep(1, n)
   } else {
@@ -717,16 +677,18 @@ idgroup <- function(nw, ids) {
   return(out)
 }
 
-#' @title Updates Vertex Attributes for Incoming Vertices
+#' @title Update Vertex Attributes for Incoming Vertices
 #'
 #' @description Updates the vertex attributes on a network for new nodes
 #'              incoming into that network, based on a set of rules for each
-#'              attribute that the user specifies in \code{control.net}.
+#'              attribute that the user specifies in \code{\link{control.net}}.
 #'
-#' @param dat Master object in \code{netsim} simulations.
+#' @inheritParams recovery.net
 #' @param newNodes Vector of nodal IDs for incoming nodes at the current time
 #'        step.
 #' @param curr.tab Current proportional distribution of all vertex attributes.
+#'
+#' @inherit recovery.net return
 #'
 #' @seealso \code{\link{copy_nwattr_to_datattr}}, \code{\link{get_attr_prop}},
 #'          \code{\link{auto_update_attr}}.
@@ -743,7 +705,7 @@ auto_update_attr <- function(dat, newNodes, curr.tab) {
     vname <- names(curr.tab)[i]
     needs.updating <- ifelse(length(get_attr(dat, vname)) < length(active),
                              TRUE, FALSE)
-    if (length(vname) > 0 & needs.updating == TRUE) {
+    if (length(vname) > 0 && needs.updating == TRUE) {
       rule <- rules[[vname]]
 
       if (is.null(rule)) {
@@ -797,14 +759,16 @@ auto_update_attr <- function(dat, newNodes, curr.tab) {
 #'
 #' @details
 #' Individual-level data on the current degree of nodes within a network is
-#' often useful for summary statistics and modeling complex interactions between
-#' degree. Given a \code{network} class object, \code{net}, one way to look
-#' up the current degree is to get a summary of the ERGM term, \code{sociality},
-#' as in: \code{summary(net ~ sociality(nodes = NULL))}. But that is
-#' computationally inefficient for a number of reasons. This function provide a
-#' fast method for generating the vector of degree using a query of the
-#' edgelist. t is even faster if the parameter \code{x} is already transformed
-#' as an edgelist.
+#' often useful for summary statistics. Given a \code{network} class object,
+#' \code{net}, one way to look up the current degree is to get a summary of the
+#' ERGM term, \code{sociality}, as in:
+#' \code{summary(net ~ sociality(nodes = NULL))}. But that is computationally
+#' inefficient for a number of reasons. This function provides a fast method for
+#' generating the vector of degrees using a query of the edgelist. It is even
+#' faster if the parameter \code{x} is already transformed into an edgelist.
+#'
+#' @return A vector of length equal to the total network size, containing the
+#'         current degree of each node in the network.
 #'
 #' @export
 #'
@@ -845,7 +809,7 @@ get_degree <- function(x) {
 
 #' @title Truncate Simulation Time Series
 #'
-#' @description Left-truncates a simulation epidemiological summary statistics
+#' @description Left-truncates simulation epidemiological summary statistics
 #'              and network statistics at a specified time step.
 #'
 #' @param x Object of class \code{netsim} or \code{icm}.
@@ -853,9 +817,11 @@ get_degree <- function(x) {
 #'
 #' @details
 #' This function would be used when running a follow-up simulation from time
-#' steps \code{b} to \code{c} after a burnin period from time \code{a} to
+#' steps \code{b} to \code{c} after a burn-in period from time \code{a} to
 #' \code{b}, where the final time window of interest for data analysis is
 #' \code{b} to \code{c} only.
+#'
+#' @return The updated object of class \code{netsim} or \code{icm}.
 #'
 #' @export
 #'
@@ -876,7 +842,7 @@ get_degree <- function(x) {
 #' mod2$control$nsteps
 #'
 truncate_sim <- function(x, at) {
-  if (class(x) != "icm" && class(x) != "netsim") {
+  if (!inherits(x, c("icm", "netsim"))) {
     stop("x must be either an object of class icm or class netsim",
          call. = FALSE)
   }

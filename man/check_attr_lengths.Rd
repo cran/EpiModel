@@ -2,20 +2,21 @@
 % Please edit documentation in R/net.accessor.R
 \name{check_attr_lengths}
 \alias{check_attr_lengths}
-\title{Check that all \code{attr}ibutes in the master object are of equal
-       length}
+\title{Check that All Attributes in the Main Object are of Equal
+       Length}
 \usage{
 check_attr_lengths(dat)
 }
 \arguments{
-\item{dat}{a Master list object of network models}
+\item{dat}{Main list object containing a \code{networkDynamic} object and
+other initialization information passed from \code{\link{netsim}}.}
 }
 \value{
-invisible(TRUE) if everythin is correct. It throws an error otherwise
+invisible(TRUE) if everything is correct; an error if not.
 }
 \description{
-Check that all \code{attr}ibutes in the master object are of equal
-       length
+Check that All Attributes in the Main Object are of Equal
+       Length
 }
 \keyword{internal}
 \keyword{not_used}

@@ -38,36 +38,36 @@ exposure.}
 
 \item{inter.start}{Time step at which the intervention starts, between 1 and
 the number of time steps specified in the model. This will default to
-1 if the \code{inter.eff} is defined but this parameter is not.}
+1 if \code{inter.eff} is defined but this parameter is not.}
 
 \item{act.rate}{Average number of transmissible acts \emph{per partnership}
 per unit time (see \code{act.rate} Parameter below). This may also be
-a vector of rates, with each element corresponding to the rate in in
+a vector of rates, with each element corresponding to the rate in
 that time step of infection (see Time-Varying Parameters below).}
 
 \item{rec.rate}{Average rate of recovery with immunity (in \code{SIR} models)
 or re-susceptibility (in \code{SIS} models). The recovery rate is the
 reciprocal of the disease duration. For two-group models, this is the
-recovery rate for mode 1 persons only. This parameter is only used for
-\code{SIR} and \code{SIS} models. This may also be a vector
+recovery rate for group 1 persons only. This parameter is only used
+for \code{SIR} and \code{SIS} models. This may also be a vector
 of rates, with each element corresponding to the rate in that time
 step of infection (see Time-Varying Parameters below).}
 
-\item{a.rate}{Arrival or entry rate. For one-mode models, the arrival rate is
-the rate of new arrivals per person per unit time. For two-group
-models, the arrival rate may be parameterized as a rate per mode 1
-person time (with group 1 persons representing females), and with the
-\code{a.rate.g2} rate set as described below.}
+\item{a.rate}{Arrival or entry rate. For one-group models, the arrival rate
+is the rate of new arrivals per person per unit time. For two-group
+models, the arrival rate is parameterized as a rate per group 1
+person per unit time, with the \code{a.rate.g2} rate set as described
+below.}
 
-\item{ds.rate}{Departure or exit rate for susceptible. For two-group models,
-it is the rate for the group 1 susceptible only.}
+\item{ds.rate}{Departure or exit rate for susceptible persons. For two-group
+models, it is the rate for group 1 susceptible persons only.}
 
-\item{di.rate}{Departure or exit rate for infected. For two-group models, it
-is the rate for the group 1 infected only.}
+\item{di.rate}{Departure or exit rate for infected persons. For two-group
+models, it is the rate for group 1 infected persons only.}
 
-\item{dr.rate}{Departure or exit rate for recovered. For two-group models, it
-is the rate for the group 1 recovered only. This parameter is only
-used for \code{SIR} models.}
+\item{dr.rate}{Departure or exit rate for recovered persons. For two-group
+models, it is the rate for group 1 recovered persons only. This
+parameter is only used for \code{SIR} models.}
 
 \item{inf.prob.g2}{Probability of transmission given a transmissible act
 between a susceptible group 2 person and an infected group 1 person.
@@ -79,21 +79,24 @@ persons. This parameter is only used for two-group \code{SIR} and
 \code{SIS} models.}
 
 \item{a.rate.g2}{Arrival or entry rate for group 2. This may either be
-specified numerically as the rate of new arrivals per group 2 persons
-per unit time, or as \code{NA} in which case the mode 1 rate,
+specified numerically as the rate of new arrivals per group 2 person
+per unit time, or as \code{NA}, in which case the group 1 rate,
 \code{a.rate}, governs the group 2 rate. The latter is used when, for
 example, the first group is conceptualized as female, and the female
-population size determines the arrival rate. Such arrivalss are evenly
+population size determines the arrival rate. Such arrivals are evenly
 allocated between the two groups.}
 
-\item{ds.rate.g2}{Departure or exit rate for group 2 susceptible.}
+\item{ds.rate.g2}{Departure or exit rate for group 2 susceptible persons.}
 
-\item{di.rate.g2}{Departure or exit rate for group 2 infected.}
+\item{di.rate.g2}{Departure or exit rate for group 2 infected persons.}
 
-\item{dr.rate.g2}{Departure or exit rate for group 2 recovered. This
+\item{dr.rate.g2}{Departure or exit rate for group 2 recovered persons. This
 parameter is only used for \code{SIR} model types.}
 
 \item{...}{Additional arguments passed to model.}
+}
+\value{
+An \code{EpiModel} object of class \code{param.net}.
 }
 \description{
 Sets the epidemic parameters for stochastic network models
@@ -159,7 +162,33 @@ for sampling is provided with \code{\link{param_random}} but any function
 will do.
 }
 
-\section{New Modules}{
+\section{Using a Parameter data.frame}{
+
+It is possible to set input parameters using a specifically formatted
+\code{data.frame} object. The first 3 columns of this \code{data.frame} must
+be:
+\itemize{
+ \item \code{param}: The name of the parameter. If this is a non-scalar
+   parameter (a vector of length > 1), end the parameter name with the
+   position on the vector (e.g., \code{"p_1"}, \code{"p_2"}, ...).
+ \item \code{value}: the value for the parameter (or the value of the
+   parameter in the Nth position if non-scalar).
+ \item \code{type}: a character string containing either \code{"numeric"},
+   \code{"logical"}, or \code{"character"} to define the parameter object
+   class.
+}
+
+In addition to these 3 columns, the \code{data.frame} can contain any number
+of other columns, such as \code{details} or \code{source} columns to document
+parameter meta-data. However, these extra columns will not be used by
+EpiModel.
+
+This data.frame is then passed in to \code{param.net} under a
+\code{data.frame.parameters} argument. Further details and examples are
+provided in the "Working with Model Parameters in EpiModel" vignette.
+}
+
+\section{Parameters with New Modules}{
 
 To build original models outside of the base models, new process modules
 may be constructed to replace the existing modules or to supplement the
@@ -168,8 +197,8 @@ existing set. These are passed into the control settings in
 parameters named here, an original set of parameters, or a combination of
 both. The \code{...} allows the user to pass an arbitrary set of original
 model parameters into \code{param.net}. Whereas there are strict checks with
-default modules for parameter validity, these checks are the user's
-responsibility with new modules.
+default modules for parameter validity, this becomes a user
+responsibility when using new modules.
 }
 
 \examples{

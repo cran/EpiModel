@@ -2,7 +2,7 @@
 % Please edit documentation in R/merge.R
 \name{merge.netsim}
 \alias{merge.netsim}
-\title{Merge Model Simulations Across netsim Objects}
+\title{Merge Model Simulations across netsim Objects}
 \usage{
 \method{merge}{netsim}(
   x,
@@ -10,9 +10,9 @@
   keep.transmat = TRUE,
   keep.network = TRUE,
   keep.nwstats = TRUE,
-  keep.summary.stats = TRUE,
   keep.other = TRUE,
   param.error = TRUE,
+  keep.diss.stats = TRUE,
   ...
 )
 }
@@ -34,19 +34,23 @@ only saved when (\code{tergmLite == FALSE}).}
 the \code{nwstats.formula} parameter in \code{control.netsim}) from
 the original \code{x} and \code{y} elements.}
 
-\item{keep.summary.stats}{If \code{TRUE}, keep the summary statistics from
-the original \code{x} and \code{y} elements.}
-
 \item{keep.other}{If \code{TRUE}, keep the other simulation elements (as set
 by the \code{save.other} parameter in \code{control.netsim}) from the
 original \code{x} and \code{y} elements.}
 
 \item{param.error}{If \code{TRUE}, if \code{x} and \code{y} have different
-params (in \code{param.net}) or controls (passed in
-\code{control.net}) an error will prevent the merge. Use \code{FALSE}
-to override that check.}
+params (in \code{\link{param.net}}) or controls (passed in
+\code{\link{control.net}}) an error will prevent the merge. Use
+\code{FALSE} to override that check.}
+
+\item{keep.diss.stats}{If \code{TRUE}, keep \code{diss.stats} from the
+original \code{x} and \code{y} objects.}
 
 \item{...}{Additional merge arguments (not currently used).}
+}
+\value{
+An \code{EpiModel} object of class \code{\link{netsim}} containing
+        the data from both \code{x} and \code{y}.
 }
 \description{
 Merges epidemiological data from two independent simulations of

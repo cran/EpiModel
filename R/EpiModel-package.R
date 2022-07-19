@@ -4,8 +4,8 @@
 #' \tabular{ll}{
 #'    Package: \tab EpiModel\cr
 #'    Type: \tab Package\cr
-#'    Version: \tab 2.2.1\cr
-#'    Date: \tab 2022-02-01\cr
+#'    Version: \tab 2.3.0\cr
+#'    Date: \tab 2022-07-18\cr
 #'    License: \tab GPL-3\cr
 #'    LazyLoad: \tab yes\cr
 #' }
@@ -23,7 +23,8 @@
 #'  \item \strong{Deterministic Compartmental Models:} these continuous-time
 #'        models are solved using ordinary differential equations. EpiModel
 #'        allows for easy specification of sensitivity analyses to compare
-#'        multiple scenarios f the same model across different parameter values.
+#'        multiple scenarios of the same model across different parameter
+#'        values.
 #'  \item \strong{Stochastic Individual Contact Models:} a novel class of
 #'        individual-based, microsimulation models that were developed to add
 #'        random variation in all components of the transmission system, from
@@ -137,13 +138,14 @@
 #'             polygon text title
 #' @importFrom grDevices col2rgb colorRampPalette rgb adjustcolor
 #' @importFrom stats complete.cases quantile rbinom rgeom sd setNames simulate
-#'             supsmu terms.formula update dgeom coef
+#'             supsmu terms.formula update dgeom coef na.omit
 #' @importFrom utils head tail packageVersion
 #' @importFrom ape as.phylo collapse.singles
 #' @importFrom lazyeval lazy_dots lazy_eval
 #' @importFrom statnet.common trim_env nonsimp_update.formula append_rhs.formula
-#'             list_rhs.formula set.control.class check.control.class NVL
+#'             list_rhs.formula set.control.class check.control.class NVL NVL2
 #' @importFrom methods is
+#' @importFrom tibble as_tibble is_tibble tibble
 #'
 #' @useDynLib EpiModel, .registration = TRUE
 #'

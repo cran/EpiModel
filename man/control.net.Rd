@@ -37,7 +37,9 @@ control.net(
   raw.output = FALSE,
   tergmLite.track.duration = FALSE,
   set.control.ergm = control.simulate.formula(MCMC.burnin = 2e+05),
-  set.control.stergm = control.simulate.network(),
+  set.control.stergm = NULL,
+  set.control.tergm = control.simulate.formula.tergm(),
+  save.diss.stats = TRUE,
   ...
 )
 }
@@ -52,7 +54,7 @@ positive integer that is equal to the final step of a simulation. If
 simulation is restarted with \code{start} argument, this number must
 be at least one greater than that argument's value.}
 
-\item{start}{For models with network resimulation , time point to start up
+\item{start}{For models with network resimulation, time point to start up
 simulation. For restarted simulations, this must be one greater than
 the final time step in the prior simulation and must be less than the
 value in \code{nsteps}.}
@@ -115,13 +117,13 @@ step, with the default function of \code{\link{prevalence.net}}.}
 \item{verbose.FUN}{Module to print simulation progress to screen, with the
 default function of \code{\link{verbose.net}}.}
 
-\item{module.order}{A character vector of module names that lists modules the
-order in which they should be evaluated within each time step. If
+\item{module.order}{A character vector of module names that lists modules in
+the order in which they should be evaluated within each time step. If
 \code{NULL}, the modules will be evaluated as follows: first any
 new modules supplied through \code{...} in the order in which they are
-listed, then the built-in modules in their order of the function
-listing. The \code{initialize.FUN} will always be run first and the
-\code{verbose.FUN} always last.}
+listed, then the built-in modules in the order in which they are
+listed as arguments above. \code{initialize.FUN} will
+always be run first and \code{verbose.FUN} will always be run last.}
 
 \item{save.nwstats}{If \code{TRUE}, save network statistics in a data frame.
 The statistics to be saved are specified in the \code{nwstats.formula}
@@ -136,17 +138,18 @@ simulation end. Default of \code{TRUE}.}
 
 \item{save.network}{If \code{TRUE}, networkDynamic/network object is
 saved at simulation end. Implicit reset to \code{FALSE} if
-\code{tergmLite = TRUE} (because network history not saved with tL).}
+\code{tergmLite = TRUE} (because network history is not saved with
+tergmLite).}
 
-\item{save.other}{A vector of elements on the \code{dat} master data list
-to save out after each simulation. One example for base models is
-the attribute list, "attr", at the final time step.}
+\item{save.other}{A character vector of elements on the \code{dat} main data
+list to save out after each simulation. One example for base models is
+the attribute list, \code{"attr"}, at the final time step.}
 
 \item{verbose}{If \code{TRUE}, print model progress to the console.}
 
 \item{verbose.int}{Time step interval for printing progress to console, where
 0 prints completion status of entire simulation and positive integer
-\code{x} prints progress after each \code{x} time steps. The default
+\code{x} prints progress after every \code{x} time steps. The default
 is to print progress after each time step.}
 
 \item{skip.check}{If \code{TRUE}, skips the default error checking for the
@@ -155,25 +158,35 @@ and control settings before running base epidemic models. Setting
 this to \code{FALSE} is recommended when running models with new
 modules specified.}
 
-\item{raw.output}{If \code{TRUE}, \code{netsim} will output a list of nestsim
+\item{raw.output}{If \code{TRUE}, \code{netsim} will output a list of netsim
 data (one per simulation) instead of a formatted \code{netsim} object.}
 
-\item{tergmLite.track.duration}{logical; to track duration information
-(\code{time} and \code{lasttoggle}) for \code{tergm} models in
-\code{tergmLite} simulations. If \code{TRUE}, the \code{time} and
-\code{lasttoggle} values are initialized from the network attributes
-of the networks passed to \code{init_tergmLite}, with \code{time}
-defaulting to \code{0} and \code{lasttoggle} defaulting to all
-\code{lasttoggle} times unspecified (effectively \code{-INT_MAX/2}).}
+\item{tergmLite.track.duration}{If \code{TRUE}, track duration information
+for models in \code{tergmLite} simulations.}
 
 \item{set.control.ergm}{Control arguments passed to \code{ergm}'s
-\code{.simulate_formula.network}.}
+\code{simulate_formula.network}.  In \code{netsim}, this is only used
+when initializing the network with \code{edapprox = TRUE}; all other
+simulations in \code{netsim} use \code{tergm}.}
 
-\item{set.control.stergm}{Control arguments passed to \code{tergm}'s
-\code{simulate.network}. See the help file for \code{\link{netdx}}
-for details and examples on specifying this parameter.}
+\item{set.control.stergm}{Deprecated control argument of class
+\code{control.simulate.network}; use \code{set.control.tergm}
+instead.}
+
+\item{set.control.tergm}{Control arguments passed to \code{tergm}'s
+\code{simulate_formula.network}. See the help file for
+\code{\link{netdx}} for details and examples on specifying this
+parameter.}
+
+\item{save.diss.stats}{If \code{TRUE}, \code{netsim} will compute and save
+duration/dissolution statistics for plotting and printing, provided
+\code{save.network} is \code{TRUE}, \code{tergmLite} is \code{FALSE},
+and the dissolution model is homogeneous.}
 
 \item{...}{Additional control settings passed to model.}
+}
+\value{
+An \code{EpiModel} object of class \code{control.net}.
 }
 \description{
 Sets the controls for stochastic network models simulated with
@@ -188,12 +201,12 @@ of control settings for base models, consult the
 For all base models, the \code{type} argument is a necessary parameter
 and it has no default.
 }
-\section{The attr.rules Argument}{
+\section{The \code{attr.rules} Argument}{
 
 The \code{attr.rules} parameter is used to specify the rules for how nodal
 attribute values for incoming nodes should be set. These rules are only
-necessary for models in which there are incoming nodes (i.e., arrivals) There
-are three rules available for each attribute value:
+necessary for models in which there are incoming nodes (i.e., arrivals).
+There are three rules available for each attribute value:
 \itemize{
  \item \strong{"current":} new nodes will be assigned this attribute in
        proportion to the distribution of that attribute among existing nodes
@@ -209,6 +222,40 @@ For example, the rules list
 specifies how the race, sex, and status attributes should be set for incoming
 nodes. By default, the rule is "current" for all attributes except status,
 in which case it is "s" (that is, all incoming nodes are susceptible).
+}
+
+\section{Checkpointing Simulations}{
+
+\code{netsim} has a built-in checkpoint system to prevent losing computation
+work if the function is interrupted (SIGINT, power loss, time limit exceeded
+on a computation cluster). When enabled, each simulation will be saved every
+\code{.checkpoint.steps} time steps. Then, if a checkpoint enabled simulation
+is launched again with \code{netsim}, it will restart at the last checkpoint
+available in the saved data.
+
+To enable the checkpoint capabilities of \code{netsim}, two control arguments
+have to be set: \code{.checkpoint.steps}, which is a positive number of time
+steps to be run between each file save; and \code{.checkpoint.dir}, which is
+the path to a directory to save the checkpointed data. If
+\code{.checkpoint.dir} directory does not exist, \code{netsim} will attempt
+to create it on the first checkpoint save. With these two controls defined,
+one can simply re-run \code{netsim} with the same arguments to restart a set
+of simulations that were interrupted.
+
+Simulations are checkpointed individually: for example, if 3 simulations are
+run on a single core, the first 2 are finished, then the interruption occurs
+during the third, \code{netsim} will only restart the third one from the last
+checkpoint.
+
+A \code{.checkpoint.compress} argument can be set to overwrite the
+\code{compress} argument in \code{saveRDS} used to save the checkpointed
+data. The current default for \code{saveRDS} is \code{gunzip (gz)}, which
+provides fast compression that usually works well on \code{netsim} objects.
+
+By default, if \code{netsim} reaches the end of all simulations, the
+checkpoint data directory and its content are removed before returning the
+\code{netsim} object. The \code{.checkpoint.keep} argument can be set to TRUE
+to prevent this removal to inspect the raw simulation objects.
 }
 
 \section{New Modules}{
