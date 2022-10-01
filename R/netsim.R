@@ -144,12 +144,9 @@ netsim <- function(x, param, init, control) {
     dat <- s <- NULL
 
     dat_list <- foreach(s = seq_len(control$nsims)) %dopar% {
-      netsim_initialize(x, param, init, control, s)
-    }
-    dat_list <- foreach(dat = dat_list, s = seq_along(dat_list)) %dopar% {
+      dat <- netsim_initialize(x, param, init, control, s)
       netsim_run(dat, s)
     }
-
   }
 
   out <- if (control$raw.output) dat_list else process_out.net(dat_list)
@@ -271,6 +268,10 @@ netsim_run_modules <- function(dat, s) {
         mod.FUN <- get_control(dat, current_mod)
         dat <- do.call(mod.FUN, list(dat, at))
       }
+
+      current_mod <- "epimodel.internal"
+      # Run the user-provided trackers, if any
+      dat <- epi_trackers(dat)
 
       ## Verbose module
       if (!is.null(get_control(dat, "verbose.FUN"))) {

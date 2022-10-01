@@ -4,8 +4,8 @@
 #' \tabular{ll}{
 #'    Package: \tab EpiModel\cr
 #'    Type: \tab Package\cr
-#'    Version: \tab 2.3.0\cr
-#'    Date: \tab 2022-07-18\cr
+#'    Version: \tab 2.3.1\cr
+#'    Date: \tab 2022-10-01\cr
 #'    License: \tab GPL-3\cr
 #'    LazyLoad: \tab yes\cr
 #' }
@@ -146,6 +146,8 @@
 #'             list_rhs.formula set.control.class check.control.class NVL NVL2
 #' @importFrom methods is
 #' @importFrom tibble as_tibble is_tibble tibble
+#' @importFrom coda effectiveSize
+#' @importFrom rlang .data
 #'
 #' @useDynLib EpiModel, .registration = TRUE
 #'

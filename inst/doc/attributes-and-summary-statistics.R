@@ -105,30 +105,26 @@ library(EpiModel)
 #  }
 
 ## ----tracker-example----------------------------------------------------------
-epi_s_num <- function(dat, at) {
+epi_s_num <- function(dat) {
   needed_attributes <- c("status")
   output <- with(get_attr_list(dat, needed_attributes), {
-    out <- sum(status == "susceptible", na.rm = TRUE)
-    out
+    sum(status == "s", na.rm = TRUE)
   })
   return(output)
 }
 
 ## ----tracker-commented--------------------------------------------------------
-epi_prop_infected <- function(dat, at) {
+epi_prop_infected <- function(dat) {
   # we need two attributes for our calculation: `status` and `active`
   needed_attributes <- c("status", "active")
-
   # we use `with` to simplify code
   output <- with(EpiModel::get_attr_list(dat, needed_attributes), {
-    pop <- active == 1             # we only look at active nodes
-    cond <- status == "infected"   # which are infected
+    pop <- active == 1    # we only look at active nodes
+    cond <- status == "i" # which are infected
 
     # how many are `infected` among the `active`
-    out <- sum(cond & pop, na.rm = TRUE) / sum(pop, na.rm = TRUE)
-    out
+    sum(cond & pop, na.rm = TRUE) / sum(pop, na.rm = TRUE)
   })
-
   return(output)
 }
 
@@ -140,13 +136,11 @@ some.trackers <- list(
 )
 
 control <- EpiModel::control.net(
-  type = NULL, # must be NULL as we use custom extension modules
+  type = "SI",
   nsims = 1,
   nsteps = 50,
   verbose = FALSE,
-  infection.FUN = EpiModel::infection.net,
-  trackers.FUN = EpiModel::trackers.net,
-  tracker.list = some.trackers
+  .tracker.list = some.trackers
 )
 
 param <- EpiModel::param.net(

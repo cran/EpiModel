@@ -1169,15 +1169,15 @@ plot_stats_table <- function(data,
 #'        dissolution model statistics for proportion of ties dissolved per time
 #'        step.
 #' @param method Plot method, with options of \code{"l"} for line plots and
-#'        \code{"b"} for boxplots.
+#'        \code{"b"} for box plots.
 #' @param sims A vector of simulation numbers to plot.
-#' @param stats Statistics to plot.  For \code{type = "formation"},
-#'        \code{stats} are among those specified in the call to
-#'        \code{\link{netdx}}; for \code{type = "duration","dissolution"},
-#'        \code{stats} are among those of the dissolution model (without
-#'        \code{offset()}).  The default is to plot all statistics.
-#' @param plots.joined If \code{TRUE}, combine all statistics in one
-#'        plot, versus one plot per statistic if \code{FALSE}.
+#' @param stats Statistics to plot. For \code{type = "formation"}, \code{stats}
+#'        are among those specified in the call to \code{\link{netdx}};
+#'        for \code{type = "duration", "dissolution"}, \code{stats} are among
+#'        those of the dissolution model (without \code{offset()}). The default
+#'        is to plot all statistics.
+#' @param plots.joined If \code{TRUE}, combine all statistics in one plot,
+#'        versus one plot per statistic if \code{FALSE}.
 #' @inheritParams plot.netsim
 #'
 #' @details
@@ -1324,10 +1324,13 @@ plot.netdx <- function(x, type = "formation", method = "l", sims, stats,
     data <- do.call("cbind", args = x$stats)
     dim3 <- if (isTRUE(dynamic)) nsims else 1L
     data <- array(data, dim = c(dim(data)[1], dim(data)[2] / dim3, dim3))
-  } else if (type == "duration") {
-    if (is.logical(duration.imputed) == FALSE) {
-      stop("For plots of type duration, duration.imputed must
-           be a logical value (TRUE/FALSE)", call. = FALSE)
+  } else { # duration/dissolution case
+    if (x$anyNA == TRUE) {
+      warning("duration/dissolution data contains undefined values due to",
+              " having zero edges of some dissolution dyad type(s) on some time",
+              " step(s); these undefined values will be set to 0 when",
+              " processing the data; this behavior, which introduces a bias",
+              " towards 0, may be changed in the future")
     }
 
     if (any(grepl("nodefactor", x$dissolution) == TRUE)) {
@@ -1336,22 +1339,23 @@ plot.netdx <- function(x, type = "formation", method = "l", sims, stats,
               call. = FALSE)
     }
 
-    if (isTRUE(duration.imputed)) {
-      data <- x$pages_imptd
-    } else {
-      data <- x$pages
-    }
+    if (type == "duration") {
+      if (is.logical(duration.imputed) == FALSE) {
+        stop("For plots of type duration, duration.imputed must
+             be a logical value (TRUE/FALSE)", call. = FALSE)
+      }
 
-    stats_table <- x$stats.table.duration
-  } else { # if type is "dissolution"
-    if (any(grepl("nodefactor", x$dissolution) == TRUE)) {
-      warning("Support for dissolution models containing a nodefactor term is
-              deprecated, and will be removed in a future release.",
-              call. = FALSE)
-    }
+      if (isTRUE(duration.imputed)) {
+        data <- x$pages_imptd
+      } else {
+        data <- x$pages
+      }
 
-    data <- x$prop.diss
-    stats_table <- x$stats.table.dissolution
+      stats_table <- x$stats.table.duration
+    } else { # if type is "dissolution"
+      data <- x$prop.diss
+      stats_table <- x$stats.table.dissolution
+    }
   }
 
   ## Find available stats
@@ -1456,19 +1460,19 @@ plot.netdx <- function(x, type = "formation", method = "l", sims, stats,
 #'        to existing plot window.
 #' @param network Network number, for simulations with multiple networks
 #'        representing the population.
-#' @param at If \code{type="network"}, time step for network graph.
+#' @param at If \code{type = "network"}, time step for network graph.
 #' @param col.status If \code{TRUE} and \code{type="network"}, automatic disease
 #'        status colors (blue = susceptible, red = infected, green = recovered).
-#' @param shp.g2 If \code{type="network"} and \code{x} is for a two-group model,
+#' @param shp.g2 If \code{type = "network"} and \code{x} is for a two-group model,
 #'        shapes for the Group 2 vertices, with acceptable inputs of "triangle"
 #'        and "square". Group 1 vertices will remain circles.
 #' @param vertex.cex Relative size of plotted vertices if \code{type="network"},
 #'        with implicit default of 1.
 #' @param stats If \code{type="formation","duration","dissolution"}, statistics
-#'        to plot.  For \code{type = "formation"}, \code{stats} are among those
+#'        to plot. For \code{type = "formation"}, \code{stats} are among those
 #'        specified in \code{nwstats.formula} of \code{\link{control.net}}; for
-#'        \code{type = "duration","dissolution"}, \code{stats} are among those
-#'        of the dissolution model (without \code{offset()}).  The default is
+#'        \code{type = "duration", "dissolution"}, \code{stats} are among those
+#'        of the dissolution model (without \code{offset()}). The default is
 #'        to plot all statistics.
 #' @param targ.line If \code{TRUE}, plot target or expected value line for
 #'        the statistic of interest.
@@ -1480,13 +1484,12 @@ plot.netdx <- function(x, type = "formation", method = "l", sims, stats,
 #'        \code{type="formation","duration","dissolution"}, combine all
 #'        statistics in one plot, versus one plot per statistic if
 #'        \code{FALSE}.
-#' @param method Plot method for
-#'        \code{type="formation","duration","dissolution"}, with options of
-#'        \code{"l"} for line plots and \code{"b"} for boxplots.
-#' @param duration.imputed If \code{type="duration"}, a logical indicating
+#' @param method Plot method for \code{type="formation", "duration", "dissolution"},
+#'        with options of \code{"l"} for line plots and \code{"b"} for box plots.
+#' @param duration.imputed If \code{type = "duration"}, a logical indicating
 #'        whether or not to impute starting times for relationships extant at
 #'        the start of the simulation. Defaults to \code{TRUE} when
-#'        \code{type="duration"}.
+#'        \code{type = "duration"}.
 #' @param ... Additional arguments to pass.
 #'
 #' @details
@@ -1511,6 +1514,10 @@ plot.netdx <- function(x, type = "formation", method = "l", sims, stats,
 #'        \code{save.nwstats=TRUE}; the plot here will then show the network
 #'        statistics requested explicitly in \code{nwstats.formula}, or will use
 #'        the formation formula set in \code{netest} otherwise.
+#'  \item \strong{\code{type="duration","dissolution"}}: as in
+#'        \code{\link{plot.netdx}}; supported in \code{plot.netsim} only when
+#'        the dissolution model is \code{~offset(edges)}, \code{tergmLite} is
+#'        \code{FALSE}, and \code{save.network} is \code{TRUE}.
 #' }
 #'
 #' @details
@@ -2024,17 +2031,7 @@ plot.netsim <- function(x, type = "epi", y, popfrac = FALSE, sim.lines = FALSE,
       # Formation plot ----------------------------------------------------------
 
       ## get nw stats
-      data <- get_nwstats(x, sims, network)
-      ## order by simulation and timestep
-      data <- data[order(data$sim, data$time), , drop = FALSE]
-      ## drop simulation and timestep columns
-      data <- data[, !(names(data) %in% c("sim", "time")), drop = FALSE]
-      ## get names of stats
-      nmstats <- names(data)
-      ## convert to array
-      data <- array(c(as.matrix(data)), dim = c(nsteps, nsims, length(nmstats)))
-      ## permute array indices to be steps x stats x sims
-      data <- aperm(data, c(1, 3, 2))
+      data <- get_nwstats(x, sims, network, mode = "list")
 
       ## target stats
       nwparam <- get_nwparam(x, network)
@@ -2043,18 +2040,8 @@ plot.netsim <- function(x, type = "epi", y, popfrac = FALSE, sim.lines = FALSE,
       if (length(tsn) != length(ts)) {
         ts <- ts[which(ts > 0)]
       }
+      names(ts) <- tsn
 
-      targets <- rep(NA, length.out = length(nmstats))
-      for (i in seq_along(targets)) {
-        if (nmstats[i] %in% tsn) {
-          targets[i] <- ts[which(tsn == nmstats[i])]
-        }
-      }
-
-      stats_table <- data.frame("Target" = targets,
-                                "Sim Mean" = apply(data, 2, mean))
-      colnames(stats_table) <- c("Target", "Sim Mean")
-      rownames(stats_table) <- nmstats
     } else {
       ## duration/dissolution plot
       if (isTRUE(x$control$save.diss.stats) &&
@@ -2062,32 +2049,36 @@ plot.netsim <- function(x, type = "epi", y, popfrac = FALSE, sim.lines = FALSE,
           isFALSE(x$control$tergmLite) &&
           isFALSE(is.null(x$diss.stats)) &&
           isTRUE(x$nwparam[[network]]$coef.diss$diss.model.type == "edgesonly")) {
-        dstats <- make_dissolution_stats(
-          lapply(sims, function(sim) x$diss.stats[[sim]][[network]]),
-          x$nwparam[[network]]$coef.diss,
-          x$control$nsteps,
-          verbose = FALSE
-        )
+
+        if (any(unlist(lapply(x$diss.stats, `[[`, "anyNA")))) {
+          warning("duration/dissolution data contains undefined values due to",
+                  " having zero edges of some dissolution dyad type(s) on some time",
+                  " step(s); these undefined values will be set to 0 when",
+                  " processing the data; this behavior, which introduces a bias",
+                  " towards 0, may be changed in the future")
+        }
+
+        if (type == "duration") {
+          if (isTRUE(duration.imputed)) {
+            data <- lapply(sims, function(sim) x$diss.stats[[sim]][[network]][["meanageimputed"]])
+          } else {
+            data <- lapply(sims, function(sim) x$diss.stats[[sim]][[network]][["meanage"]])
+          }
+          ts <- x$nwparam[[network]]$coef.diss$duration
+        } else { # if type is "dissolution"
+          data <- lapply(sims, function(sim) x$diss.stats[[sim]][[network]][["propdiss"]])
+          ts <- 1 / x$nwparam[[network]]$coef.diss$duration
+        }
       } else {
         stop("cannot produce duration/dissolution plot from `netsim` object ",
              "unless `save.diss.stats` is `TRUE`, `save.network` is `TRUE`, ",
              "`tergmLite` is `FALSE`, `keep.diss.stats` is `TRUE` (if ",
              "merging), and dissolution model is edges-only")
       }
-
-      if (type == "duration") {
-        if (isTRUE(duration.imputed)) {
-          data <- dstats$pages_imptd
-        } else {
-          data <- dstats$pages
-        }
-
-        stats_table <- dstats$stats.table.duration
-      } else { # if type is "dissolution"
-        data <- dstats$prop.diss
-        stats_table <- dstats$stats.table.dissolution
-      }
     }
+
+    stats_table <- make_stats_table(data, ts)
+    data <- array(unlist(data), dim = c(dim(data[[1]]), nsims))
 
     ## Find available stats
     sts <- which(!is.na(stats_table[, "Sim Mean"]))

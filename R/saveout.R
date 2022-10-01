@@ -200,15 +200,16 @@ saveout.net <- function(dat, s, out = NULL) {
 
     out$stats <- list()
     if (dat$control$save.nwstats == TRUE) {
-      out$stats$nwstats <- list(dat$stats$nwstats)
+      out$stats$nwstats <- list(lapply(dat$stats$nwstats, function(y) structure(y, ess = ess(y))))
     }
 
     if (dat$control$save.transmat == TRUE) {
       if (!is.null(dat$stats$transmat)) {
-        row.names(dat$stats$transmat) <- seq_len(nrow(dat$stats$transmat))
-        out$stats$transmat <- list(dat$stats$transmat)
+        transmat <- dplyr::bind_rows(dat$stats$transmat)
+        row.names(transmat) <- seq_len(nrow(transmat))
+        out$stats$transmat[[s]] <- transmat
       } else {
-        out$stats$transmat <- list(data.frame())
+        out$stats$transmat[[s]] <- dplyr::tibble()
       }
       class(out$stats$transmat) <- c("transmat", class(out$stats$transmat))
     }
@@ -280,15 +281,16 @@ saveout.net <- function(dat, s, out = NULL) {
     out$raw.records[[s]] <- dat$raw.records
 
     if (dat$control$save.nwstats == TRUE) {
-      out$stats$nwstats[[s]] <- dat$stats$nwstats
+      out$stats$nwstats[[s]] <- lapply(dat$stats$nwstats, function(y) structure(y, ess = ess(y)))
     }
 
     if (dat$control$save.transmat == TRUE) {
       if (!is.null(dat$stats$transmat)) {
-        row.names(dat$stats$transmat) <- seq_len(nrow(dat$stats$transmat))
-        out$stats$transmat[[s]] <- dat$stats$transmat
+        transmat <- dplyr::bind_rows(dat$stats$transmat)
+        row.names(transmat) <- seq_len(nrow(transmat))
+        out$stats$transmat[[s]] <- transmat
       } else {
-        out$stats$transmat[[s]] <- data.frame()
+        out$stats$transmat[[s]] <- dplyr::tibble()
       }
     }
 
