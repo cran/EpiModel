@@ -4,8 +4,8 @@
 #' \tabular{ll}{
 #'    Package: \tab EpiModel\cr
 #'    Type: \tab Package\cr
-#'    Version: \tab 2.3.1\cr
-#'    Date: \tab 2022-10-01\cr
+#'    Version: \tab 2.3.2\cr
+#'    Date: \tab 2023-02-16\cr
 #'    License: \tab GPL-3\cr
 #'    LazyLoad: \tab yes\cr
 #' }
@@ -129,7 +129,9 @@
 #'
 #' @name EpiModel-package
 #' @aliases EpiModel
-#' @import ergm network networkDynamic tergm ggplot2
+#' @import ergm network networkLite networkDynamic tergm ggplot2
+#' @importFrom egor as.egor
+#' @importFrom ergm.ego ergm.ego control.ergm.ego
 #' @importFrom deSolve dede ode
 #' @importFrom doParallel registerDoParallel
 #' @importFrom foreach foreach "%dopar%"
@@ -143,9 +145,9 @@
 #' @importFrom ape as.phylo collapse.singles
 #' @importFrom lazyeval lazy_dots lazy_eval
 #' @importFrom statnet.common trim_env nonsimp_update.formula append_rhs.formula
-#'             list_rhs.formula set.control.class check.control.class NVL NVL2
+#'             list_rhs.formula set.control.class check.control.class NVL
 #' @importFrom methods is
-#' @importFrom tibble as_tibble is_tibble tibble
+#' @importFrom tibble as_tibble tibble
 #' @importFrom coda effectiveSize
 #' @importFrom rlang .data
 #'
@@ -155,3 +157,6 @@
 #' @keywords package
 #'
 NULL
+
+#' @export
+ergm.ego::control.ergm.ego

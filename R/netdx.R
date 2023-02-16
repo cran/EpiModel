@@ -159,9 +159,9 @@ netdx <- function(x, nsims = 1, dynamic = TRUE, nsteps,
     stop("Specify number of time steps with nsteps", call. = FALSE)
   }
 
-  if (any(x$coef.diss$duration == 1) && dynamic == TRUE) {
-    stop("Running dynamic diagnostics on a cross-sectional ERGM (duration = 1)
-         is not possible. \nSet netdx parameter 'dynamic' to 'FALSE'",
+  if (all(x$coef.diss$duration == 1) && dynamic == TRUE) {
+    stop("Running dynamic diagnostics on a cross-sectional ERGM (duration = 1) is not possible.
+         \nSet netdx parameter 'dynamic' to 'FALSE'",
       call. = FALSE
     )
   }
@@ -301,11 +301,8 @@ netdx <- function(x, nsims = 1, dynamic = TRUE, nsteps,
 
   ## List for stats for each simulation
   stats <- lapply(diag.sim, function(x) x$stats[, !duplicated(colnames(x$stats)), drop = FALSE])
-
   ts.attr.names <- x$target.stats.names
-  if (length(ts.attr.names) != length(target.stats)) {
-    target.stats <- target.stats[which(target.stats > 0)]
-  }
+
   ts.out <- data.frame(
     names = ts.attr.names,
     targets = target.stats

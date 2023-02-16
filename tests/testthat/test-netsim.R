@@ -158,26 +158,27 @@ test_that("netsim duration 1", {
   expect_identical(sim$mel, mod$network$sim1[[1]]$mel)
 })
 
-# test_that("non-nested EDA works in netsim", {
-#   nw <- network.initialize(10, directed = FALSE)
-#   nw %v% "race" <- rep(1:2, length.out = 10)
-#   nw %v% "age" <- rep(1:5, length.out = 10)
-#   dc <- dissolution_coefs(~offset(edges) + offset(nodematch("age")), c(3, 7))
-#   est <- netest(nw, formation = ~edges + nodematch("race"), target.stats = c(10, 5),
-#                 coef.diss = dc, nested.edapprox = FALSE)
-#   dxs <- netdx(est, nsteps = 2, nsims = 2, dynamic = FALSE, verbose = FALSE)
-#   dxd <- netdx(est, nsteps = 2, nsims = 2, dynamic = TRUE, verbose = FALSE)
-#   param <- param.net(inf.prob = 0.3, act.rate = 0.5)
-#   init <- init.net(i.num = 10)
-#   control <- control.net(type = "SI", nsims = 1, nsteps = 5, verbose = FALSE)
-#   sim <- netsim(est, param, init, control)
-#
-#   dc <- dissolution_coefs(~offset(edges) + offset(nodematch("age")), c(1, 1))
-#   est <- netest(nw, formation = ~edges + nodematch("race"), target.stats = c(10, 5),
-#                 coef.diss = dc, nested.edapprox = FALSE)
-#   dxs <- netdx(est, nsteps = 2, nsims = 2, dynamic = FALSE, verbose = FALSE)
-#   sim <- netsim(est, param, init, control)
-# })
+test_that("non-nested EDA works in netsim", {
+  nw <- network.initialize(10, directed = FALSE)
+  nw %v% "race" <- rep(1:2, length.out = 10)
+  nw %v% "age" <- rep(1:5, length.out = 10)
+  dc <- dissolution_coefs(~offset(edges) + offset(nodematch("age")), c(3, 7))
+  est <- netest(nw, formation = ~edges + nodematch("race"), target.stats = c(10, 5),
+                coef.diss = dc, nested.edapprox = FALSE)
+  dxs <- netdx(est, nsteps = 2, nsims = 2, dynamic = FALSE, verbose = FALSE)
+  dxd <- netdx(est, nsteps = 2, nsims = 2, dynamic = TRUE, verbose = FALSE)
+  param <- param.net(inf.prob = 0.3, act.rate = 0.5)
+  init <- init.net(i.num = 10)
+  control <- control.net(type = "SI", nsims = 1, nsteps = 5, verbose = FALSE)
+  sim <- netsim(est, param, init, control)
+
+  dc <- dissolution_coefs(~offset(edges) + offset(nodematch("age")), c(1, 1))
+  est <- netest(nw, formation = ~edges + nodematch("race"), target.stats = c(10, 5),
+                coef.diss = dc, nested.edapprox = FALSE)
+  dxs <- netdx(est, nsteps = 2, nsims = 2, dynamic = FALSE, verbose = FALSE)
+  sim <- netsim(est, param, init, control)
+  expect_is(sim, "netsim")
+})
 
 test_that("netsim diss.stats", {
   nw <- network_initialize(n = 100)
@@ -230,4 +231,25 @@ test_that("save.other sim naming", {
   expect_equal(names(mod3[["nw"]]), paste0("sim", 1:3))
   mod4 <- merge(mod, mod, keep.other = FALSE)
   expect_equal(names(mod4[["nw"]]), NULL)
+})
+
+test_that("name_saveout_elts unit", {
+  simnames <- paste0("sim", 1:4)
+  elt_name <- "this_elt"
+
+  elt <- rep(list(sample(10)), 4)
+  named_elt <- expect_silent(name_saveout_elts(elt, elt_name, simnames))
+  expect_equal(names(named_elt), simnames)
+
+  # wrong size produces a warning
+  elt <- rep(list(sample(10)), 2)
+  named_elt <- expect_warning(name_saveout_elts(elt, elt_name, simnames))
+  expect_null(names(named_elt))
+  expect_equal(elt, named_elt)
+
+  # empty element returns silently
+  elt <- NULL
+  named_elt <- expect_silent(name_saveout_elts(elt, elt_name, simnames))
+  expect_null(names(named_elt))
+  expect_equal(elt, named_elt)
 })
