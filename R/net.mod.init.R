@@ -1,17 +1,28 @@
 
 #' @title Initialization: netsim Module
 #'
-#' @description This function initializes the main \code{dat} object on which
-#'              data are stored, simulates the initial state of the network, and
-#'              simulates disease status and other attributes.
+#' @description This function initializes the main \code{netsim_dat} class data
+#'              object on which data are stored, simulates the initial state of
+#'              the networks, and simulates disease status and other attributes.
 #'
-#' @param x An \code{EpiModel} object of class \code{\link{netest}}.
+#' @param x If \code{control$start == 1}, either a fitted network model object
+#'        of class \code{netest} or a list of such objects. If
+#'        \code{control$start > 1}, an object of class \code{netsim}. When
+#'        multiple networks are used, the node sets (including network size
+#'        and nodal attributes) are assumed to be the same for all networks.
 #' @param param An \code{EpiModel} object of class \code{\link{param.net}}.
 #' @param init An \code{EpiModel} object of class \code{\link{init.net}}.
 #' @param control An \code{EpiModel} object of class \code{\link{control.net}}.
 #' @param s Simulation number, used for restarting dependent simulations.
+#' @details When re-initializing a simulation, the \code{netsim} object passed
+#'          to \code{initialize.net} must contain the elements \code{param},
+#'          \code{nwparam}, \code{epi}, \code{attr}, \code{temp},
+#'          \code{coef.form}, and \code{num.nw}. If \code{tergmLite == TRUE} it
+#'          must also contain the elements \code{el} and \code{net_attr}. If
+#'          \code{tergmLite == FALSE} it must also contain the element
+#'          \code{network}.
 #'
-#' @return A \code{dat} main list object.
+#' @return A \code{netsim_dat} class main data object.
 #'
 #' @export
 #' @keywords internal
@@ -23,66 +34,90 @@ initialize.net <- function(x, param, init, control, s) {
     # Main Data List --------------------------------------------------------
     dat <- create_dat_object(param, init, control)
 
-    dat$nwparam <- list()
-    dat$nwparam[[1]] <- x[!(names(x) %in% c("fit", "newnetwork"))]
-
-    # Initial Network Simulation ----------------------------------------------
-
-    if (get_control(dat, "resimulate.network") == TRUE) {
-      nsteps <- 1
-    } else {
-      nsteps <- get_control(dat, "nsteps")
-    }
-    dat <- sim_nets_t1(x, dat, nsteps)
-
-
-    # Nodal Attributes --------------------------------------------------------
-
-    # Standard attributes
-    num <- network.size(dat$nw[[1]])
-    dat <- append_core_attr(dat, 1, num)
-
-    groups <- length(unique(get_vertex_attribute(dat$nw[[1]], "group")))
-    dat <- set_param(dat, "groups", groups)
-
-    ## Pull attr on nw to dat$attr
-    dat <- copy_nwattr_to_datattr(dat)
+    # network and stats initialization
+    dat <- init_nets(dat, x)
 
     ## Store current proportions of attr
-    nwterms <- get_network_term_attr(dat$nw[[1]])
-    if (!is.null(nwterms)) {
-      dat$temp$nwterms <- nwterms
-      dat$temp$t1.tab <- get_attr_prop(dat, nwterms)
+    if (!is.null(dat$temp$nwterms)) {
+      dat$temp$t1.tab <- get_attr_prop(dat, dat$temp$nwterms)
     }
+
+    # simulate first time step
+    dat <- sim_nets_t1(dat)
+    dat <- summary_nets(dat, at = 1L)
 
     ## Infection Status and Time
     dat <- init_status.net(dat)
-
-    # Conversions for tergmLite
-    tergmLite <- get_control(dat, "tergmLite")
-    if (tergmLite == TRUE) {
-      dat <- init_tergmLite(dat)
-    }
-
 
     # Summary Stats -----------------------------------------------------------
     dat <- do.call(control[["prevalence.FUN"]], list(dat, at = 1))
 
     # Restart/Reinit Simulations ----------------------------------------------
   } else if (control$start > 1) {
-    dat <- create_dat_object(param = x$param, control = control)
+    ## check that required names are present
+    required_names <- c(
+      "param",
+      "nwparam",
+      "epi",
+      "attr",
+      "temp",
+      "coef.form",
+      "num.nw",
+      if (control[["tergmLite"]] == TRUE) c("el", "net_attr"),
+      if (control[["tergmLite"]] == FALSE) "network"
+    )
+    missing_names <- setdiff(required_names, names(x))
+    if (length(missing_names) > 0) {
+      stop("x is missing the following elements required for re-initialization: ",
+           paste.and(missing_names), call. = FALSE)
+    }
 
-    dat$nw <- x$network[[s]]
+    dat <- create_dat_object(param = param, control = control)
+
+    missing_params <- setdiff(names(x$param), names(param))
+    for (mp in missing_params) {
+      dat <- set_param(dat, mp, x$param[[mp]])
+    }
+
+    # recycle sims in the restart object
+    # e.g. 5 sim out of a size 3 restart object we will give: 1, 2, 3, 1, 2
+    s <- (s - 1) %% length(x$attr) + 1
+
+    dat$num.nw <- x$num.nw
+    if (control[["tergmLite"]] == TRUE) {
+      dat$el <- x$el[[s]]
+      dat$net_attr <- x$net_attr[[s]]
+    }
+    if (control[["tergmLite"]] == FALSE) {
+      dat$nw <- x$network[[s]]
+    }
+
+    # copy if present
+    if (length(x[["el.cuml"]]) >= s) {
+      dat[["el.cuml"]] <- x[["el.cuml"]][[s]]
+    }
+    if (length(x[["_last_unique_id"]]) >= s) {
+      dat[["_last_unique_id"]] <- x[["_last_unique_id"]][[s]]
+    }
+
     dat$nwparam <- x$nwparam
-    if (is.null(dat$control$isTERGM)) {
-      nwparam <- get_nwparam(dat)
-      isTERGM <- all(nwparam$coef.diss$duration > 1)
-      dat <- set_control(dat, "isTERGM", isTERGM)
+    for (network in seq_len(dat$num.nw)) {
+      dat$nwparam[[network]]$coef.form <- x$coef.form[[s]][[network]]
     }
     dat$epi <- sapply(x$epi, function(var) var[s])
     names(dat$epi) <- names(x$epi)
     dat$attr <- x$attr[[s]]
-    dat$stats <- sapply(x$stats, function(var) var[[s]])
+    dat$temp <- x$temp[[s]]
+
+    dat$stats <- lapply(x$stats, function(var) var[[s]])
+    if (get_control(dat, "save.nwstats") == TRUE) {
+      dat$stats$nwstats <- lapply(dat$stats$nwstats,
+                                  function(oldstats) {
+                                    padded_vector(list(oldstats),
+                                                  get_control(dat, "nsteps") -
+                                                    get_control(dat, "start") + 2L)
+                                  })
+    }
     if (is.data.frame(dat$stats$transmat)) {
       nsteps <- get_control(dat, "nsteps")
       dat$stats$transmat <- padded_vector(list(dat$stats$transmat), nsteps)
@@ -195,21 +230,26 @@ init_status.net <- function(dat) {
     }
     dat <- set_attr(dat, "status", status)
   } else {
-    status <- get_vertex_attribute(dat$nw[[1]], "status")
-    dat <- set_attr(dat, "status", status)
+    status <- get_attr(dat, "status") # already copied in copy_nwattr_to_datattr
   }
 
 
   ## Set up TEA status
   if (tergmLite == FALSE) {
     if (statOnNw == FALSE) {
-      dat$nw[[1]] <- set_vertex_attribute(dat$nw[[1]], "status", status)
+      for (network in seq_len(dat$num.nw)) {
+        dat$nw[[network]] <- set_vertex_attribute(dat$nw[[network]],
+                                                  "status",
+                                                  status)
+      }
     }
-    dat$nw[[1]] <- activate.vertex.attribute(dat$nw[[1]],
-                                             prefix = "testatus",
-                                             value = status,
-                                             onset = 1,
-                                             terminus = Inf)
+    for (network in seq_len(dat$num.nw)) {
+      dat$nw[[network]] <- activate.vertex.attribute(dat$nw[[network]],
+                                                     prefix = "testatus",
+                                                     value = status,
+                                                     onset = 1,
+                                                     terminus = Inf)
+    }
   }
 
 
@@ -253,6 +293,68 @@ init_status.net <- function(dat) {
     }
 
     dat <- set_attr(dat, "infTime", infTime)
+  }
+
+  return(dat)
+}
+
+#' @title Network Data and Stats Initialization
+#'
+#' @description This function initializes the network data and stats on the main
+#'              \code{netsim_dat} class data object.
+#'
+#' @param dat A main data object of class \code{netsim_dat} obtained from
+#'        \code{\link{create_dat_object}}, including the \code{control}
+#'        argument.
+#' @param x Either a fitted network model object of class \code{netest}, or a
+#'        list of such objects.
+#'
+#' @return A \code{netsim_dat} class main data object with network data and
+#'         stats initialized.
+#'
+#' @export
+#' @keywords internal
+#'
+init_nets <- function(dat, x) {
+  if (inherits(x, "netest")) {
+    x <- list(x)
+  }
+
+  ## initialize network data on dat object
+  dat$num.nw <- length(x)
+  dat$nwparam <- lapply(x, function(y) y[!(names(y) %in% c("fit", "newnetwork"))])
+  nws <- lapply(x, `[[`, "newnetwork")
+  nw <- nws[[1]]
+  if (get_control(dat, "tergmLite") == TRUE) {
+    dat$el <- lapply(nws, as.edgelist)
+    dat$net_attr <- lapply(nws, get_network_attributes)
+  } else {
+    dat$nw <- nws
+  }
+
+  # Nodal Attributes --------------------------------------------------------
+
+  # Standard attributes
+  num <- network.size(nw)
+  dat <- append_core_attr(dat, 1, num)
+
+  groups <- length(unique(get_vertex_attribute(nw, "group")))
+  dat <- set_param(dat, "groups", groups)
+
+  ## Pull attr on nw to dat$attr
+  dat <- copy_nwattr_to_datattr(dat, nw)
+
+  ## record names of relevant vertex attributes
+  dat$temp$nwterms <- get_network_term_attr(nw)
+
+  ## initialize stats data structure
+  if (get_control(dat, "save.nwstats") == TRUE) {
+    if (get_control(dat, "resimulate.network") == TRUE) {
+      dat$stats$nwstats <- rep(list(padded_vector(list(), get_control(dat, "nsteps"))),
+                               length.out = length(dat$nwparam))
+    } else {
+      dat$stats$nwstats <- rep(list(list()), length.out = length(dat$nwparam))
+    }
   }
 
   return(dat)

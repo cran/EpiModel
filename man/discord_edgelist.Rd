@@ -4,11 +4,12 @@
 \alias{discord_edgelist}
 \title{Discordant Edgelist}
 \usage{
-discord_edgelist(dat, at, network = 1, infstat = "i")
+discord_edgelist(dat, at, network = 1, infstat = "i", include.network = FALSE)
 }
 \arguments{
-\item{dat}{Main list object containing a \code{networkDynamic} object and
-other initialization information passed from \code{\link{netsim}}.}
+\item{dat}{Main \code{netsim_dat} object containing a \code{networkDynamic}
+object and other initialization information passed from
+\code{\link{netsim}}.}
 
 \item{at}{Current time step.}
 
@@ -17,6 +18,9 @@ the current edgelist from. Default of \code{network = 1}.}
 
 \item{infstat}{Character vector of disease status values that are considered
 infectious, defining the SI pairs.}
+
+\item{include.network}{Should the \code{network} value be included as the
+final column of the discordant edgelist?}
 }
 \value{
 This function returns a \code{data.frame} with the following columns:

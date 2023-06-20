@@ -9,8 +9,8 @@
 \tabular{ll}{
 Package: \tab EpiModel\cr
 Type: \tab Package\cr
-Version: \tab 2.3.2\cr
-Date: \tab 2023-02-16\cr
+Version: \tab 2.4.0\cr
+Date: \tab 2023-06-20\cr
 License: \tab GPL-3\cr
 LazyLoad: \tab yes\cr
 }
@@ -99,7 +99,7 @@ are:
 \item \code{\link{netest}} estimates the statistical model for the network
 structure itself (i.e., how partnerships form and dissolve over time
 given the parameterization of those processes). This function is a
-wrapper around the \code{ergm} and \code{stergm} functions in the
+wrapper around the \code{ergm} and \code{tergm} functions in the
 \code{ergm} and \code{tergm} packages. The current statistical
 framework for model simulation is called "egocentric inference":
 target statistics summarizing these formation and dissolution

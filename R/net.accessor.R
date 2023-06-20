@@ -1,8 +1,9 @@
-#' @title Functions to Access and Edit the Main List Object in Network Models
+#' @title Functions to Access and Edit the Main netsim_dat Object in Network Models
 #'
 #' @description These \code{get_}, \code{set_}, \code{append_}, and \code{add_}
 #'              functions allow a safe and efficient way to retrieve and mutate
-#'              the main list object of network models (\code{dat}).
+#'              the main \code{netsim_dat} class object of network models
+#'              (typical variable name \code{dat}).
 #'
 #' @inheritParams recovery.net
 #' @param item A character vector containing the name of the element to access
@@ -39,8 +40,8 @@
 #'
 #' @section Mutability:
 #' The \code{set_}, \code{append_}, and \code{add_} functions DO NOT modify the
-#' \code{dat} object in place. The result must be assigned back to \code{dat} in
-#' order to be registered: \code{dat <- set_*(dat, item, value)}.
+#' \code{netsim_dat} object in place. The result must be assigned back to
+#' \code{dat} in order to be registered: \code{dat <- set_*(dat, item, value)}.
 #'
 #' @section \code{set_} and \code{append_} vs \code{add_}:
 #' The \code{set_} and \code{append_} functions edit a pre-existing element or
@@ -59,6 +60,7 @@
 #'     nsteps = 150
 #'   )
 #' )
+#' class(dat) <- c("netsim_dat", class(dat))
 #'
 #' dat <- add_attr(dat, "age")
 #' dat <- set_attr(dat, "age", runif(100))
@@ -439,6 +441,35 @@ get_control <- function(dat, item, override.null.error = FALSE) {
 }
 
 #' @rdname net-accessor
+#' @param network index of network for which to get control
+#' @export
+get_network_control <- function(dat, network, item, override.null.error = FALSE) {
+  if (missing(network)) {
+    stop("`get_network_control` requires `network` argument.")
+  }
+
+  if (!item %in% names(dat[["control"]])) {
+    if (override.null.error) {
+      return(NULL)
+    } else {
+      stop("There is no control value called `", item,
+           "` in the control list of the main list object (dat)")
+    }
+  } else {
+    out <- dat[["control"]][[item]]
+  }
+
+  if (!is(out, "multilayer")) {
+    stop("Control value `", item, "` accessed through `get_network_control` ",
+         "is not of class `multilayer`.")
+  }
+
+  out <- out[[network]]
+
+  return(out)
+}
+
+#' @rdname net-accessor
 #' @export
 add_control <- function(dat, item) {
   if (item %in% names(dat[["control"]])) {
@@ -562,7 +593,7 @@ update_unique_ids <- function(dat, n.new) {
   return(dat)
 }
 
-#' @title Check that All Attributes in the Main Object are of Equal
+#' @title Check that All Attributes in the Main `netsim_dat` Object are of Equal
 #'        Length
 #'
 #' @inheritParams recovery.net
@@ -679,8 +710,19 @@ is_active_posit_ids <- function(dat, posit_ids) {
   return(active[posit_ids] %in% 1)
 }
 
-# Make a vector of size `size` by padding an `orig` element
-# pad with NULL if `orig` is a `list` and with `NA` otherwise
+#' @title Grow a Vector to a Given Size, Padding it With Empty Elements
+#'
+#' @description Grow a vector to a given size, padding it with  `NULL` if `orig` is a `list`
+#' and with `NA` otherwise
+#'
+#' @param orig A vector to grow.
+#' @param size The final size of the vector.
+#'
+#' @return
+#' A vector of size `size` padded with `NULL`s or `NA`s at the end.
+#'
+#' @export
+#'
 padded_vector <- function(orig, size) {
   if (is.list(orig)) {
     out <- c(orig, vector(mode = "list", size - length(orig)))

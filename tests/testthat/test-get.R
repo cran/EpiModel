@@ -40,7 +40,7 @@ test_that("get_network yields warning for incorrect sim", {
 })
 
 test_that("get_network error flags", {
-  expect_error(get_network(list(a = 1), 1), "must be of class netsim")
+  expect_error(get_network(list(a = 1), 1), "no applicable method for 'get_network'")
   expect_error(get_network(mod, 4), "Specify a single sim between 1 and 3")
   expect_error(get_network(mod, 1, collapse = TRUE), "Specify collapse time")
   expect_error(get_network(mod, 1, collapse = TRUE, at = 200),
@@ -215,4 +215,16 @@ test_that("get_nwstats with mode = list behaves as expected", {
   expect_equal(length(get_nwstats(mod1, sim = c(2,3), mode = "list")), 2)
   expect_equal(length(get_nwstats(mod2, sim = c(1,3,2), mode = "list")), 3)
   expect_equal(length(get_nwstats(mod3, sim = c(1,2), mode = "list")), 2)
+})
+
+test_that("get_network_attributes functions as intended", {
+  nw <- network.initialize(10, directed = FALSE, bipartite = 4)
+  nw %n% "newattr" <- "string"
+  expect_equal(get_network_attributes(nw), list(bipartite = 4,
+                                                directed = FALSE,
+                                                hyper = FALSE,
+                                                loops = FALSE,
+                                                multiple = FALSE,
+                                                n = 10,
+                                                newattr = "string"))
 })

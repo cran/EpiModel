@@ -2,7 +2,7 @@
 #' @title Dynamic Network Updates
 #'
 #' @description This function handles all calls to the network object contained
-#'              on the main \code{dat} object handled in \code{netsim}.
+#'              on the main \code{netsim_dat} object handled in \code{netsim}.
 #'
 #' @inheritParams recovery.net
 #'
@@ -20,9 +20,6 @@ nwupdate.net <- function(dat, at) {
 
   ## Controls
   tergmLite <- get_control(dat, "tergmLite")
-  cumulative.edgelist <- get_control(
-    dat, "cumulative.edgelist", override.null.error = TRUE)
-
   resimulate.network <- get_control(dat, "resimulate.network")
 
   ## Vital Dynamics
@@ -42,41 +39,12 @@ nwupdate.net <- function(dat, at) {
       stop("Attribute list of unequal length. Check arrivals.net module.\n",
            print(cbind(sapply(get_attr_list(dat), length))))
     }
-    if (tergmLite == FALSE) {
-      dat$nw[[1]] <- add.vertices(dat$nw[[1]], nv = nArrivals)
-
-      dat$nw[[1]] <- activate.vertices(dat$nw[[1]], onset = at,
-                                       terminus = Inf, v = arrivals)
-
-      dat$nw[[1]] <- activate.vertex.attribute(dat$nw[[1]],
-                                               prefix = "testatus",
-                                               value = status[arrivals],
-                                               onset = at, terminus = Inf,
-                                               v = arrivals)
-    }
-    if (tergmLite == TRUE) {
-      dat$el[[1]] <- add_vertices(dat$el[[1]], nv = nArrivals)
-    }
+    dat <- arrive_nodes(dat, nArrivals)
   }
 
 
   ## Departures
-  if (length(departures) > 0) {
-    if (tergmLite == FALSE) {
-      dat$nw[[1]] <- deactivate.vertices(dat$nw[[1]], onset = at,
-                                         terminus = Inf, v = departures,
-                                         deactivate.edges = TRUE)
-    }
-    if (tergmLite == TRUE) {
-      dat <- delete_attr(dat, departures)
-      dat$el[[1]] <- delete_vertices(dat$el[[1]], departures)
-
-      if (dat$control$tergmLite.track.duration) {
-        dat$nw[[1]] %n% "lasttoggle" <-
-          delete_vertices(dat$nw[[1]] %n% "lasttoggle", departures)
-      }
-    }
-  }
+  dat <- depart_nodes(dat, departures)
 
   ## Copy static attributes to network object
   if (tergmLite == FALSE && resimulate.network == TRUE) {
@@ -85,22 +53,12 @@ nwupdate.net <- function(dat, at) {
 
   ## Update temporally extended disease status
   if (tergmLite == FALSE) {
-    dat$nw[[1]] <- activate.vertex.attribute(dat$nw[[1]],
-                                             prefix = "testatus",
-                                             value = status,
-                                             onset = at,
-                                             terminus = Inf)
-  }
-
-  # Cummulative edgelist
-  if (!is.null(cumulative.edgelist) && cumulative.edgelist == TRUE) {
-
-    truncate.el.cuml <- get_control(
-      dat, "truncate.el.cuml", override.null.error = TRUE)
-    truncate.el.cuml <- if (is.null(truncate.el.cuml)) 1 else truncate.el.cuml
-
-    for (network in seq_along(dat[["nwparam"]])) {
-      dat <- update_cumulative_edgelist(dat, network, truncate.el.cuml)
+    for (network in seq_len(dat$num.nw)) {
+      dat$nw[[network]] <- activate.vertex.attribute(dat$nw[[network]],
+                                                     prefix = "testatus",
+                                                     value = status,
+                                                     onset = at,
+                                                     terminus = Inf)
     }
   }
 

@@ -1,3 +1,20 @@
+## EpiModel 2.4.0
+
+### NEW FEATURES
+
+- Stochastic network models, simulated with `netsim`, now support multi-layer networks. These are networks with a common common node set but different edge set (e.g., home-based and community-based contact layers). An example implementation can be found at the [EpiModel Gallery](https://github.com/EpiModel/EpiModel-Gallery/tree/multinets/2022-12-Multinets). 
+- Add a `get_cumulative_degree` function with an interface similar to `get_partners`. This function helps look up cumulative degree over a time period (e.g., number of partners over the past year) for a specified set of nodes. 
+- Generic `get_network` and `set_network` functions created for more consistent access to the network objects within `netsim_dat` class objects.
+
+### OTHER
+
+- `update_cumulative_edgelist` is now called unconditionally and governed by the `cumulative.edgelist` control.
+- Attempting to access a cumulative edgelist when the `control.net` setting `cumulative.edgelist == FALSE` causes an error.
+- `netsim` data objects now properly classed as `netsim_dat`.
+- `icm` data objects now properly classed as `icm_dat`, consistent with `netsim` objects.
+- Update network simulation handling of `ergm` objects to address backwards incompatible data structures for `ergm` package v4.5.0.
+
+
 ## EpiModel 2.3.2
 
 ### NEW FEATURES
@@ -13,8 +30,9 @@
 
 ### OTHER
 
-- Removed functionality for the `networkLite` class (sparse network representations needed for epidemic modeling) from EpiModel and placed into its own package on CRAN: https://CRAN.R-project.org/package=networkLite. 
-
+- Removed functionality for the `networkLite` class (sparse network representations needed for epidemic modeling) from EpiModel and placed into its own package on CRAN: https://CRAN.R-project.org/package=networkLite.
+- the `cumulative.edgelist` and `truncate.el.cuml` controls get default values in `netsim_validate_control` (`FALSE` and `0`). Better messages and warnings are sent
+when trying to access an uncreated cumulative edgelist.
 
 ## EpiModel 2.3.1
 

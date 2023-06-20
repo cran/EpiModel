@@ -7,17 +7,21 @@
 edges_correct(dat, at)
 }
 \arguments{
-\item{dat}{Main list object containing a \code{networkDynamic} object and
-other initialization information passed from \code{\link{netsim}}.}
+\item{dat}{Main \code{netsim_dat} object containing a \code{networkDynamic}
+object and other initialization information passed from
+\code{\link{netsim}}.}
 
 \item{at}{Current time step.}
 }
 \value{
-The updated \code{dat} main list object.
+The updated \code{netsim_dat} main list object.
 }
 \description{
 Adjusts the edges coefficient in a dynamic network model
 simulated in \code{\link{netsim}} to preserve the mean
-degree of nodes in the network.
+degree of nodes in the network. Requires \code{at >= 2}.
+Maintains the \code{sim.num(.g2)} epi fields (initialized in
+\code{\link{sim_nets_t1}}) for computing the coefficient
+adjustment.
 }
 \keyword{internal}

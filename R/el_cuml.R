@@ -17,12 +17,12 @@
 get_edgelist <- function(dat, network) {
 
   if (get_control(dat, "tergmLite")) {
-    if (!network %in% seq_along(dat[["el"]])) {
+    if (!network %in% seq_len(dat$num.nw)) {
       stop("There is no network '", network, "' to get an edgelist from")
     }
     el <- dat[["el"]][[network]]
   } else {
-    if (!network %in% seq_along(dat[["nw"]])) {
+    if (!network %in% seq_len(dat$num.nw)) {
       stop("There is no network '", network, "' to get an edgelist from")
     }
     at <- get_current_timestep(dat)
@@ -53,15 +53,20 @@ get_edgelist <- function(dat, network) {
 #'
 #' @export
 get_cumulative_edgelist <- function(dat, network) {
-  if (!network %in% seq_along(dat[["nwparam"]])) {
+  if (!network %in% seq_len(dat$num.nw)) {
     stop("There is no network '", network,
-         "' to get the cumulative edgelist from")
+         "' from which to get the cumulative edgelist.")
   }
 
-  if (length(dat[["el.cuml"]]) < network) {
-    el_cuml <- NULL
-  } else {
+  if (!get_control(dat, "cumulative.edgelist")) {
+    stop("Failed to get the cumulative edgelist. It is likely not stored because the
+         `cumulative.edgelist` control setting is set to `FALSE`.")
+  }
+
+  if (length(dat$el.cuml) >= network) {
     el_cuml <- dat[["el.cuml"]][[network]]
+  } else {
+    el_cuml <- NULL
   }
 
   if (is.null(el_cuml)) {
@@ -95,8 +100,11 @@ get_cumulative_edgelist <- function(dat, network) {
 #'
 #' @inherit recovery.net return
 #'
-#' @export
 update_cumulative_edgelist <- function(dat, network, truncate = 0) {
+  if (!get_control(dat, "cumulative.edgelist")) {
+    return(dat)
+  }
+
   el <- get_edgelist(dat, network)
   el_cuml <- get_cumulative_edgelist(dat, network)
 
@@ -154,7 +162,7 @@ update_cumulative_edgelist <- function(dat, network, truncate = 0) {
 #'
 #' @export
 get_cumulative_edgelists_df <- function(dat, networks = NULL) {
-  networks <- if (is.null(networks)) seq_along(dat[["nwparam"]]) else networks
+  networks <- if (is.null(networks)) seq_len(dat$num.nw) else networks
 
   el_cuml_list <- lapply(networks, get_cumulative_edgelist, dat = dat)
   el_cuml_df <- dplyr::bind_rows(el_cuml_list)
@@ -165,32 +173,38 @@ get_cumulative_edgelists_df <- function(dat, networks = NULL) {
   return(el_cuml_df)
 }
 
-#' @title Return the Historical Partners (Contacts) of a Set of Index Patients
+#' @title Return the Historical Contacts (Partners) of a Set of Index Nodes
+#'
+#' @description
+#' From a full cumulative edgelist that contains the history of contacts (both persistent and
+#' one-time), this function returns a data frame containing details of the index (head) and partner
+#' (tail) nodes, along with start and stop time steps for the partnership and the network location.
 #'
 #' @param index_posit_ids The positional IDs of the indexes of interest.
-#' @param networks Numerical indexes of the networks to extract the partnerships
-#'                 from. (May be > 1 for models with multiple overlapping
-#'                 networks.) If \code{NULL}, extract from all networks.
-#' @param only.active.nodes If \code{TRUE}, then inactive (e.g., deceased)
-#'                          partners will be removed from the output.
-#'
+#' @param networks Numerical indexes of the networks to extract the partnerships from. (May be > 1
+#'        for models with multi-layer networks.) If `NULL`, extract from all networks.
+#' @param only.active.nodes If `TRUE`, then inactive (e.g., deceased) partners will be removed from
+#'        the output.
 #' @inheritParams update_cumulative_edgelist
 #'
 #' @return
-#' A \code{data.frame} with 5 columns:
-#' \itemize{
-#'   \item \code{index}: the unique ID (see \code{get_unique_ids}) of the
-#'         indexes.
-#'   \item \code{partner}: the unique ID (see \code{get_unique_ids}) of the
-#'         partners/contacts.
-#'   \item \code{start}: the time step in which the edge started.
-#'   \item \code{stop}: the time step in which the edge stopped; if ongoing,
-#'         then \code{NA} is returned.
-#'   \item \code{network}: the numerical index for the network on which the
-#'         partnership/contact is located.
-#'  }
+#' A `data.frame` with 5 columns:
+#'   * `index`: the unique IDs of the indexes.
+#'   * `partner`: the unique IDs of the partners/contacts.
+#'   * `start`: the time step at which the edge started.
+#'   * `stop`: the time step in which the edge stopped; if ongoing, then `NA` is returned.
+#'   * `network`: the numerical index for the network on which the partnership/contact is located.
+#'
+#' @details
+#' Note that `get_partners` takes as input the positional IDs of the indexes of interest but returns
+#' the unique IDs. That is by design, because while `get_partners` would be expected to be called
+#' for active nodes, some partners (contacts) of nodes may be inactive in the network history.
+#' Therefore, both index and partner IDs are returned as unique IDs for consistency. To convert
+#' between a positional to a unique ID, you may use [`get_posit_ids`]; to convert between a
+#' unique ID to a positional ID, you may use [`get_unique_ids`].
 #'
 #' @export
+#'
 get_partners <- function(dat, index_posit_ids, networks = NULL,
                          truncate = Inf, only.active.nodes = FALSE) {
 
@@ -221,4 +235,33 @@ get_partners <- function(dat, index_posit_ids, networks = NULL,
   }
 
   return(partner_df)
+}
+
+#' @title Return the Cumulative Degree of a Set of Index Nodes
+#'
+#' @inheritParams get_partners
+#'
+#' @return
+#' A \code{data.frame} with 2 columns:
+#' \itemize{
+#'   \item \code{index_pid}: the positional ID (see \code{get_posit_ids}) of the
+#'         indexes.
+#'   \item \code{degree}: the cumulative degree of the index.
+#'  }
+#'
+#' @section Cumulative Degree:
+#' The cumulative degree of a node is the number of edges connected to this
+#' node at during the time window. The time window is by default all the steps
+#' stored in the `cumulative_edgelist` or set by the `truncate` parameter.
+#'
+#' @export
+get_cumulative_degree <- function(dat, index_posit_ids, networks = NULL,
+                                  truncate = Inf, only.active.nodes = FALSE) {
+  get_partners(
+    dat, index_posit_ids, networks,
+    truncate, only.active.nodes
+  ) |>
+    dplyr::summarize(degree = dplyr::n(), .by = "index") |>
+    dplyr::mutate(index = get_posit_ids(dat, .data$index)) |>
+    dplyr::select(index_pid = "index", "degree")
 }
