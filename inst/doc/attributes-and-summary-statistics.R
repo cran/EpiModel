@@ -1,4 +1,4 @@
-## ---- echo = FALSE, include = FALSE-------------------------------------------
+## ----echo = FALSE, include = FALSE--------------------------------------------
 knitr::opts_chunk$set(
   collapse = TRUE,
   comment = "#>"

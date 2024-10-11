@@ -1,4 +1,4 @@
-## ---- echo = FALSE, include = FALSE-------------------------------------------
+## ----echo = FALSE, include = FALSE--------------------------------------------
 knitr::opts_chunk$set(
   collapse = TRUE,
   comment = "#>"
@@ -11,7 +11,7 @@ library(EpiModel)
 #  dat <- update_cumulative_edgelist(dat, network, truncate = Inf)
 
 ## ----el_cuml-snippet, eval = FALSE--------------------------------------------
-#  for (n_network in seq_along(dat[["nw"]])) {
+#  for (n_network in seq_along(dat$run$nw)) {
 #    dat <- update_cumulative_edgelist(dat, n_network, truncate = 100)
 #  }
 

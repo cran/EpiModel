@@ -9,9 +9,9 @@
 <meta http-equiv="X-UA-Compatible" content="IE=EDGE" />
 
 
-<meta name="author" content="EpiModel v2.4.0" />
+<meta name="author" content="EpiModel v2.5.0" />
 
-<meta name="date" content="2023-06-20" />
+<meta name="date" content="2024-10-11" />
 
 <title>Working with Network Objects in EpiModel</title>
 
@@ -352,8 +352,8 @@ display: none;
 
 <h1 class="title toc-ignore">Working with Network Objects in
 EpiModel</h1>
-<h4 class="author">EpiModel v2.4.0</h4>
-<h4 class="date">2023-06-20</h4>
+<h4 class="author">EpiModel v2.5.0</h4>
+<h4 class="date">2024-10-11</h4>
 
 </div>
 
@@ -362,12 +362,12 @@ EpiModel</h1>
 <h2>Introduction</h2>
 <p>This vignette discusses mechanisms usable inside
 <code>EpiModel</code> network models with custom modules. More
-information about these in the “New Network Models with EpiModel”
-section of <a href="http://www.epimodel.org/tut.html">the EpiModel
-tutorials</a>.</p>
+information about these in the <a href="https://epimodel.github.io/sismid/9_extending/mod9-Intro.html">Extending
+EpiModel</a> section of the <a href="https://epimodel.github.io/sismid/">Network Modeling for
+Epidemics</a> course materials.</p>
 <p>Inside the simulation, the networks themselves are stored under
-<code>dat[[&quot;nw&quot;]]</code>. Ultimately this vignette will describe
-multiple aspects of working with network objects.</p>
+<code>dat$run$nw</code>. Ultimately this vignette will describe multiple
+aspects of working with network objects.</p>
 </div>
 <div id="cumulative-edgelist" class="section level2">
 <h2>Cumulative Edgelist</h2>
@@ -394,7 +394,7 @@ needs to be assigned back.</p>
 <p>The following snippet will update the cumulative edgelist for all the
 networks used by a model and remove the edges that ended more than 100
 steps ago.</p>
-<pre class="r"><code>for (n_network in seq_along(dat[[&quot;nw&quot;]])) {
+<pre class="r"><code>for (n_network in seq_along(dat$run$nw)) {
   dat &lt;- update_cumulative_edgelist(dat, n_network, truncate = 100)
 }</code></pre>
 <p>In a complete model, this code would need to be run at the end of the

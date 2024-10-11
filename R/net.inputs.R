@@ -67,7 +67,8 @@
 #' may use the base types, for which these parameters are used, or new process
 #' modules which may use these parameters (but not necessarily). A detailed
 #' description of network model parameterization for base models is found in
-#' the \href{http://www.epimodel.org/tut.html}{Basic Network Models} tutorial.
+#' the [Network Modeling for Epidemics](https://epimodel.github.io/sismid/)
+#' tutorials.
 #'
 #' For base models, the model specification will be chosen as a result of
 #' the model parameters entered here and the control settings in
@@ -100,8 +101,8 @@
 #' third time step. If the infected person has not recovered or exited the
 #' population by the fourth time step, the third element in the vector will
 #' carry forward until one of those events occurs or the simulation ends. For
-#' further examples, see the \href{https://statnet.org/nme/}{NME Course
-#' Tutorials}.
+#' further examples, see the
+#' [Network Modeling for Epidemics](https://epimodel.github.io/sismid/) tutorials.
 #'
 #' @section Random Parameters:
 #' In addition to deterministic parameters in either fixed or time-varying
@@ -229,17 +230,17 @@ param.net <- function(inf.prob, inter.eff, inter.start, act.rate, rec.rate,
   }
 
   ## random.params checks
-   if ("random.params" %in% names.dot.args) {
-     for (nm in names(p[["random.params"]])) {
-       if (nm %in% names(p)) {
+  if ("random.params" %in% names.dot.args) {
+    for (nm in names(p[["random.params"]])) {
+      if (nm %in% names(p)) {
         warning(
           "The parameter `", nm, "` is defined twice, once as fixed",
           " and once as a random parameter.\n Only the random parameter",
           " definition will be used."
         )
-       }
-     }
-   }
+      }
+    }
+  }
 
   ## Defaults and Checks
   if ("b.rate" %in% names.dot.args) {
@@ -266,7 +267,7 @@ param.net <- function(inf.prob, inter.eff, inter.start, act.rate, rec.rate,
     p[["act.rate"]] <- 1
   }
   p[["vital"]] <- ifelse(!missing(a.rate) | !missing(ds.rate) |
-                      !missing(di.rate) | !missing(dr.rate), TRUE, FALSE)
+                           !missing(di.rate) | !missing(dr.rate), TRUE, FALSE)
   if ("act.rate.g2" %in% names.dot.args) {
     warning("act.rate.g2 parameter was entered. ",
             "If using built-in models, only act.rate parameter will apply.",
@@ -487,7 +488,7 @@ param_random <- function(values, prob = NULL) {
 #' }
 generate_random_params <- function(param, verbose = FALSE) {
   if (is.null(param[["random.params"]]) ||
-      length(param[["random.params"]]) == 0) {
+        length(param[["random.params"]]) == 0) {
     return(param)
   } else {
     random.params <- param[["random.params"]]
@@ -543,7 +544,7 @@ generate_random_params <- function(param, verbose = FALSE) {
 
   if (verbose == TRUE) {
     msg <-
-     "The following values were randomly generated for the given parameters: \n"
+      "The following values were randomly generated for the given parameters: \n"
     msg <- c(msg, paste0("`", names(rng_values), "`: ", rng_values, "\n"))
     message(msg)
   }
@@ -581,7 +582,7 @@ generate_random_params <- function(param, verbose = FALSE) {
 #' input into the \code{init.net} function. This function handles initial
 #' conditions for both base models and new modules. For an overview of
 #' specifying initial conditions across a variety of base network models,
-#' consult the \href{http://www.epimodel.org/tut.html}{Basic Network Models}
+#' consult the [Network Modeling for Epidemics](https://epimodel.github.io/sismid/)
 #' tutorials.
 #'
 #' @return An \code{EpiModel} object of class \code{init.net}.
@@ -639,7 +640,7 @@ init.net <- function(i.num, r.num, i.num.g2, r.num.g2,
     stop("infTime.vector may only be used if status.vector is used")
   }
   if (!is.null(p[["infTime.vector"]]) &&
-      length(p[["infTime.vector"]]) != length(p[["status.vector"]])) {
+        length(p[["infTime.vector"]]) != length(p[["status.vector"]])) {
     stop("Length of infTime.vector must match length of status.vector")
   }
 
@@ -714,6 +715,9 @@ init.net <- function(i.num, r.num, i.num.g2, r.num.g2,
 #'        specification.
 #' @param save.network If `TRUE`, networkDynamic or networkLite object is saved at simulation end.
 #' @param save.transmat If `TRUE`, complete transmission matrix is saved at simulation end.
+#' @param save.run If `TRUE`, the `run` sublist of `dat` is saved, allowing a
+#'   simulation to restart from this output.
+#' @param save.cumulative.edgelist If `TRUE`, the `cumulative.edgelist` is saved at simulation end.
 #' @param save.other A character vector of elements on the `netsim_dat` main data list to save out
 #'        after each simulation. One example for base models is the attribute list, `"attr"`, at
 #'        the final time step.
@@ -763,8 +767,8 @@ init.net <- function(i.num, r.num, i.num.g2, r.num.g2,
 #' `control.net` sets the required control settings for any network model solved with the [`netsim`]
 #' function. Controls are required for both base model types and when passing original process
 #' modules. For an overview of control settings for base models, consult the
-#' [Basic Network Models](http://www.epimodel.org/tut.html) tutorials. For all base models, the
-#' `type` argument is a necessary parameter and it has no default.
+#' [Network Modeling for Epidemics](https://epimodel.github.io/sismid/) course materials For
+#' all base models, the `type` argument is a necessary parameter and it has no default.
 #'
 #' @section The attr.rules Argument:
 #' The \code{attr.rules} parameter is used to specify the rules for how nodal attribute values for
@@ -816,8 +820,10 @@ init.net <- function(i.num, r.num, i.num.g2, r.num.g2,
 #'
 #' For original models, one may substitute replacement module functions for any of the default
 #' functions. New modules may be added to the workflow at each time step by passing a module function
-#' via the `...` argument. Consult the [New Network Models](http://www.epimodel.org/tut.html)
-#' tutorials. One may remove existing modules, such as `arrivals.FUN`, from the workflow by setting
+#' via the `...` argument. Consult the
+#' [Extending EpiModel](https://epimodel.github.io/sismid/9_extending/mod9-Intro.html)
+#' section of the Network Modeling for Epidemics course materials.
+#' One may remove existing modules, such as `arrivals.FUN`, from the workflow by setting
 #' the parameter value for that argument to `NULL`.
 #'
 #' @section End Horizon:
@@ -867,6 +873,8 @@ control.net <- function(type,
                         nwstats.formula = "formation",
                         save.transmat = TRUE,
                         save.network,
+                        save.run = FALSE,
+                        save.cumulative.edgelist = FALSE,
                         save.other,
                         verbose = TRUE,
                         verbose.int = 1,
@@ -1023,7 +1031,7 @@ crosscheck.net <- function(x, param, init, control) {
         x <- list(x)
       }
       if (!inherits(x, "list") || length(x) == 0 ||
-          !all(vapply(x, inherits, logical(1), "netest"))) {
+            !all(vapply(x, inherits, logical(1), "netest"))) {
         stop("x must be either an object of class netest or a list of objects",
              " of class netest when start == 1", call. = FALSE)
       }
@@ -1093,7 +1101,7 @@ crosscheck.net <- function(x, param, init, control) {
 
       # Two-group model checks for inital conditions
       if (nGroups == 2 && is.null(init[["i.num.g2"]]) &&
-          is.null(init[["status.vector"]]) && statOnNw == FALSE) {
+            is.null(init[["status.vector"]]) && statOnNw == FALSE) {
         stop("Specify i.num.g2 for two-group model simulations", call. = FALSE)
       }
 
@@ -1111,7 +1119,7 @@ crosscheck.net <- function(x, param, init, control) {
           stop("Specify r.num in init.net", call. = FALSE)
         }
         if (nGroups == 2 && is.null(init[["r.num.g2"]]) &&
-            is.null(init[["status.vector"]]) && statOnNw == FALSE) {
+              is.null(init[["status.vector"]]) && statOnNw == FALSE) {
           stop("Specify r.num.g2 in init.net", call. = FALSE)
         }
       }
@@ -1144,13 +1152,9 @@ crosscheck.net <- function(x, param, init, control) {
           stop("x must be a netsim object if control setting start > 1",
                call. = FALSE)
         }
-        if (is.null(x[["attr"]])) {
-          stop("x must contain attr to restart simulation, see save.other ",
+        if (is.null(x[["run"]])) {
+          stop("x must contain `run` to restart simulation, see `save.run` ",
                "control setting", call. = FALSE)
-        }
-        if (is.null(x[["network"]]) && control[["tergmLite"]] == FALSE) {
-          stop("x must contain network object to restart simulation when ",
-               "tergmLite == FALSE, ", call. = FALSE)
         }
         if (control[["nsteps"]] < control[["start"]]) {
           stop("control setting nsteps must be > control setting start in ",
@@ -1222,7 +1226,7 @@ crosscheck.net <- function(x, param, init, control) {
   # convert nwstats.formula = "formation" to actual formation formula
   for (network in seq_len(num.nw)) {
     if (!is.null(control[["nwstats.formula"]][[network]]) &&
-        control[["nwstats.formula"]][[network]] == "formation") {
+          control[["nwstats.formula"]][[network]] == "formation") {
       control[["nwstats.formula"]][[network]] <- nwparam[[network]]$formation
     }
   }
@@ -1235,82 +1239,13 @@ crosscheck.net <- function(x, param, init, control) {
            " but should be of length ", num.nw + 1L, ".")
     }
     control[["dat.updates"]] <- trim_env(function(dat, at, network) {
-                                           dat.updates[[network + 1L]](dat = dat, at = at)
-                                         }, keep = c("dat.updates"))
+      dat.updates[[network + 1L]](dat = dat, at = at)
+    }, keep = c("dat.updates"))
   }
 
   ## In-place assignment to update param and control
   assign("param", param, pos = parent.frame())
   assign("control", control, pos = parent.frame())
-}
-
-#' @title Parameters List for Stochastic Network Models from a Formatted
-#'        Data Frame
-#'
-#' @description Sets the epidemic parameters for stochastic network models with
-#'              \code{\link{netsim}} using a specially formatted data frame of
-#'              parameters.
-#'
-#' @param long.param.df A \code{data.frame} of parameters. See details for the
-#'                      expected format.
-#'
-#' @return A list object of class \code{param.net}, which can be passed to
-#'         \code{\link{netsim}}.
-#'
-#' @details
-#' It is possible to set input parameters using a specifically formatted
-#' \code{data.frame} object. The first 3 columns of this \code{data.frame} must
-#' be:
-#' \itemize{
-#'  \item \code{param}: The name of the parameter. If this is a non-scalar
-#'    parameter (a vector of length > 1), end the parameter name with the
-#'    position on the vector (e.g., \code{"p_1"}, \code{"p_2"}, ...).
-#'  \item \code{value}: the value for the parameter (or the value of the
-#'    parameter in the Nth position if non-scalar).
-#'  \item \code{type}: a character string containing either \code{"numeric"},
-#'    \code{"logical"}, or \code{"character"} to define the parameter object
-#'    class.
-#' }
-#'
-#' In addition to these 3 columns, the \code{data.frame} can contain any number
-#' of other columns, such as \code{details} or \code{source} columns to document
-#' parameter meta-data. However, these extra columns will not be used by
-#' EpiModel.
-#'
-param.net_from_table <- function(long.param.df) {
-  # Checks
-  if (!all(c("param", "value", "type") %in% names(long.param.df))) {
-    stop(
-      "The `data.frame` must contain the following 3 columns:\n",
-      "'param', 'value'", " and 'type"
-    )
-  }
-  if (!all(long.param.df[["type"]] %in% c("numeric", "logical", "character"))) {
-    stop("The `type` column must contain only 'numeric', 'logical' or",
-         " 'character'")
-  }
-  check_params_names(long.param.df[["param"]])
-
-  duplicated_params <- duplicated(long.param.df[["param"]])
-  duplicated_params <- long.param.df[["param"]][duplicated_params]
-  if (length(duplicated_params) > 0) {
-    stop("The following parameters are duplicated: `",
-         paste0(duplicated_params, collapse = "`, `"), "`")
-  }
-
-  # To flat params
-  flat.params <- Map(
-    function(g, x) g(x),
-    g = lapply(paste0("as.", long.param.df[["type"]]), get),
-    x = long.param.df[["value"]]
-  )
-  names(flat.params) <- long.param.df[["param"]]
-
-  # To param.list
-  param <- unflatten_params(flat.params)
-  class(param) <- c("param.net", "list")
-
-  return(param)
 }
 
 #' @title Specify Controls by Network

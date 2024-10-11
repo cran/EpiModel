@@ -4,7 +4,7 @@
 #' @description Returns a vector of colors consistent with a high-brightness set
 #'              of colors from an \code{RColorBrewer} palette.
 #'
-#' @param plt \code{RColorBrewer} palette from \code{\link{brewer.pal}}.
+#' @param plt \code{RColorBrewer} palette from [`RColorBrewer::brewer.pal`].
 #' @param n Number of colors to return.
 #' @param delete.lights If TRUE, delete the lightest colors from the color
 #'        palette; this helps with plotting in many high-contrast palettes.
@@ -21,7 +21,7 @@
 #' A vector of length equal to \code{n} with a range of color values consistent
 #' with an RColorBrewer color palette.
 #'
-#' @seealso \code{\link{RColorBrewer}}
+#' @seealso [RColorBrewer::RColorBrewer]
 #' @keywords colorUtils internal
 #' @export
 #'
@@ -76,47 +76,6 @@ brewer_ramp <- function(n, plt, delete.lights = TRUE) {
   return(pal(n))
 }
 
-
-#' @title Delete Elements from Attribute List
-#'
-#' @description Deletes elements from the main attribute list.
-#'
-#' @details This function is deprecated; use \code{\link{delete_attr}} instead.
-#'
-#' @param attrList Attribute list.
-#' @param ids ID numbers to delete from the list.
-#'
-#' @return The updated attribute list.
-#'
-#' @export
-#' @keywords internal
-deleteAttr <- function(attrList, ids) {
-  .Deprecate_once(msg = paste0("`deleteAttr` is deprecated and will be removed",
-                               " in a future version of EpiModel; use",
-                               " `delete_attr` instead"))
-
-  if (!inherits(attrList, "list")) {
-    stop("attrList must be a list", call. = FALSE)
-  }
-
-  attr_length <- vapply(attrList, length, numeric(1))
-  expected_length <- length(attrList[["active"]])
-  wrong_length_attr <- names(attr_length)[attr_length != expected_length]
-
-  if (length(wrong_length_attr > 0)) {
-    stop(
-      "The following attributes do not have the correct number of elements: \n",
-      paste0(wrong_length_attr, collapse = ", "),
-      "\n\n", "Check if they are initialized when new nodes are created."
-    )
-  }
-
-  if (length(ids) > 0) {
-    attrList <- lapply(attrList, function(x) x[-ids])
-  }
-  return(attrList)
-}
-
 #' @title Delete Elements from Attribute List
 #'
 #' @description Deletes elements from the main attribute list.
@@ -131,21 +90,7 @@ deleteAttr <- function(attrList, ids) {
 #' @export
 #' @keywords internal
 delete_attr <- function(dat, ids) {
-  attrList <- dat$attr
-
-  if (!inherits(attrList, "list")) {
-    stop("dat object does not contain a valid attribute list", call. = FALSE)
-  }
-  if (length(unique(sapply(attrList, length))) != 1) {
-    stop("attribute list must be rectangular (same number of obs per element)")
-  }
-
-  if (length(ids) > 0) {
-    attrList <- lapply(attrList, function(x) x[-ids])
-  }
-
-  dat$attr <- attrList
-  return(dat)
+  remove_node_attr(dat, ids)
 }
 
 
@@ -294,9 +239,9 @@ apportion_lr <- function(vector.length, values,
   }
   if (!(length(proportions) == length(values) && round(sum(proportions),
                                                        10) == 1) &&
-      (!(length(proportions) == length(values) - 1 && round(sum(proportions),
-                                                            10) <= 1 &&
-         round(sum(proportions), 10) >= 0))) {
+        (!(length(proportions) == length(values) - 1 && round(sum(proportions),
+                                                              10) <= 1 &&
+             round(sum(proportions), 10) >= 0))) {
     stop("error in proportions length or proportions sum")
   }
 

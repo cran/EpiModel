@@ -66,8 +66,6 @@
 #' models solved with the \code{\link{dcm}} function. The models may use the
 #' base types, for which these parameters are used, or original model
 #' specifications for which these parameters may be used (but not necessarily).
-#' A detailed description of DCM parameterization for base models is found
-#' in the \href{http://www.epimodel.org/tut.html}{Basic DCMs} tutorial.
 #'
 #' For base models, the model specification will be selected as a function
 #' of the model parameters entered here and the control settings in
@@ -86,25 +84,20 @@
 #' the other group size and act rate: \eqn{N_1 \alpha_1 = N_2 \alpha_2}, where
 #' \eqn{N_i} is the group size and \eqn{\alpha_i} the group-specific act rate
 #' at time \eqn{t}. The \code{balance} parameter here specifies which group's
-#' act rate should control the others with respect to balancing. See the
-#' \href{http://www.epimodel.org/tut.html}{Basic DCMs} tutorial for further
-#' details.
+#' act rate should control the others with respect to balancing.
 #'
 #' @section Sensitivity Analyses:
 #' \code{dcm} has been designed to easily run DCM sensitivity analyses, where a
 #' series of models varying one or more of the model parameters is run. This is
-#' possible by setting any parameter as a vector of length greater than one. See
-#' the \href{http://www.epimodel.org/tut.html}{Basic DCMs} tutorial.
+#' possible by setting any parameter as a vector of length greater than one.
 #'
 #' @section New Model Types:
-#' To build original model specifications outside of the base models, start
-#' by consulting the \href{http://www.epimodel.org/tut.html}{New DCMs with
-#' EpiModel} tutorial. Briefly, an original model may use either the existing
-#' model parameters named here, an original set of parameters, or a combination
-#' of both. The \code{...} argument allows the user to pass an arbitrary set of
-#' new model parameters into \code{param.dcm}. Whereas there are strict checks
-#' for base models that the model parameters are valid, parameter validity is
-#' the user's responsibility with these original models.
+#' An original model may use either the existing model parameters named here,
+#' an original set of parameters, or a combination of both. The \code{...}
+#' argument allows the user to pass an arbitrary set of new model parameters into
+#' \code{param.dcm}. Whereas there are strict checks for base models that the
+#' model parameters are valid, parameter validity is the user's responsibility
+#' with these original models.
 #'
 #' @return An \code{EpiModel} object of class \code{param.dcm}.
 #'
@@ -181,15 +174,12 @@ param.dcm <- function(inf.prob, inter.eff, inter.start, act.rate, rec.rate,
 #' @details
 #' The initial conditions for a model solved with \code{\link{dcm}} should be
 #' input into the \code{init.dcm} function. This function handles initial
-#' conditions for both base model types and original models. For an overview
-#' of initial conditions for base DCM class models, consult the
-#' \href{http://www.epimodel.org/tut.html}{Basic DCMs} tutorial.
+#' conditions for both base model types and original models.
 #'
 #' Original models may use the parameter names listed as arguments here, a new
 #' set of names, or a combination of both. With new models, initial conditions
 #' must be input in the same order that the solved derivatives from the model
-#' are output. More details on this requirement are outlined in the
-#' \href{http://www.epimodel.org/tut.html}{Solving New DCMs} tutorial.
+#' are output.
 #'
 #' @return An \code{EpiModel} object of class \code{init.dcm}.
 #'
@@ -250,7 +240,7 @@ init.dcm <- function(s.num, i.num, r.num, s.num.g2, i.num.g2, r.num.g2,
 #'        solutions for fractional time steps may be obtained by setting this to
 #'        a number between 0 and 1.
 #' @param odemethod Ordinary differential equation (ODE) integration method,
-#'        with the default of the "Runge-Kutta 4" method (see \code{\link{ode}}
+#'        with the default of the "Runge-Kutta 4" method (see [`deSolve::ode`]
 #'        for other options).
 #' @param dede If \code{TRUE}, use the delayed differential equation solver,
 #'        which allows for time-lagged variables.
@@ -268,11 +258,8 @@ init.dcm <- function(s.num, i.num, r.num, s.num.g2, i.num.g2, r.num.g2,
 #' @details
 #' \code{control.dcm} sets the required control settings for any deterministic
 #' compartmental models solved with the \code{\link{dcm}} function. Controls are
-#' required for both base model types and original models. For an overview of
-#' control settings for base DCM class models, consult the
-#' \href{http://www.epimodel.org/tut.html}{Basic DCMs} tutorial.
-#' For all base models, the \code{type} argument is a necessary parameter
-#' and it has no default.
+#' required for both base model types and original models. For all base models,
+#' the \code{type} argument is a necessary parameter and it has no default.
 #'
 #' @section New Model Functions:
 #' The form of the model function for base models may be displayed with the
@@ -281,9 +268,7 @@ init.dcm <- function(s.num, i.num, r.num, s.num.g2, i.num.g2, r.num.g2,
 #' model functions.
 #'
 #' These new models may be input and solved with \code{\link{dcm}} using the
-#' \code{new.mod} argument, which requires as input a model function. Details
-#' and examples are found in the
-#' \href{http://www.epimodel.org/tut.html}{New DCMs} tutorial.
+#' \code{new.mod} argument, which requires as input a model function.
 #'
 #' @return An \code{EpiModel} object of class \code{control.dcm}.
 #'
@@ -379,9 +364,9 @@ crosscheck.dcm <- function(param, init, control) {
     }
     if (is.null(param$vital)) {
       if (!is.null(param$a.rate) ||
-          !is.null(param$ds.rate) ||
-          !is.null(param$di.rate) ||
-          !is.null(param$dr.rate)) {
+            !is.null(param$ds.rate) ||
+            !is.null(param$di.rate) ||
+            !is.null(param$dr.rate)) {
         param$vital <- TRUE
       } else {
         param$vital <- FALSE
@@ -395,7 +380,7 @@ crosscheck.dcm <- function(param, init, control) {
     }
 
     if (param$groups == 2 && (is.null(param$balance) ||
-                              !(param$balance %in% c("g1", "g2")))) {
+                                !(param$balance %in% c("g1", "g2")))) {
       stop("Specify balance=\"g1\" or balance=\"g2\" with 2-group models",
            call. = FALSE)
     }

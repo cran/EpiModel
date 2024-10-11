@@ -9,9 +9,9 @@
 <meta http-equiv="X-UA-Compatible" content="IE=EDGE" />
 
 
-<meta name="author" content="EpiModel v2.4.0" />
+<meta name="author" content="EpiModel v2.5.0" />
 
-<meta name="date" content="2023-06-20" />
+<meta name="date" content="2024-10-11" />
 
 <title>Working with Custom Attributes and Summary Statistics in EpiModel</title>
 
@@ -352,8 +352,8 @@ display: none;
 
 <h1 class="title toc-ignore">Working with Custom Attributes and Summary
 Statistics in EpiModel</h1>
-<h4 class="author">EpiModel v2.4.0</h4>
-<h4 class="date">2023-06-20</h4>
+<h4 class="author">EpiModel v2.5.0</h4>
+<h4 class="date">2024-10-11</h4>
 
 </div>
 
@@ -363,8 +363,10 @@ Statistics in EpiModel</h1>
 <p>This vignette discusses some recent updates in <code>EpiModel</code>
 on working with attributes and summary statistics within the stochastic
 network model class. This material is oriented towards custom models
-with extension modules and functions. Further details are provided in
-the “New Network Models with EpiModel” section of <a href="https://www.epimodel.org/tut.html">the EpiModel tutorials</a>.</p>
+with extension modules and functions. More information about these in
+the <a href="https://epimodel.github.io/sismid/9_extending/mod9-Intro.html">Extending
+EpiModel</a> section of the <a href="https://epimodel.github.io/sismid/">Network Modeling for
+Epidemics</a> course materials.</p>
 <p>In network simulations with <code>netsim</code>, we store all data in
 the <em>Main List Object</em> (referred to as <code>dat</code>). In this
 vignette we will discuss with three types of data on
@@ -780,24 +782,11 @@ d &lt;- as.data.frame(sim)
 
 knitr::kable(tail(d, n = 15))</code></pre>
 <table>
-<colgroup>
-<col width="4%" />
-<col width="6%" />
-<col width="7%" />
-<col width="12%" />
-<col width="9%" />
-<col width="9%" />
-<col width="6%" />
-<col width="12%" />
-<col width="21%" />
-<col width="9%" />
-</colgroup>
 <thead>
 <tr class="header">
 <th align="left"></th>
 <th align="right">sim</th>
 <th align="right">time</th>
-<th align="right">sim.num</th>
 <th align="right">s.num</th>
 <th align="right">i.num</th>
 <th align="right">num</th>
@@ -811,181 +800,166 @@ knitr::kable(tail(d, n = 15))</code></pre>
 <td align="left">36</td>
 <td align="right">1</td>
 <td align="right">36</td>
+<td align="right">33</td>
+<td align="right">17</td>
 <td align="right">50</td>
-<td align="right">29</td>
-<td align="right">21</td>
-<td align="right">50</td>
-<td align="right">1</td>
-<td align="right">0.42</td>
-<td align="right">29</td>
+<td align="right">0</td>
+<td align="right">0.34</td>
+<td align="right">33</td>
 </tr>
 <tr class="even">
 <td align="left">37</td>
 <td align="right">1</td>
 <td align="right">37</td>
-<td align="right">50</td>
-<td align="right">29</td>
-<td align="right">21</td>
+<td align="right">33</td>
+<td align="right">17</td>
 <td align="right">50</td>
 <td align="right">0</td>
-<td align="right">0.42</td>
-<td align="right">29</td>
+<td align="right">0.34</td>
+<td align="right">33</td>
 </tr>
 <tr class="odd">
 <td align="left">38</td>
 <td align="right">1</td>
 <td align="right">38</td>
+<td align="right">33</td>
+<td align="right">17</td>
 <td align="right">50</td>
-<td align="right">28</td>
-<td align="right">22</td>
-<td align="right">50</td>
-<td align="right">1</td>
-<td align="right">0.44</td>
-<td align="right">28</td>
+<td align="right">0</td>
+<td align="right">0.34</td>
+<td align="right">33</td>
 </tr>
 <tr class="even">
 <td align="left">39</td>
 <td align="right">1</td>
 <td align="right">39</td>
-<td align="right">50</td>
-<td align="right">28</td>
-<td align="right">22</td>
+<td align="right">33</td>
+<td align="right">17</td>
 <td align="right">50</td>
 <td align="right">0</td>
-<td align="right">0.44</td>
-<td align="right">28</td>
+<td align="right">0.34</td>
+<td align="right">33</td>
 </tr>
 <tr class="odd">
 <td align="left">40</td>
 <td align="right">1</td>
 <td align="right">40</td>
+<td align="right">32</td>
+<td align="right">18</td>
 <td align="right">50</td>
-<td align="right">28</td>
-<td align="right">22</td>
-<td align="right">50</td>
-<td align="right">0</td>
-<td align="right">0.44</td>
-<td align="right">28</td>
+<td align="right">1</td>
+<td align="right">0.36</td>
+<td align="right">32</td>
 </tr>
 <tr class="even">
 <td align="left">41</td>
 <td align="right">1</td>
 <td align="right">41</td>
-<td align="right">50</td>
-<td align="right">28</td>
-<td align="right">22</td>
+<td align="right">32</td>
+<td align="right">18</td>
 <td align="right">50</td>
 <td align="right">0</td>
-<td align="right">0.44</td>
-<td align="right">28</td>
+<td align="right">0.36</td>
+<td align="right">32</td>
 </tr>
 <tr class="odd">
 <td align="left">42</td>
 <td align="right">1</td>
 <td align="right">42</td>
-<td align="right">50</td>
-<td align="right">28</td>
-<td align="right">22</td>
+<td align="right">32</td>
+<td align="right">18</td>
 <td align="right">50</td>
 <td align="right">0</td>
-<td align="right">0.44</td>
-<td align="right">28</td>
+<td align="right">0.36</td>
+<td align="right">32</td>
 </tr>
 <tr class="even">
 <td align="left">43</td>
 <td align="right">1</td>
 <td align="right">43</td>
-<td align="right">50</td>
-<td align="right">28</td>
-<td align="right">22</td>
+<td align="right">32</td>
+<td align="right">18</td>
 <td align="right">50</td>
 <td align="right">0</td>
-<td align="right">0.44</td>
-<td align="right">28</td>
+<td align="right">0.36</td>
+<td align="right">32</td>
 </tr>
 <tr class="odd">
 <td align="left">44</td>
 <td align="right">1</td>
 <td align="right">44</td>
-<td align="right">50</td>
-<td align="right">28</td>
-<td align="right">22</td>
+<td align="right">32</td>
+<td align="right">18</td>
 <td align="right">50</td>
 <td align="right">0</td>
-<td align="right">0.44</td>
-<td align="right">28</td>
+<td align="right">0.36</td>
+<td align="right">32</td>
 </tr>
 <tr class="even">
 <td align="left">45</td>
 <td align="right">1</td>
 <td align="right">45</td>
+<td align="right">32</td>
+<td align="right">18</td>
 <td align="right">50</td>
-<td align="right">27</td>
-<td align="right">23</td>
-<td align="right">50</td>
-<td align="right">1</td>
-<td align="right">0.46</td>
-<td align="right">27</td>
+<td align="right">0</td>
+<td align="right">0.36</td>
+<td align="right">32</td>
 </tr>
 <tr class="odd">
 <td align="left">46</td>
 <td align="right">1</td>
 <td align="right">46</td>
+<td align="right">32</td>
+<td align="right">18</td>
 <td align="right">50</td>
-<td align="right">25</td>
-<td align="right">25</td>
-<td align="right">50</td>
-<td align="right">2</td>
-<td align="right">0.50</td>
-<td align="right">25</td>
+<td align="right">0</td>
+<td align="right">0.36</td>
+<td align="right">32</td>
 </tr>
 <tr class="even">
 <td align="left">47</td>
 <td align="right">1</td>
 <td align="right">47</td>
-<td align="right">50</td>
-<td align="right">25</td>
-<td align="right">25</td>
+<td align="right">32</td>
+<td align="right">18</td>
 <td align="right">50</td>
 <td align="right">0</td>
-<td align="right">0.50</td>
-<td align="right">25</td>
+<td align="right">0.36</td>
+<td align="right">32</td>
 </tr>
 <tr class="odd">
 <td align="left">48</td>
 <td align="right">1</td>
 <td align="right">48</td>
-<td align="right">50</td>
-<td align="right">25</td>
-<td align="right">25</td>
+<td align="right">32</td>
+<td align="right">18</td>
 <td align="right">50</td>
 <td align="right">0</td>
-<td align="right">0.50</td>
-<td align="right">25</td>
+<td align="right">0.36</td>
+<td align="right">32</td>
 </tr>
 <tr class="even">
 <td align="left">49</td>
 <td align="right">1</td>
 <td align="right">49</td>
+<td align="right">32</td>
+<td align="right">18</td>
 <td align="right">50</td>
-<td align="right">24</td>
-<td align="right">26</td>
-<td align="right">50</td>
-<td align="right">1</td>
-<td align="right">0.52</td>
-<td align="right">24</td>
+<td align="right">0</td>
+<td align="right">0.36</td>
+<td align="right">32</td>
 </tr>
 <tr class="odd">
 <td align="left">50</td>
 <td align="right">1</td>
 <td align="right">50</td>
-<td align="right">50</td>
-<td align="right">24</td>
-<td align="right">26</td>
+<td align="right">32</td>
+<td align="right">18</td>
 <td align="right">50</td>
 <td align="right">0</td>
-<td align="right">0.52</td>
-<td align="right">24</td>
+<td align="right">0.36</td>
+<td align="right">32</td>
 </tr>
 </tbody>
 </table>

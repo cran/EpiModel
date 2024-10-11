@@ -4,8 +4,8 @@
 #' \tabular{ll}{
 #'    Package: \tab EpiModel\cr
 #'    Type: \tab Package\cr
-#'    Version: \tab 2.4.0\cr
-#'    Date: \tab 2023-06-20\cr
+#'    Version: \tab 2.5.0\cr
+#'    Date: \tab 2024-10-10\cr
 #'    License: \tab GPL-3\cr
 #'    LazyLoad: \tab yes\cr
 #' }
@@ -108,7 +108,7 @@
 #' }
 #'
 #' @references
-#' The EpiModel website is at \url{http://www.epimodel.org/}, and the source
+#' The EpiModel website is at \url{https://www.epimodel.org/}, and the source
 #' code is at \url{https://github.com/EpiModel/EpiModel}. Bug reports and
 #' feature requests are welcome.
 #'
@@ -130,8 +130,6 @@
 #' @name EpiModel-package
 #' @aliases EpiModel
 #' @import ergm network networkLite networkDynamic tergm ggplot2
-#' @importFrom egor as.egor
-#' @importFrom ergm.ego ergm.ego control.ergm.ego
 #' @importFrom deSolve dede ode
 #' @importFrom doParallel registerDoParallel
 #' @importFrom foreach foreach "%dopar%"
@@ -153,10 +151,6 @@
 #'
 #' @useDynLib EpiModel, .registration = TRUE
 #'
-#' @docType package
 #' @keywords package
 #'
-NULL
-
-#' @export
-ergm.ego::control.ergm.ego
+"_PACKAGE"
